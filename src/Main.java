@@ -10,7 +10,7 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import java.util.Map;
 
 /**
- * Created by mario on 27/06/16.
+ * Created by grazianomarallo on 29/06/16.
  */
 public class Main {
     private static final SessionFactory ourSessionFactory;
