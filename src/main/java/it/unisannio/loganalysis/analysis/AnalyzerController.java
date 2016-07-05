@@ -30,17 +30,19 @@ public class AnalyzerController {
         engine.eval(new FileReader(getClass().getResource("R/analyzer.R").getPath()));
     }
 
-    public ListVector performQuery(Query query, int[] users, long from, long to, boolean normalize) throws ScriptException {
+    public ListVector performQuery(Query query, int[] users, long from, long to,
+                                   ListVector attributes, boolean normalize) throws ScriptException {
         engine.put("users", users);
         engine.put("from", from);
         engine.put("to", to);
+        engine.put("attributes", to);
         engine.put("normalize", normalize);
 
         switch (query) {
             case RESOURCE_USAGE:
-                return (ListVector) engine.eval("resourcesUsage(users,from,to,normalize)");
+                return (ListVector) engine.eval("resourcesUsage(users,from,to,attributes,normalize)");
             case RESOURCE_USAGE_TIME:
-                return (ListVector) engine.eval("resourcesUsageTime(users,from,to,normalize)");
+                return (ListVector) engine.eval("resourcesUsageTime(users,from,to,attributes,normalize)");
             case DAILY_ACTIVE_USERS:
                 return (ListVector) engine.eval("dailyActiveUsers(from,to,normalize)");
             case DAILY_ACTIVE_RESOURCES:
