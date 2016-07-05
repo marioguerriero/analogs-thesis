@@ -1,4 +1,6 @@
-source("src/main/resources/R/db-query.R")
+#source("/home/mario/dev/r/tesi/db-query.R")
+
+#buildTables()
 
 # Higher numeric precision
 # useful when handling milliseconds
@@ -6,7 +8,7 @@ options(digits=22)
 
 # ok - testata
 # https://demo.vaadin.com/charts/#ColumnWithMultiLevelDrilldown
-resourcesUsage <- function(users=NULL,from=NULL,to=NULL,normalize=FALSE){
+resourcesUsage <- function(users=NULL,from=NULL,to=NULL,attributes=NULL,normalize=FALSE){
     type <- unique(resources[,"type"])
     usage <- c(0)
 
@@ -16,12 +18,20 @@ resourcesUsage <- function(users=NULL,from=NULL,to=NULL,normalize=FALSE){
         t <- resources[which(resources$idResource == r),"type"]
 
         u <- actions[which(actions$idResource == r),"idUser"]
+        u <- u[1]
 
         actionsCount <- length(which(
-        actions$idResource == r & (
-        (is.null(users) || all(users %in% u)) &
-        (is.null(from) || actions$millis >= from) &
-        (is.null(to) || actions$millis <= to) )
+            actions$idResource == r & (
+                (is.null(users) || all(users %in% u)) &
+                (is.null(from) || actions$millis >= from) &
+                (is.null(to) || actions$millis <= to) &
+                (is.null(attributes) || length(actions[,paste("action.",attributes$key,sep="")]) > 0 &&
+                    attributes$value %in% actions[which(
+                    actions$idResource == r  & actions$idUser %in% u &
+                    actions[,paste("action.",attr$key,sep="")] != NAV
+                    ),paste("action.",attributes$key,sep="")] ) &
+                (is.null(attributes) | actions[,paste("action.",attr$key,sep="")] != NAV)
+            )
         ))
 
         oldValue <- result[which(result$type == resources[which(resources$idResource == r),"type"]),"usage"]
@@ -39,7 +49,7 @@ resourcesUsage <- function(users=NULL,from=NULL,to=NULL,normalize=FALSE){
 
 # ok - testata
 # https://demo.vaadin.com/charts/#ColumnWithMultiLevelDrilldown
-resourcesUsageTime <- function(users=NULL,from=NULL,to=NULL,normalize=FALSE){
+resourcesUsageTime <- function(users=NULL,from=NULL,to=NULL,attributes=NULL,normalize=FALSE){
     type <- unique(resources[,"type"])
     time <- c(0)
 
@@ -50,18 +60,19 @@ resourcesUsageTime <- function(users=NULL,from=NULL,to=NULL,normalize=FALSE){
 
         u <- actions[which(actions$idResource == r),"idUser"]
 
-        #rows <- which(actions$idResource == r & (
-        #  (is.null(users) || all(users %in% u) &
-        #  (is.null(from) || actions$millis >= from) &
-        #  (is.null(to) || actions$millis <= to) ) ) )
-
         times <- (actions$action.totaltime[
-        which(
-        actions$idResource == r & actions$action.totaltime != NAV & (
-        (is.null(users) || all(users %in% u)) &
-        (is.null(from) || actions$millis >= from) &
-        (is.null(to) || actions$millis <= to) )
-        )
+            which(
+                actions$idResource == r & actions$action.totaltime != NAV & (
+                (is.null(users) || all(users %in% u)) &
+                (is.null(from) || actions$millis >= from) &
+                (is.null(to) || actions$millis <= to) ) &
+                (is.null(attributes) || length(actions[,paste("action.",attributes$key,sep="")]) > 0 &&
+                    attributes$value %in% actions[which(
+                    actions$idResource == r  & actions$idUser %in% u &
+                    actions[,paste("action.",attr$key,sep="")] != NAV
+                ),paste("action.",attributes$key,sep="")] ) &
+                (is.null(attributes) | actions[,paste("action.",attr$key,sep="")] != NAV)
+            )
         ])
 
         # Convert string to numeric
@@ -159,10 +170,10 @@ dailyActivitiesReleatedToUsersAndResources <- function(from,to,normalize=FALSE) 
 # https://demo.vaadin.com/charts/#BasicLine
 timeRangesUsage <- function(normalize=FALSE) {
     hours <- c("00:00-00:59", "00:01-01:59", "02:00-02:59", "00:03-03:59", "00:04-04:59",
-    "05:00-05:59", "06:00-06:59", "07:00-07:59", "08:00-08:59", "00:09-09:59",
-    "10:00-10:59", "11:00-11:59", "12:00-12:59", "13:00-13:59", "14:00-14:59",
-    "15:00-15:59", "16:00-16:59", "17:00-17:59", "18:00-18:59", "19:00-19:59",
-    "20:00-20:59", "21:00-21:59", "22:00-22:59", "23:00-23:59")
+        "05:00-05:59", "06:00-06:59", "07:00-07:59", "08:00-08:59", "00:09-09:59",
+        "10:00-10:59", "11:00-11:59", "12:00-12:59", "13:00-13:59", "14:00-14:59",
+        "15:00-15:59", "16:00-16:59", "17:00-17:59", "18:00-18:59", "19:00-19:59",
+        "20:00-20:59", "21:00-21:59", "22:00-22:59", "23:00-23:59")
 
     hourCount <- vector(mode="integer", length=24)
 
@@ -194,7 +205,7 @@ mostUsedOS <- function(users=NULL,normalize=FALSE) {
         u <- actions[which(actions$idAction == idAction),"idUser"]
 
         actionOs <- actions[which(actions$idAction == idAction & (
-        (is.null(users) || all(u %in% users)))),"action.os"]
+            (is.null(users) || all(u %in% users)))),"action.os"]
 
         result[which(result$os == actionOs),"count"] <- (result[which(result$os == actionOs),"count"] + 1)
     }
@@ -232,9 +243,9 @@ resourceAddedPerDays <- function(users=NULL,from=NULL,to=NULL,normalize=FALSE) {
         actionsInDay <- tmpDf[which(tmpDf$actionDays == fromDate),]
 
         createActionsInDay <- (sum(
-        which(
-        actionsInDay$actions.action.actiontype == "c" &
-        (is.null(users) || all(users %in% actionsInDay$actions.idUser)) )))
+            which(
+                actionsInDay$actions.type == "c" &
+                (is.null(users) || all(users %in% actionsInDay$actions.idUser)) )))
 
         resourcesAdded <- append(resourcesAdded,createActionsInDay)
 
