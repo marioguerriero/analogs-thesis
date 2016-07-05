@@ -6,7 +6,14 @@ import java.util.Set;
  */
 public class FacadeLogSource {
 
-    public FacadeLogSource() { }
+    private static FacadeLogSource instance = null;
+
+    public static FacadeLogSource getInstance() {
+        if(instance == null) instance = new FacadeLogSource();
+        return instance;
+    }
+
+    protected FacadeLogSource() { }
 
     public void addDataSource(String type, String dialect, String host, String port, String sourcedb, String username, String password)
             throws ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {

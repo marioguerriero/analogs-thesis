@@ -1,8 +1,11 @@
 package it.unisannio.loganalysis.presentation.components;
 
+import com.vaadin.addon.charts.Chart;
+import com.vaadin.addon.charts.PointClickListener;
 import com.vaadin.addon.charts.model.*;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -10,13 +13,14 @@ import com.vaadin.ui.VerticalLayout;
  */
 public class ChartComponent extends CustomComponent {
 
-    private ChartComponent chart;
+    private Chart chart;
     private Button detachButton;
 
     public ChartComponent() {
         VerticalLayout layout = new VerticalLayout();
 
-        chart = new ChartComponent();
+        chart = new Chart(ChartType.PIE);
+        chart.setSizeFull();
 
         Configuration conf = chart.getConfiguration();
 
@@ -43,21 +47,17 @@ public class ChartComponent extends CustomComponent {
         series.add(new DataSeriesItem("Others", 0.7));
         conf.setSeries(series);
 
-        chart.addPointClickListener(new PointClickListener() {
-
-            @Override
-            public void onClick(PointClickEvent event) {
-                Notification.show("Click: "
-                        + series.get(event.getPointIndex()).getName());
-            }
-        });
+        chart.addPointClickListener((PointClickListener) event -> Notification.show("Click: "
+                + series.get(event.getPointIndex()).getName()));
 
         chart.drawChart(conf);
 
-        detachButton = new Button("Stacca");
+        //detachButton = new Button("Stacca");
 
         layout.addComponent(chart);
-        layout.addComponent(detachButton);
+        //layout.addComponent(detachButton);
+
+        layout.setSizeFull();
 
         setCompositionRoot(layout);
     }

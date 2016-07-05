@@ -1,6 +1,7 @@
 package it.unisannio.loganalysis.presentation.components;
 
 import com.vaadin.ui.*;
+import it.unisannio.loganalysis.analysis.QueryType;
 
 import java.util.*;
 import java.util.Calendar;
@@ -15,6 +16,9 @@ public class QueryParameterSelector extends CustomComponent {
     private DateField to;
     private ComboBox queryType;
     private CheckBox normalized;
+    private Button executeButton;
+
+    private ExecuteListener executeListener;
 
     public QueryParameterSelector() {
         VerticalLayout layout = new VerticalLayout();
@@ -32,13 +36,44 @@ public class QueryParameterSelector extends CustomComponent {
         to.setValue(new Date());
 
         queryType = new ComboBox("Tipo della query");
+        queryType.addItems(QueryType.getQueryTypes());
 
         normalized = new CheckBox("Normalizza il risultato");
 
-        layout.addComponents(users, from, to, queryType, normalized);
+        executeButton = new Button("Esegui");
+        executeButton.addClickListener((e) -> {
+            if(executeListener != null)
+                executeListener.onExecuteListener();
+        });
+
+        layout.addComponents(users, from, to, queryType, normalized, executeButton);
         layout.setSpacing(true);
 
         setCompositionRoot(layout);
+    }
+
+    public void setExecuteListener(ExecuteListener executeListener) {
+        this.executeListener = executeListener;
+    }
+
+    public Date getFrom() {
+        return from.getValue();
+    }
+
+    public Date getTo() {
+        return to.getValue();
+    }
+
+    public int getQueryType() {
+        return 0;
+    }
+
+    public boolean isNormalized() {
+        return normalized.getValue();
+    }
+
+    public interface ExecuteListener {
+        void onExecuteListener();
     }
 
 }

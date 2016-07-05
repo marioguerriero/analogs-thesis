@@ -1,5 +1,8 @@
 package it.unisannio.loganalysis.analysis;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 /**
  * Created by mario on 04/07/16.
  */
@@ -22,6 +25,19 @@ public class QueryType {
             case RESOURCE_ADDED_PER_DAY: return "Risorse aggiunte al giorno";
         }
         return null;
+    }
+
+    public static String getDescription(Query query) {
+        QueryType queryType = new QueryType(query);
+        return queryType.getDescription();
+    }
+
+    public static Collection<String> getQueryTypes() {
+        ArrayList<String> types = new ArrayList<>();
+        for(Query q : Query.values()) {
+            types.add(QueryType.getDescription(q));
+        }
+        return types;
     }
 
 }

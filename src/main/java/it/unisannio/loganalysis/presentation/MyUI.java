@@ -29,7 +29,7 @@ public class MyUI extends UI {
 
     private LogSourceSelector logSourceSelector;
     private QueryParameterSelector queryParameterSelector;
-    private ChartView chartView;
+    private ChartComponent chartView;
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
@@ -41,8 +41,11 @@ public class MyUI extends UI {
         logSourceSelector.setAddSourceListener(() -> showAddSourceDialog());
 
         queryParameterSelector = new QueryParameterSelector();
+        queryParameterSelector.setExecuteListener(() -> {
 
-        chartView = new ChartView();
+        });
+
+        chartView = new ChartComponent();
 
         horizontalLayout.addComponents(queryParameterSelector, chartView);
         horizontalLayout.setSpacing(true);
