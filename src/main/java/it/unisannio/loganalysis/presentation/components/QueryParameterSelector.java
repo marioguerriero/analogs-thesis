@@ -36,9 +36,6 @@ public class QueryParameterSelector extends CustomComponent {
         panel.setContent(layout);
 
 
-
-
-
         users = new TextField("Utenti");
 
         from = new DateField("Da");
@@ -189,7 +186,7 @@ public class QueryParameterSelector extends CustomComponent {
     }
 
     public Query getQueryType() {
-        return Query.DAILY_ACTIVE_RESOURCES;
+        return Query.TIME_RANGE_USAGE;
     }
 
     public int[] getUsers(){

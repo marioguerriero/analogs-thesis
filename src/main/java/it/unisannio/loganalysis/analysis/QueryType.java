@@ -2,24 +2,20 @@ package it.unisannio.loganalysis.analysis;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by mario on 04/07/16.
  */
 public class QueryType {
 
+    private static Map<Query, String> queries = null;
+
     public static String getDescription(Query query) {
-        switch (query) {
-            case RESOURCE_USAGE: return "Utilizzo delle risorse";
-            case RESOURCE_USAGE_TIME: return "Tempo di utilizzo delle risorse";
-            case DAILY_ACTIVE_USERS: return "Attività giornaliere degli utenti";
-            case DAILY_ACTIVE_RESOURCES: return "Attività giornaliere sulle risorse";
-            case DAILY_ACTIVITIES: return "Attività giornaliere";
-            case TIME_RANGE_USAGE: return "Fasce temporali di utilizzo";
-            case MOST_USED_OS: return "Sistemi operativi più utilizzati";
-            case RESOURCE_ADDED_PER_DAY: return "Risorse aggiunte al giorno";
-        }
-        return null;
+        if(queries == null)
+            buildQueryMap();
+        return queries.get(query);
     }
 
     public static Collection<String> getQueryTypes() {
@@ -28,6 +24,22 @@ public class QueryType {
             types.add(QueryType.getDescription(q));
         }
         return types;
+    }
+
+    public static Query getFromDescription() {
+
+    }
+
+    private static void buildQueryMap() {
+        queries = new HashMap<>();
+        queries.put(Query.RESOURCE_USAGE, "Utilizzo delle risorse");
+        queries.put(Query.RESOURCE_USAGE_TIME, "Tempo di utilizzo delle risorse");
+        queries.put(Query.DAILY_ACTIVE_USERS, "Attività giornaliere degli utenti");
+        queries.put(Query.DAILY_ACTIVE_RESOURCES, "Attività giornaliere sulle risorse");
+        queries.put(Query.DAILY_ACTIVITIES, "Attività giornaliere");
+        queries.put(Query.TIME_RANGE_USAGE, "Fasce temporali di utilizzo");
+        queries.put(Query.MOST_USED_OS, "Sistemi operativi più utilizzati");
+        queries.put(Query.RESOURCE_ADDED_PER_DAY, "Risorse aggiunte al giorno");
     }
 
 }

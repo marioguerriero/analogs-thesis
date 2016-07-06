@@ -5,15 +5,15 @@ library(RMySQL)
 NAV <- "#NA"
 
 # Database connection parameters
-dbuser <- "root"
-dbpassword <- "mario"
+dbuser <- "thesis"
+dbpassword <- "thesis"
 dbname <- "loganalysis"
 dbhost <- "localhost"
 dbport <- 3306
 dbconnectionurl <- paste("jdbc:mysql://",dbhost,":",dbport,"/",dbname,sep="")
 
 # Create database connection
-con <<- dbConnect(RMySQL(),url=dbconnectionurl,user="root",password="mario")
+con <<- dbConnect(RMySQL(),url=dbconnectionurl,user=dbuser,password=dbpassword)
 
 buildTables <- function(sourcedb=NULL) {
   resources <<- buildResourcesTable(sourcedb)
