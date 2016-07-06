@@ -7,13 +7,11 @@ import com.vaadin.annotations.Widgetset;
 import com.vaadin.data.Property;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
+import com.vaadin.ui.*;
 
 import it.unisannio.loganalysis.analysis.AnalyzerController;
 import it.unisannio.loganalysis.analysis.QueryController;
+import it.unisannio.loganalysis.extractor.FacadeLogSource;
 import it.unisannio.loganalysis.presentation.components.*;
 import org.renjin.sexp.ListVector;
 
@@ -41,8 +39,8 @@ public class MyUI extends UI {
     @Override
     protected void init(VaadinRequest vaadinRequest) {
         VerticalLayout verticalLayout = new VerticalLayout();
-
         HorizontalLayout horizontalLayout = new HorizontalLayout();
+
 
         try {
             logSourceSelector = new LogSourceSelector();
@@ -84,6 +82,7 @@ public class MyUI extends UI {
 
         chartView = new ChartComponent();
 
+
         horizontalLayout.addComponents(queryParameterSelector, chartView);
         horizontalLayout.setSpacing(true);
 
@@ -96,7 +95,17 @@ public class MyUI extends UI {
 
     private void showAddSourceDialog() {
         Window window = new Window();
-        window.setContent(new AddLogSourceForm());
+        AddLogSourceForm form = new AddLogSourceForm();
+        window.setContent(form);
+        form.setAddListener((Button.ClickListener) clickEvent -> {
+            try {
+                FacadeLogSource.getInstance().addDataSource(
+                        form.getType(), form.getDialect(), form.gethost(), form.getPort(), form.getSourceDb(),
+                        form.getUsername(), form.getpassword());
+            } catch (ClassNotFoundException | IllegalAccessException | NoSuchMethodException | InstantiationException | InvocationTargetException e) {
+                e.printStackTrace();
+            }
+        });
         window.center();
         addWindow(window);
     }

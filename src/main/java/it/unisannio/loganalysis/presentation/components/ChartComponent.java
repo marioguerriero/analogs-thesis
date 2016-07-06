@@ -4,6 +4,9 @@ import com.mysql.fabric.xmlrpc.base.Data;
 import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.PointClickListener;
 import com.vaadin.addon.charts.model.*;
+import com.vaadin.addon.charts.model.style.Color;
+import com.vaadin.addon.charts.model.style.SolidColor;
+import com.vaadin.addon.charts.model.style.Style;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Notification;
@@ -28,8 +31,13 @@ public class ChartComponent extends CustomComponent {
     public ChartComponent() {
         VerticalLayout layout = new VerticalLayout();
 
+
+        layout.setSizeFull();
+        layout.setResponsive(true);
         chart = new Chart();
         chart.setSizeFull();
+        chart.setResponsive(true);
+
 
         //detachButton = new Button("Stacca");
 
@@ -63,6 +71,7 @@ public class ChartComponent extends CustomComponent {
         switch(query) {
             case RESOURCE_USAGE:
                 configuration.getChart().setType(ChartType.COLUMN);
+                configuration.getChart().setZoomType(ZoomType.XY);
 
                 Vector type = data.getElementAsVector("type");
                 Vector usage = data.getElementAsVector("usage");
@@ -81,6 +90,7 @@ public class ChartComponent extends CustomComponent {
             case RESOURCE_USAGE_TIME:
 
                 configuration.getChart().setType(ChartType.COLUMN);
+                configuration.getChart().setZoomType(ZoomType.XY);
 
                 Vector type_usage = data.getElementAsVector("type");
                 Vector time = data.getElementAsVector("time");
@@ -99,6 +109,7 @@ public class ChartComponent extends CustomComponent {
             case DAILY_ACTIVE_USERS:
 
                 configuration.getChart().setType(ChartType.LINE);
+                configuration.getChart().setZoomType(ZoomType.XY);
 
                 Vector days = data.getElementAsVector("days");
                 String[] daysArr = new String[days.length()];
@@ -127,6 +138,7 @@ public class ChartComponent extends CustomComponent {
             case DAILY_ACTIVE_RESOURCES:
 
                 configuration.getChart().setType(ChartType.LINE);
+                configuration.getChart().setZoomType(ZoomType.XY);
 
                  days = data.getElementAsVector("days");
                  daysArr = new String[days.length()];
@@ -161,13 +173,26 @@ public class ChartComponent extends CustomComponent {
                     daysArr[i] = days.getElementAsString(i);
                 }
 
+
                 XAxis x = new XAxis();
                 x.setCategories(daysArr);
                 configuration.addxAxis(x);
 
+                /*
+                Legend legend = new Legend();
+                legend.setLayout(LayoutDirection.VERTICAL);
+                legend.setAlign(HorizontalAlign.LEFT);
+                legend.setX(120);
+                legend.setVerticalAlign(VerticalAlign.TOP);
+                legend.setY(100);
+                legend.setFloating(true);
+                legend.setBackgroundColor(new SolidColor("#FFFFFF"));
+                configuration.setLegend(legend);
+                */
 
 
-                 activeUsers = data.getElementAsVector("activeUsers");
+
+                activeUsers = data.getElementAsVector("activeUsers");
                 activeUsersArr = new Double[activeUsers.length()];
                 for(int i = 0; i < activeUsers.length(); i++) {
                   //  System.out.println(activeUsers.getElementAsDouble(i));
@@ -201,6 +226,7 @@ public class ChartComponent extends CustomComponent {
                 break;
             case TIME_RANGE_USAGE:
                 configuration.getChart().setType(ChartType.LINE);
+                configuration.getChart().setZoomType(ZoomType.XY);
 
                 Vector hours = data.getElementAsVector("hours");
                 String[] hoursArr = new String[hours.length()];
@@ -251,6 +277,7 @@ public class ChartComponent extends CustomComponent {
             case RESOURCE_ADDED_PER_DAY:
 
                 configuration.getChart().setType(ChartType.LINE);
+                configuration.getChart().setZoomType(ZoomType.XY);
 
                  days = data.getElementAsVector("days");
                 daysArr = new String[days.length()];
@@ -272,13 +299,11 @@ public class ChartComponent extends CustomComponent {
                 configuration.setSeries(ls);
 
                 chart.drawChart(configuration);
-
-
-
                 break;
         }
 
     }
+
 
 
 }

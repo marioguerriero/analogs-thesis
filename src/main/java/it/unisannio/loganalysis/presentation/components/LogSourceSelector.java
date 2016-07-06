@@ -32,11 +32,12 @@ public class LogSourceSelector extends CustomComponent {
         });
 
         HorizontalLayout layout = new HorizontalLayout();
+
         layout.addComponent(new Label("Sorgente di dati di log"));
         layout.addComponent(logSources);
         layout.addComponent(addSourceBtn);
 
-        layout.setSizeUndefined();
+       // layout.setSizeUndefined();
         layout.setSpacing(true);
 
         setCompositionRoot(layout);

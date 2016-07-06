@@ -11,16 +11,22 @@ import com.vaadin.ui.*;
 public class AddLogSourceForm extends CustomComponent {
 
     private ComboBox serviceTypeCb;
+    private ComboBox dialect;
     private TextField host;
     private TextField port;
     private TextField dbname;
     private TextField username;
     private TextField password;
+    private Button button;
 
     public AddLogSourceForm() {
         FormLayout form = new FormLayout();
 
         serviceTypeCb = new ComboBox();
+
+        dialect = new ComboBox("Tipo Database");
+        dialect.addItem("MySQL");
+        dialect.addItem("PostgreSQL");
 
         host = new TextField("Host");
         host.setRequired(true);
@@ -44,12 +50,16 @@ public class AddLogSourceForm extends CustomComponent {
         password.setRequired(true);
         password.addValidator(new NullValidator("Campo obbligatorio", false));
 
+        button = new Button("Aggiungi");
+
         form.addComponent(serviceTypeCb);
+        form.addComponent(dialect);
         form.addComponent(host);
         form.addComponent(port);
         form.addComponent(dbname);
         form.addComponent(username);
         form.addComponent(password);
+        form.addComponent(button);
 
         form.setMargin(true);
         form.setSpacing(true);
@@ -57,4 +67,35 @@ public class AddLogSourceForm extends CustomComponent {
         setCompositionRoot(form);
     }
 
+    public void setAddListener(Button.ClickListener listener) {
+        button.addClickListener(listener);
+    }
+
+    public String getType() {
+        return (String) serviceTypeCb.getValue();
+    }
+
+    public String getDialect() {
+        return (String) dialect.getValue();
+    }
+
+    public String gethost() {
+        return host.getValue();
+    }
+
+    public String getPort() {
+        return port.getValue();
+    }
+
+    public String getSourceDb() {
+        return dbname.getValue();
+    }
+
+    public String getUsername() {
+        return username.getValue();
+    }
+
+    public String getpassword() {
+        return password.getValue();
+    }
 }
