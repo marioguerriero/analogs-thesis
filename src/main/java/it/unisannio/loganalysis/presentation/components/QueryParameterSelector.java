@@ -3,8 +3,9 @@ package it.unisannio.loganalysis.presentation.components;
 import com.vaadin.data.Property;
 import com.vaadin.ui.*;
 import it.unisannio.loganalysis.analysis.Query;
+import it.unisannio.loganalysis.analysis.QueryController;
 import it.unisannio.loganalysis.analysis.QueryType;
-import org.renjin.sexp.ListVector;
+import org.renjin.sexp.*;
 
 import javax.script.ScriptException;
 import java.io.FileNotFoundException;
@@ -15,7 +16,7 @@ import java.util.Calendar;
  * Created by mario on 04/07/16.
  */
 public class QueryParameterSelector extends CustomComponent {
-    private TextField users;
+    private TwinColSelect users;
     private DateField from;
     private DateField to;
     private ComboBox queryType;
@@ -23,7 +24,8 @@ public class QueryParameterSelector extends CustomComponent {
     private Button executeButton;
     private Query query;
     private ExecuteQueryListener executeQueryListener;
-    private int[] user;
+
+    private Map<Integer, String> usersMap;
 
 
     public QueryParameterSelector() {
@@ -36,7 +38,8 @@ public class QueryParameterSelector extends CustomComponent {
         panel.setContent(layout);
 
 
-        users = new TextField("Utenti");
+        //TwinColSelect
+        users = new TwinColSelect("Selezione utenti");
 
         from = new DateField("Da");
         from.setDateFormat("dd MMM yyyy");
@@ -61,49 +64,53 @@ public class QueryParameterSelector extends CustomComponent {
 
         queryType.addValueChangeListener(
                 (Property.ValueChangeListener) event -> {
-                    if ((event.getProperty().getValue().toString()).equals(QueryType.getQueryTypes())){
+                    if (getQueryType() == Query.DAILY_ACTIVE_RESOURCES){
                         //  layout.addComponent(new Label("Selected: " + event.getProperty().getValue()));
                         users.setVisible(false);
+                        from.setVisible(true);
+                        to.setVisible(true);
+                    }
+                    if(getQueryType() == Query.DAILY_ACTIVE_USERS){
+                        users.setVisible(false);
+                        from.setVisible(true);
+                        to.setVisible(true);
+                    }
+
+                    if(getQueryType() == Query.DAILY_ACTIVITIES){
+                        users.setVisible(false);
+                        from.setVisible(true);
+                        to.setVisible(true);
+
+                    }
+
+                    if(getQueryType() == Query.MOST_USED_OS){
+                        users.setVisible(true);
                         from.setVisible(false);
                         to.setVisible(false);
                     }
-                    if((event.getProperty().getValue().toString()).equals("Tempo di utilizzo delle risorse")){
-                        users.setVisible(false);
-                        from.setVisible(false);
-                        to.setVisible(false);
-                    }
 
-                    if((event.getProperty().getValue().toString()).equals("Attività giornaliere degli utenti")){
-                        users.setVisible(false);
-                        from.setVisible(true);
-                        to.setVisible(true);
-
-                    }
-
-                    if((event.getProperty().getValue().toString()).equals("Attività giornaliere sulle risorse")){
-                        users.setVisible(false);
-                        from.setVisible(true);
-                        to.setVisible(true);
-                    }
-
-                    if((event.getProperty().getValue().toString()).equals("Attività giornaliere")){
-                        users.setVisible(false);
-                        from.setVisible(true);
-                        to.setVisible(true);
-                    }
-
-                    if((event.getProperty().getValue().toString()).equals("Fasce temporali di utilizzo")){
+                    if(getQueryType() == Query.RESOURCE_ADDED_PER_DAY){
                         users.setVisible(true);
                         from.setVisible(true);
                         to.setVisible(true);
                     }
 
-                    if((event.getProperty().getValue().toString()).equals("Sistemi operativi più utilizzati")){
-                        users.setVisible(false);
+                    if(getQueryType() == Query.RESOURCE_USAGE){
+                        users.setVisible(true);
+                        from.setVisible(true);
+                        to.setVisible(true);
+                        //attribute
+                    }
+
+                    if(getQueryType() == Query.RESOURCE_USAGE_TIME){
+                        users.setVisible(true);
+                        from.setVisible(true);
+                        to.setVisible(true);
+                        //attribte
 
                     }
 
-                    if((event.getProperty().getValue().toString()).equals("Risorse aggiunte al giorno")){
+                    if(getQueryType() == Query.TIME_RANGE_USAGE){
                         users.setVisible(false);
                         from.setVisible(false);
                         to.setVisible(false);
@@ -154,8 +161,22 @@ public class QueryParameterSelector extends CustomComponent {
         return (Query) queryType.getValue();
     }
 
-    public int[] getUsers(){
-        return  user;
+    public Integer[] getUsers(){
+        Collection<String> selected = (Collection<String>) users.getValue();
+
+        List<Integer> selectedIds = new ArrayList<>();
+        for(int id : usersMap.keySet()) {
+            if(selected.contains(usersMap.get(id))) {
+                selectedIds.add(id);
+            }
+        }
+
+        Integer[] ids = new Integer[selectedIds.size()];
+        int i = 0;
+        for(Integer id : selectedIds) {
+            ids[i++] = id;
+        }
+        return ids;
     }
 
     public ListVector getAttributes(){
@@ -164,6 +185,27 @@ public class QueryParameterSelector extends CustomComponent {
 
     public boolean isNormalized() {
         return normalized.getValue();
+    }
+
+    public void updateValues() {
+        usersMap = new HashMap<>();
+        ListVector usersDf = null;
+        try {
+            usersDf = QueryController.getInstance().getUsers();
+            org.renjin.sexp.Vector ids = usersDf.getElementAsVector("idUser");
+            org.renjin.sexp.Vector usernames = usersDf.getElementAsVector("username");
+
+            for(int i = 0; i < ids.length(); i++) {
+                int id = ids.getElementAsInt(i);
+                String username = usernames.getElementAsString(i);
+                usersMap.put(id, username);
+            }
+
+        } catch (ScriptException | FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        users.addItems(usersMap.values());
     }
 
     public interface ExecuteQueryListener {

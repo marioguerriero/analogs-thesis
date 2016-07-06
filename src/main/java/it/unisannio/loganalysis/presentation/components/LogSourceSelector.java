@@ -25,22 +25,6 @@ public class LogSourceSelector extends CustomComponent {
         FacadeLogSource facadeLogSource = FacadeLogSource.getInstance();
         logSources.addItems(facadeLogSource.getDataSources());
 
-        logSources.addValueChangeListener((Property.ValueChangeListener) valueChangeEvent -> {
-            try {
-
-                QueryController controller = QueryController.getInstance();
-                controller.setDbSource(valueChangeEvent.getProperty().getValue().toString());
-                controller.loadTables();
-
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (ScriptException e) {
-                e.printStackTrace();
-            } catch (QueryController.NullDataSourceException e) {
-                e.printStackTrace();
-            }
-        });
-
         addSourceBtn = new Button("Aggiungi");
         addSourceBtn.addClickListener((Button.ClickListener) clickEvent -> {
             if(addSourceListener != null)
@@ -60,6 +44,10 @@ public class LogSourceSelector extends CustomComponent {
 
     public void setAddSourceListener(AddSourceListener addSourceListener) {
         this.addSourceListener = addSourceListener;
+    }
+
+    public void setValueChangeListener(Property.ValueChangeListener valueChangeListener) {
+        logSources.addValueChangeListener(valueChangeListener);
     }
 
     public interface AddSourceListener {

@@ -29,8 +29,10 @@ public class AnalyzerController {
         engine.eval(new FileReader(getClass().getResource("/R/analyzer.R").getPath()));
     }
 
-    public ListVector performQuery(Query query, int[] users, long from, long to,
+    public ListVector performQuery(Query query, Integer[] users, long from, long to,
                                    ListVector attributes, boolean normalize) throws ScriptException {
+
+        for(Integer u : users) System.out.println(u);
 
         engine.put("users", users);
         engine.put("from", from);

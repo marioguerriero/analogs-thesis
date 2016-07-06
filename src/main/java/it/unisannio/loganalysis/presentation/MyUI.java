@@ -4,6 +4,7 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.annotations.Widgetset;
+import com.vaadin.data.Property;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.HorizontalLayout;
@@ -12,10 +13,13 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
 import it.unisannio.loganalysis.analysis.AnalyzerController;
+import it.unisannio.loganalysis.analysis.QueryController;
 import it.unisannio.loganalysis.presentation.components.*;
 import org.renjin.sexp.ListVector;
 
+import javax.script.ScriptException;
 import javax.servlet.annotation.WebServlet;
+import java.io.FileNotFoundException;
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -43,6 +47,23 @@ public class MyUI extends UI {
         try {
             logSourceSelector = new LogSourceSelector();
             logSourceSelector.setAddSourceListener(this::showAddSourceDialog);
+            logSourceSelector.setValueChangeListener((Property.ValueChangeListener) valueChangeEvent -> {
+                try {
+
+                    QueryController controller = QueryController.getInstance();
+                    controller.setDbSource(valueChangeEvent.getProperty().getValue().toString());
+                    controller.loadTables();
+
+                    queryParameterSelector.updateValues();
+
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (ScriptException e) {
+                    e.printStackTrace();
+                } catch (QueryController.NullDataSourceException e) {
+                    e.printStackTrace();
+                }
+            });
         } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
         }
@@ -52,8 +73,11 @@ public class MyUI extends UI {
         queryParameterSelector.setExecuteQueryListener(() -> {
             AnalyzerController analyzerController = AnalyzerController.getInstance();
 
-            ListVector df = analyzerController.performQuery(queryParameterSelector.getQueryType(),queryParameterSelector.getUsers(),queryParameterSelector.getFrom(),
-                    queryParameterSelector.getTo(),queryParameterSelector.getAttributes(),queryParameterSelector.isNormalized());
+            Integer[] users = queryParameterSelector.getUsers();
+            ListVector df = analyzerController.performQuery(queryParameterSelector.getQueryType(),
+                    users.length > 0 ? users : null,
+                    queryParameterSelector.getFrom(), queryParameterSelector.getTo(),
+                    queryParameterSelector.getAttributes(),queryParameterSelector.isNormalized());
 
             chartView.setData(queryParameterSelector.getQueryType(), df);
         });

@@ -21,7 +21,7 @@ public class ModelDatabaseHandler {
     private int start_id;
 
     public ModelDatabaseHandler() {
-        configuration = new Configuration().configure("hibernate.cfg.xml");
+        configuration = new Configuration().configure(getClass().getResource("/hibernate.cfg.xml"));
         sessionFactory = configuration.buildSessionFactory();
         start_id = getNextId();
     }

@@ -155,3 +155,7 @@ buildActionsTable <- function(sourcedb=NULL) {
 
   return(entity)
 }
+
+getUsers <- function() {
+  return(users[,c("idUser","username")])
+}

@@ -111,9 +111,10 @@ public class ChartComponent extends CustomComponent {
 
                 Vector activeUsers = data.getElementAsVector("activeUsers");
                 Double[] activeUsersArr = new Double[activeUsers.length()];
-                for(int i = 0; i < activeUsers.length(); i++)
+                for(int i = 0; i < activeUsers.length(); i++) {
+                    System.out.println(activeUsers.getElementAsDouble(i));
                     activeUsersArr[i] = activeUsers.getElementAsDouble(i);
-
+                }
                 ListSeries ls = new ListSeries();
                 ls.setData(activeUsersArr);
 

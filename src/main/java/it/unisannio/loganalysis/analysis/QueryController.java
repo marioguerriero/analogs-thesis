@@ -1,5 +1,7 @@
 package it.unisannio.loganalysis.analysis;
 
+import org.renjin.sexp.ListVector;
+
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -27,6 +29,10 @@ public class QueryController {
 
         // Evaluate db-query script
         engine.eval(new FileReader(getClass().getResource("/R/db-query.R").getPath()));
+    }
+
+    public ListVector getUsers() throws ScriptException {
+        return (ListVector) engine.eval("getUsers()");
     }
 
     public String getDbSource() {
