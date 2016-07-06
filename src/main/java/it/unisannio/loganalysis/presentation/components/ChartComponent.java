@@ -1,31 +1,24 @@
 package it.unisannio.loganalysis.presentation.components;
 
-import com.mysql.fabric.xmlrpc.base.Data;
 import com.vaadin.addon.charts.Chart;
-import com.vaadin.addon.charts.PointClickListener;
 import com.vaadin.addon.charts.model.*;
-import com.vaadin.addon.charts.model.style.Color;
-import com.vaadin.addon.charts.model.style.SolidColor;
-import com.vaadin.addon.charts.model.style.Style;
-import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.Notification;
 import com.vaadin.ui.VerticalLayout;
 import it.unisannio.loganalysis.analysis.Query;
 import it.unisannio.loganalysis.analysis.QueryType;
 import org.renjin.sexp.ListVector;
 import org.renjin.sexp.Vector;
 
-import java.util.ArrayList;
-import java.util.Collection;
+
+
 
 /**
- * Created by mario on 04/07/16.
+ * Created by graziano on 04/07/16.
  */
 public class ChartComponent extends CustomComponent {
 
     private Chart chart;
-    private Button detachButton;
+
 
 
     public ChartComponent() {

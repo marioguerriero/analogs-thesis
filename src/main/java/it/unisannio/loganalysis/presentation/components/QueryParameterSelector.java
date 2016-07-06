@@ -13,7 +13,7 @@ import java.util.*;
 import java.util.Calendar;
 
 /**
- * Created by mario on 04/07/16.
+ * Created by graziano on 04/07/16.
  */
 public class QueryParameterSelector extends CustomComponent {
     private TwinColSelect users;
@@ -22,7 +22,6 @@ public class QueryParameterSelector extends CustomComponent {
     private ComboBox queryType;
     private CheckBox normalized;
     private Button executeButton;
-    private Query query;
     private ExecuteQueryListener executeQueryListener;
 
     private Map<Integer, String> usersMap;

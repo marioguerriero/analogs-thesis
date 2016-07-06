@@ -6,7 +6,7 @@ import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.*;
 
 /**
- * Created by mario on 03/07/16.
+ * Created by graziano on 03/07/16.
  */
 public class AddLogSourceForm extends CustomComponent {
 
@@ -17,7 +17,7 @@ public class AddLogSourceForm extends CustomComponent {
     private TextField dbname;
     private TextField username;
     private TextField password;
-    private Button button;
+    private Button confirmButton;
 
     public AddLogSourceForm() {
         FormLayout form = new FormLayout();
@@ -50,7 +50,7 @@ public class AddLogSourceForm extends CustomComponent {
         password.setRequired(true);
         password.addValidator(new NullValidator("Campo obbligatorio", false));
 
-        button = new Button("Aggiungi");
+        confirmButton = new Button("Aggiungi");
 
         form.addComponent(serviceTypeCb);
         form.addComponent(dialect);
@@ -59,7 +59,7 @@ public class AddLogSourceForm extends CustomComponent {
         form.addComponent(dbname);
         form.addComponent(username);
         form.addComponent(password);
-        form.addComponent(button);
+        form.addComponent(confirmButton);
 
         form.setMargin(true);
         form.setSpacing(true);
@@ -68,7 +68,7 @@ public class AddLogSourceForm extends CustomComponent {
     }
 
     public void setAddListener(Button.ClickListener listener) {
-        button.addClickListener(listener);
+        confirmButton.addClickListener(listener);
     }
 
     public String getType() {
@@ -79,7 +79,7 @@ public class AddLogSourceForm extends CustomComponent {
         return (String) dialect.getValue();
     }
 
-    public String gethost() {
+    public String getHost() {
         return host.getValue();
     }
 

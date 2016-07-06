@@ -11,7 +11,7 @@ import java.io.FileNotFoundException;
 import java.lang.reflect.InvocationTargetException;
 
 /**
- * Created by mario on 03/07/16.
+ * Created by graziano on 03/07/16.
  */
 public class LogSourceSelector extends CustomComponent {
 

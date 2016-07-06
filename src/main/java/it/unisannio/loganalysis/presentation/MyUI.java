@@ -100,7 +100,7 @@ public class MyUI extends UI {
         form.setAddListener((Button.ClickListener) clickEvent -> {
             try {
                 FacadeLogSource.getInstance().addDataSource(
-                        form.getType(), form.getDialect(), form.gethost(), form.getPort(), form.getSourceDb(),
+                        form.getType(), form.getDialect(), form.getHost(), form.getPort(), form.getSourceDb(),
                         form.getUsername(), form.getpassword());
             } catch (ClassNotFoundException | IllegalAccessException | NoSuchMethodException | InstantiationException | InvocationTargetException e) {
                 e.printStackTrace();
