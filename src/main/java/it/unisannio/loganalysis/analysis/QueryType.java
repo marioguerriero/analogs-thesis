@@ -19,15 +19,22 @@ public class QueryType {
     }
 
     public static Collection<String> getQueryTypes() {
-        ArrayList<String> types = new ArrayList<>();
-        for(Query q : Query.values()) {
-            types.add(QueryType.getDescription(q));
-        }
-        return types;
+        if(queries == null)
+            buildQueryMap();
+        return queries.values();
     }
 
-    public static Query getFromDescription() {
+    public static Query getFromDescription(String description) {
+        for(Query q : queries.keySet())
+            if(queries.get(q).equals(description))
+                return q;
+        return null;
+    }
 
+    public static Collection<Query> getQueries() {
+        if(queries == null)
+            buildQueryMap();
+        return queries.keySet();
     }
 
     private static void buildQueryMap() {

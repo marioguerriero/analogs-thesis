@@ -54,12 +54,11 @@ public class QueryParameterSelector extends CustomComponent {
         to.setVisible(false);
         normalized.setVisible(false);
 
-
-
-
         queryType = new ComboBox("Tipo della query");
-        queryType.addItems(QueryType.getQueryTypes());
-
+        for(Query q : QueryType.getQueries()) {
+            queryType.addItem(q);
+            queryType.setItemCaption(q, QueryType.getDescription(q));
+        }
 
         queryType.addValueChangeListener(
                 (Property.ValueChangeListener) event -> {
@@ -140,39 +139,6 @@ public class QueryParameterSelector extends CustomComponent {
 
     }
 
-  /*  public QueryParameterSelector() {
-        VerticalLayout layout = new VerticalLayout();
-
-        users = new TextField("Utenti");
-
-        from = new DateField("Da");
-        from.setDateFormat("dd MMM yyyy");
-        Calendar c = Calendar.getInstance();
-        c.set(Calendar.MONTH, c.get(Calendar.MONTH)-1);
-        from.setValue(c.getTime());
-
-        to = new DateField("A");
-        to.setDateFormat("dd MMM yyyy");
-        to.setValue(new Date());
-
-        queryType = new ComboBox("Tipo della query");
-        queryType.addItems(QueryType.getQueryTypes());
-
-        normalized = new CheckBox("Normalizza il risultato");
-
-        executeButton = new Button("Esegui");
-        executeButton.addClickListener((e) -> {
-            if(executeQueryListener != null)
-                executeQueryListener.onExecuteListener();
-        });
-
-        layout.addComponents(users, from, to, queryType, normalized, executeButton);
-        layout.setSpacing(true);
-
-        setCompositionRoot(layout);
-    }
-    */
-
     public void setExecuteQueryListener(ExecuteQueryListener executeQueryListener) {
         this.executeQueryListener = executeQueryListener;
     }
@@ -186,7 +152,7 @@ public class QueryParameterSelector extends CustomComponent {
     }
 
     public Query getQueryType() {
-        return Query.TIME_RANGE_USAGE;
+        return (Query) queryType.getValue();
     }
 
     public int[] getUsers(){

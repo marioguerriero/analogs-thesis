@@ -8,7 +8,12 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.VerticalLayout;
 import it.unisannio.loganalysis.analysis.Query;
+import it.unisannio.loganalysis.analysis.QueryType;
 import org.renjin.sexp.ListVector;
+import org.renjin.sexp.Vector;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Created by mario on 04/07/16.
@@ -22,39 +27,8 @@ public class ChartComponent extends CustomComponent {
     public ChartComponent() {
         VerticalLayout layout = new VerticalLayout();
 
-        chart = new Chart(ChartType.PIE);
+        chart = new Chart();
         chart.setSizeFull();
-
-
-        Configuration conf = chart.getConfiguration();
-
-        conf.setTitle("Browser market shares at a specific website, 2010");
-
-        PlotOptionsPie plotOptions = new PlotOptionsPie();
-        plotOptions.setCursor(Cursor.POINTER);
-        DataLabels dataLabels = new DataLabels();
-        dataLabels.setEnabled(true);
-        dataLabels
-                .setFormatter("'<b>'+ this.point.name +'</b>: '+ this.percentage +' %'");
-        plotOptions.setDataLabels(dataLabels);
-        conf.setPlotOptions(plotOptions);
-
-        final DataSeries series = new DataSeries();
-        series.add(new DataSeriesItem("Firefox", 45.0));
-        series.add(new DataSeriesItem("IE", 26.8));
-        DataSeriesItem chrome = new DataSeriesItem("Chrome", 12.8);
-        chrome.setSliced(true);
-        chrome.setSelected(true);
-        series.add(chrome);
-        series.add(new DataSeriesItem("Safari", 8.5));
-        series.add(new DataSeriesItem("Opera", 6.2));
-        series.add(new DataSeriesItem("Others", 0.7));
-        conf.setSeries(series);
-
-        chart.addPointClickListener((PointClickListener) event -> Notification.show("Click: "
-                + series.get(event.getPointIndex()).getName()));
-
-        chart.drawChart(conf);
 
         //detachButton = new Button("Stacca");
 
@@ -80,7 +54,52 @@ public class ChartComponent extends CustomComponent {
             type = ChartType.PIE;
 
         else if (query == Query.DAILY_ACTIVITIES) {}
-        System.out.println(data);
+
+        Configuration configuration = chart.getConfiguration();
+
+        switch(query) {
+            case RESOURCE_USAGE:
+                chart.getConfiguration();
+                break;
+            case RESOURCE_USAGE_TIME:
+                break;
+            case DAILY_ACTIVE_USERS:
+                break;
+            case DAILY_ACTIVE_RESOURCES:
+                break;
+            case DAILY_ACTIVITIES:
+                break;
+            case TIME_RANGE_USAGE:
+                configuration.getChart().setType(ChartType.LINE);
+                configuration.setTitle(QueryType.getDescription(query));
+
+                Vector hours = data.getElementAsVector("hours");
+                String[] hoursArr = new String[hours.length()];
+                for(int i = 0; i < hours.length(); i++)
+                    hoursArr[i] = hours.getElementAsString(i);
+                configuration.getxAxis().setCategories(hoursArr);
+
+                Vector hourCount = data.getElementAsVector("hourCount");
+                Double[] hourCountArr = new Double[hourCount.length()];
+                for(int i = 0; i < hourCount.length(); i++)
+                    hourCountArr[i] = hourCount.getElementAsDouble(i);
+
+                ListSeries ls = new ListSeries();
+                ls.setData(hourCountArr);
+
+                System.out.println(ls);
+
+                configuration.addSeries(ls);
+
+                chart.drawChart(configuration);
+
+                break;
+            case MOST_USED_OS:
+                break;
+            case RESOURCE_ADDED_PER_DAY:
+                break;
+        }
+
     }
 
 
