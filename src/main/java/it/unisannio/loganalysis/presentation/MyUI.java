@@ -11,9 +11,12 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
+import it.unisannio.loganalysis.analysis.AnalyzerController;
 import it.unisannio.loganalysis.presentation.components.*;
+import org.renjin.sexp.ListVector;
 
 import javax.servlet.annotation.WebServlet;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * This UI is the application entry point. A UI may either represent a browser window 
@@ -37,11 +40,23 @@ public class MyUI extends UI {
 
         HorizontalLayout horizontalLayout = new HorizontalLayout();
 
-        logSourceSelector = new LogSourceSelector();
-        logSourceSelector.setAddSourceListener(() -> showAddSourceDialog());
+        try {
+            logSourceSelector = new LogSourceSelector();
+            logSourceSelector.setAddSourceListener(this::showAddSourceDialog);
+        } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
 
         queryParameterSelector = new QueryParameterSelector();
-        queryParameterSelector.setExecuteListener(() -> {
+
+        queryParameterSelector.setExecuteQueryListener(() -> {
+            AnalyzerController analyzerController = AnalyzerController.getInstance();
+
+            ListVector df = analyzerController.performQuery(queryParameterSelector.getQueryType(),queryParameterSelector.getUsers(),queryParameterSelector.getFrom(),
+                    queryParameterSelector.getTo(),queryParameterSelector.getAttributes(),queryParameterSelector.isNormalized());
+
+            chartView.setData(queryParameterSelector.getQueryType(), df);
+
 
         });
 

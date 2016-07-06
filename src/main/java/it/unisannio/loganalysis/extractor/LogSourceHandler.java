@@ -1,4 +1,6 @@
-package it.unisannio.loganalysis.extractor;import java.util.Collection;
+package it.unisannio.loganalysis.extractor;
+
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,5 +36,9 @@ public class LogSourceHandler {
 
     public Collection<ILogHandler> getSourceHandlers() {
         return sourceHandlers.values();
+    }
+
+    public Collection<String> getIds() {
+        return sourceHandlers.keySet();
     }
 }

@@ -7,6 +7,8 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.VerticalLayout;
+import it.unisannio.loganalysis.analysis.Query;
+import org.renjin.sexp.ListVector;
 
 /**
  * Created by mario on 04/07/16.
@@ -16,11 +18,13 @@ public class ChartComponent extends CustomComponent {
     private Chart chart;
     private Button detachButton;
 
+
     public ChartComponent() {
         VerticalLayout layout = new VerticalLayout();
 
         chart = new Chart(ChartType.PIE);
         chart.setSizeFull();
+
 
         Configuration conf = chart.getConfiguration();
 
@@ -61,5 +65,23 @@ public class ChartComponent extends CustomComponent {
 
         setCompositionRoot(layout);
     }
+
+    public void setData(Query query, ListVector data) {
+        ChartType type = null;
+        if(query == Query.RESOURCE_USAGE || query == Query.RESOURCE_USAGE_TIME) {
+            type = ChartType.COLUMN;
+            data.getElementAsVector("");
+        }
+        else if(query== Query.DAILY_ACTIVE_USERS || query== Query.DAILY_ACTIVE_RESOURCES || query == Query.TIME_RANGE_USAGE
+                || query == Query.RESOURCE_ADDED_PER_DAY)
+            type = ChartType.LINE;
+
+        else if(query == Query.MOST_USED_OS)
+            type = ChartType.PIE;
+
+        else if (query == Query.DAILY_ACTIVITIES) {}
+        System.out.println(data);
+    }
+
 
 }

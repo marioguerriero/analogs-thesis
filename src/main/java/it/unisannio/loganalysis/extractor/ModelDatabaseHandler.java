@@ -1,13 +1,13 @@
 package it.unisannio.loganalysis.extractor;
 
 import it.unisannio.loganalysis.extractor.model.*;
-
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 
 import java.sql.*;
+import java.util.Stack;
 
 
 /**
@@ -21,8 +21,7 @@ public class ModelDatabaseHandler {
     private int start_id;
 
     public ModelDatabaseHandler() {
-        String cfgPath = getClass().getClassLoader().getResource("hibernate.cfg.xml").getPath();
-        configuration = new Configuration().configure(cfgPath);
+        configuration = new Configuration().configure("hibernate.cfg.xml");
         sessionFactory = configuration.buildSessionFactory();
         start_id = getNextId();
     }
@@ -43,7 +42,12 @@ public class ModelDatabaseHandler {
         Model m = datasourcehandler.buildModel(start_id);
         start_id = datasourcehandler.getId();
         setNextId(start_id);
+
+        System.out.println("Start filling the database");
+
         fillDatabase(m);
+
+        System.out.println("Database filled correctly");
     }
 
     private int getNextId() {

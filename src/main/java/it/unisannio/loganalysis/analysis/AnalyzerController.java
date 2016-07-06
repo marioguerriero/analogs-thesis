@@ -23,11 +23,10 @@ public class AnalyzerController {
     }
 
     protected AnalyzerController() throws FileNotFoundException, ScriptException {
-        ScriptEngineManager engineManager = new ScriptEngineManager();
-        engine = engineManager.getEngineByName("Renjin");
+        engine = EngineController.getInstance().getEngine();
 
         // Evaluate analyzer script
-        engine.eval(new FileReader(getClass().getResource("R/analyzer.R").getPath()));
+        engine.eval(new FileReader(getClass().getResource("/R/analyzer.R").getPath()));
     }
 
     public ListVector performQuery(Query query, int[] users, long from, long to,

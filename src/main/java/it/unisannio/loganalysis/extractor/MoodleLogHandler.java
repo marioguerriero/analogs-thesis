@@ -146,14 +146,14 @@ public class MoodleLogHandler implements ILogHandler {
 
             //adding action assign submission
             resultSet = statement.executeQuery("SELECT assignment, userid, timecreated, timemodified " +
-                    "FROM  m_assign_submission ");
+                    "FROM  m_assign_submission");
             while(resultSet.next()) {
                 Map<String, ActionProperty> properties = new HashMap<>();
                 Action a = new Action();
                 a.setMillis(resultSet.getLong("timecreated")*1000);
                 a.setProperties(properties);
                 properties.put("sourcedb", new ActionProperty(a, "sourcedb", dbidentifier));
-                properties.put("actiontype", new ActionProperty(a, "actiontype", "c"));
+                a.setType('c');
                 for(Resource rs: resources) {
                     if(rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
                             && rs.getType().equalsIgnoreCase("assignment")
@@ -163,7 +163,7 @@ public class MoodleLogHandler implements ILogHandler {
                 for(User u: users) {
                     if(u.getProperties().get("sourcedb").getValue().equals(dbidentifier)
                             && u.getProperties().get("sourceid").getValue().equals(resultSet.getString("userid")))
-                        a.setUser(u);
+                        a.setUserFrom(u);
                 }
                 actions.add(a);
             }
@@ -171,7 +171,7 @@ public class MoodleLogHandler implements ILogHandler {
 
             //adding resource, type: comments
             resultSet = statement.executeQuery("SELECT id, content, userid, timecreated " +
-                    "FROM  m_comments ");
+                    "FROM  m_comments");
             while(resultSet.next()) {
                 Map<String, ResourceProperty> properties = new HashMap<>();
                 Resource r = new Resource("comment", properties);
@@ -249,12 +249,12 @@ public class MoodleLogHandler implements ILogHandler {
             }
 
 
-            //adding resource, type: resource
+            //adding resource, type: lesson
             resultSet = statement.executeQuery("SELECT id, course, name, intro, timemodified " +
                     "FROM  m_resource");
             while(resultSet.next()) {
                 Map<String, ResourceProperty> properties = new HashMap<>();
-                Resource r = new Resource("resource", properties);
+                Resource r = new Resource("lesson", properties);
                 r.setIdResource(this.id);
                 properties.put("sourceid", new ResourceProperty(r, "sourceid", resultSet.getString("id")));
                 properties.put("sourcedb", new ResourceProperty(r, "sourcedb",dbidentifier));
@@ -337,8 +337,10 @@ public class MoodleLogHandler implements ILogHandler {
                 for(Resource rs: resources) {
                     if(rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
                             && rs.getType().equals("enrol")
-                            && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("enrolid")))
-                        properties.put("enrolid", new ResourceProperty(r, "enroldid", rs.getIdResource()+""));
+                            && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("enrolid"))) {
+                        properties.put("enrolid", new ResourceProperty(r, "enroldid", rs.getIdResource() + ""));
+                        r.setResourceParent(rs);
+                    }
                 }
                 resources.add(r);
                 this.id++;
@@ -375,13 +377,12 @@ public class MoodleLogHandler implements ILogHandler {
                             && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("course"))) {
                         properties.put("courseid", new ResourceProperty(r, "courseid", rs.getIdResource() + ""));
                     }
-                }
-                for(Resource rs: resources) {
-                    if(rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
+                    else if(rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
                             && rs.getType().equals("module")
                             && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("module")))
                         properties.put("moduleid", new ResourceProperty(r, "moduleid", rs.getIdResource()+""));
                 }
+
                 resources.add(r);
                 this.id++;
             }
@@ -405,7 +406,7 @@ public class MoodleLogHandler implements ILogHandler {
                     }
                 }
                 properties.put("name", new ResourceProperty(r, "name", resultSet.getString("name")));
-                properties.put("maxgrade", new ResourceProperty(r, "maxgrade", resultSet.getString("maxgrade")));
+                properties.put("grade", new ResourceProperty(r, "grade", resultSet.getString("maxgrade")));
                 resources.add(r);
                 this.id++;
             }
@@ -548,7 +549,7 @@ public class MoodleLogHandler implements ILogHandler {
                             for(Resource rs: resources) {
                                 read = true;
                                 if(rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                                        && rs.getType().equals("resource")
+                                        && rs.getType().equals("lesson")
                                         && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("objectid"))) {
                                     a.setResource(rs);
                                     break;
@@ -602,16 +603,16 @@ public class MoodleLogHandler implements ILogHandler {
                     for(User u: users) {
                         if(u.getProperties().get("sourcedb").getValue().equals(dbidentifier)
                                 && u.getProperties().get("sourceid").getValue().equals(resultSet.getString("userid")))
-                            a.setUser(u);
+                            a.setUserFrom(u);
                     }
                     for(User u: users) {
                         if(u.getProperties().get("sourcedb").getValue().equals(dbidentifier)
                                 && resultSet.getString("relateduserid") != null
                                 && u.getProperties().get("sourceid").getValue().equals(resultSet.getString("relateduserid")))
-                            properties.put("relateduserid", new ActionProperty(a, "relateduserid", u.getIdUser()+""));
+                            a.setUserTo(u);
                     }
                     properties.put("sourcedb", new ActionProperty(a, "sourcedb", dbidentifier));
-                    properties.put("actiontype", new ActionProperty(a, "actiontype", resultSet.getString("crud")));
+                    a.setType(resultSet.getString("crud").charAt(0));
                     properties.put("eventname", new ActionProperty(a, "eventname", resultSet.getString("eventname")));
                     properties.put("target", new ActionProperty(a, "target", resultSet.getString("target")));
                     actions.add(a);
@@ -638,7 +639,7 @@ public class MoodleLogHandler implements ILogHandler {
                 for(User u: users) {
                     if(u.getProperties().get("sourcedb").getValue().equals(dbidentifier)
                             && u.getProperties().get("sourceid").getValue().equals(resultSet.getString("userid")))
-                        a.setUser(u);
+                        a.setUserFrom(u);
                 }
                 String element = resultSet.getString("element");
                 if(element.equals("x.start.time")) {
@@ -649,7 +650,7 @@ public class MoodleLogHandler implements ILogHandler {
                     element = "totaltime";
                     properties.put(element, new ActionProperty(a, element, ""+millis(resultSet.getString("value"))));
                 }
-
+                a.setType('r');
                 actions.add(a);
             }
 

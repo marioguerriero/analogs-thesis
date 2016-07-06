@@ -18,11 +18,18 @@ public class Action {
 
     @ManyToOne
     @JoinColumn(name = "idUser")
-    private User user;
+    private User userFrom;
+
+    @ManyToOne
+    @JoinColumn(name = "idUserTo")
+    private User userTo;
 
     @ManyToOne
     @JoinColumn(name = "idResource")
     private Resource resource;
+
+    @Column(name = "type")
+    private char type;
 
     @Column(name = "millis")
     private long millis;
@@ -33,41 +40,16 @@ public class Action {
 
     public Action() { }
 
-    public Action(User user, Resource resource, long millis, Map properties) {
-        this.user = user;
+    public Action(User userFrom, User userTo, Resource resource, char type, long millis, Map<String, ActionProperty> properties) {
+        this.userFrom = userFrom;
+        this.userTo = userTo;
         this.resource = resource;
+        this.type = type;
         this.millis = millis;
         this.properties = properties;
     }
 
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Action action = (Action) o;
-
-        if (idAction != action.idAction) return false;
-        if (millis != action.millis) return false;
-        if (user != null ? !user.equals(action.user) : action.user != null) return false;
-        if (resource != null ? !resource.equals(action.resource) : action.resource != null) return false;
-        return properties != null ? properties.equals(action.properties) : action.properties == null;
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = idAction;
-        result = 31 * result + (user != null ? user.hashCode() : 0);
-        result = 31 * result + (resource != null ? resource.hashCode() : 0);
-        result = 31 * result + (int) (millis ^ (millis >>> 32));
-        result = 31 * result + (properties != null ? properties.hashCode() : 0);
-        return result;
-    }
-
     public int getIdAction() {
-
         return idAction;
     }
 
@@ -75,12 +57,20 @@ public class Action {
         this.idAction = idAction;
     }
 
-    public User getUser() {
-        return user;
+    public User getUserFrom() {
+        return userFrom;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUserFrom(User userFrom) {
+        this.userFrom = userFrom;
+    }
+
+    public User getUserTo() {
+        return userTo;
+    }
+
+    public void setUserTo(User userTo) {
+        this.userTo = userTo;
     }
 
     public Resource getResource() {
@@ -89,6 +79,14 @@ public class Action {
 
     public void setResource(Resource resource) {
         this.resource = resource;
+    }
+
+    public char getType() {
+        return type;
+    }
+
+    public void setType(char type) {
+        this.type = type;
     }
 
     public long getMillis() {
@@ -105,5 +103,34 @@ public class Action {
 
     public void setProperties(Map<String, ActionProperty> properties) {
         this.properties = properties;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Action action = (Action) o;
+
+        if (idAction != action.idAction) return false;
+        if (type != action.type) return false;
+        if (millis != action.millis) return false;
+        if (userFrom != null ? !userFrom.equals(action.userFrom) : action.userFrom != null) return false;
+        if (userTo != null ? !userTo.equals(action.userTo) : action.userTo != null) return false;
+        if (resource != null ? !resource.equals(action.resource) : action.resource != null) return false;
+        return properties != null ? properties.equals(action.properties) : action.properties == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = idAction;
+        result = 31 * result + (userFrom != null ? userFrom.hashCode() : 0);
+        result = 31 * result + (userTo != null ? userTo.hashCode() : 0);
+        result = 31 * result + (resource != null ? resource.hashCode() : 0);
+        result = 31 * result + (int) type;
+        result = 31 * result + (int) (millis ^ (millis >>> 32));
+        result = 31 * result + (properties != null ? properties.hashCode() : 0);
+        return result;
     }
 }

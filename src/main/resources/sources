@@ -1,0 +1,2 @@
+moodle,it.unisannio.loganalysis.extractor.MoodleLogHandler
+bugzilla,it.unisannio.loganalysis.extractor.BugzillaLogHandler

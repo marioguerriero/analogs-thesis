@@ -1,5 +1,6 @@
 package it.unisannio.loganalysis.extractor;
 
+
 import it.unisannio.loganalysis.extractor.model.*;
 
 import java.sql.*;
@@ -142,8 +143,8 @@ public class BugzillaLogHandler implements ILogHandler {
                 }
                 properties.put("sourceid", new ResourceProperty(r, "sourceid", resultSet.getString("bug_id")));
                 properties.put("sourcedb", new ResourceProperty(r, "sourcedb", dbidentifier));
-                properties.put("bug_status", new ResourceProperty(r, "bug_status", resultSet.getString("bug_status")));
-                properties.put("starttime", new ResourceProperty(r, "starttime", resultSet.getString("creation_ts")));
+                properties.put("status", new ResourceProperty(r, "status", resultSet.getString("bug_status")));
+                properties.put("startdate", new ResourceProperty(r, "startdate", resultSet.getString("creation_ts")));
                 if(resultSet.getString("bug_status").equalsIgnoreCase("resolved"))
                     properties.put("totaltime", new ResourceProperty(r, "totaltime", ""+calcTotal(resultSet.getString("creation_ts") ,resultSet.getString("delta_ts"))));
                 properties.put("timemodified", new ResourceProperty(r, "timemodified", resultSet.getString("delta_ts")));
@@ -171,14 +172,14 @@ public class BugzillaLogHandler implements ILogHandler {
                 for(User u: users) {
                     if(u.getProperties().get("sourcedb").getValue().equals(dbidentifier)
                             && u.getProperties().get("sourceid").getValue().equals(resultSet.getString("who")))
-                        a.setUser(u);
+                        a.setUserFrom(u);
                 }
                 properties.put("os", new ActionProperty(a, "os", resultSet.getString("op_sys")));
                 properties.put("added", new ActionProperty(a, "added", resultSet.getString("added")));
                 properties.put("removed", new ActionProperty(a, "removed", resultSet.getString("removed")));
+                a.setType('c');
                 actions.add(a);
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (ParseException e) {

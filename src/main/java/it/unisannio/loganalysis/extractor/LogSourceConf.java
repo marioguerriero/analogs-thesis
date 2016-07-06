@@ -1,4 +1,6 @@
-package it.unisannio.loganalysis.extractor;import sun.rmi.runtime.Log;
+package it.unisannio.loganalysis.extractor;
+
+import sun.rmi.runtime.Log;
 
 import java.io.File;
 import java.io.FileInputStream;

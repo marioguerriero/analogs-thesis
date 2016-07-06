@@ -23,11 +23,10 @@ public class QueryController {
     }
 
     protected QueryController() throws FileNotFoundException, ScriptException {
-        ScriptEngineManager engineManager = new ScriptEngineManager();
-        engine = engineManager.getEngineByName("Renjin");
+        engine = EngineController.getInstance().getEngine();
 
         // Evaluate db-query script
-        engine.eval(new FileReader(getClass().getResource("R/db-query.R").getPath()));
+        engine.eval(new FileReader(getClass().getResource("/R/db-query.R").getPath()));
     }
 
     public String getDbSource() {
@@ -50,7 +49,7 @@ public class QueryController {
         engine.eval("buildTables(dbsource)");
     }
 
-    private class NullDataSourceException extends Exception {
+    public class NullDataSourceException extends Exception {
         public NullDataSourceException(String message) {
             super(message);
         }
