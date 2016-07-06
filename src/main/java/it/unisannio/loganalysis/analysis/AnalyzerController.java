@@ -31,11 +31,11 @@ public class AnalyzerController {
 
     public ListVector performQuery(Query query, int[] users, long from, long to,
                                    ListVector attributes, boolean normalize) throws ScriptException {
-        engine.put("users", users);
-        engine.put("from", from);
-        engine.put("to", to);
-        engine.put("attributes", to);
-        engine.put("normalize", normalize);
+        engine.put("users", null);
+        engine.put("from", null);
+        engine.put("to", null);
+        engine.put("attributes", null);
+        engine.put("normalize", true);
 
         switch (query) {
             case RESOURCE_USAGE:

@@ -58,7 +58,7 @@ public class FacadeLogSource {
     }
 
     public Collection<String> getDataSourcesTypes() {
-        return new LogSourceConf(getClass().getResource("sources").getPath()).readConf().keySet();
+        return new LogSourceConf(getClass().getResource("/sources").getPath()).readConf().keySet();
     }
 
     public Collection<String> getDataSources() {

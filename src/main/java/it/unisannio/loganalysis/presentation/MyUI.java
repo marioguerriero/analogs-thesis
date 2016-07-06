@@ -56,8 +56,6 @@ public class MyUI extends UI {
                     queryParameterSelector.getTo(),queryParameterSelector.getAttributes(),queryParameterSelector.isNormalized());
 
             chartView.setData(queryParameterSelector.getQueryType(), df);
-
-
         });
 
         chartView = new ChartComponent();
