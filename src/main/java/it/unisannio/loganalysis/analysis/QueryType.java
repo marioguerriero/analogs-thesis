@@ -41,8 +41,8 @@ public class QueryType {
         queries = new HashMap<>();
         queries.put(Query.RESOURCE_USAGE, "Utilizzo delle risorse");
         queries.put(Query.RESOURCE_USAGE_TIME, "Tempo di utilizzo delle risorse");
-        queries.put(Query.DAILY_ACTIVE_USERS, "Attività giornaliere degli utenti");
-        queries.put(Query.DAILY_ACTIVE_RESOURCES, "Attività giornaliere sulle risorse");
+        queries.put(Query.DAILY_ACTIVE_USERS, "Utenti attivi giornalmente");
+        queries.put(Query.DAILY_ACTIVE_RESOURCES, "Risorse utilizzate giornalmente");
         queries.put(Query.DAILY_ACTIVITIES, "Attività giornaliere");
         queries.put(Query.TIME_RANGE_USAGE, "Fasce temporali di utilizzo");
         queries.put(Query.MOST_USED_OS, "Sistemi operativi più utilizzati");

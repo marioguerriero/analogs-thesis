@@ -52,7 +52,6 @@ public class QueryParameterSelector extends CustomComponent {
         users.setVisible(false);
         from.setVisible(false);
         to.setVisible(false);
-        normalized.setVisible(false);
 
         queryType = new ComboBox("Tipo della query");
         for(Query q : QueryType.getQueries()) {
@@ -62,7 +61,7 @@ public class QueryParameterSelector extends CustomComponent {
 
         queryType.addValueChangeListener(
                 (Property.ValueChangeListener) event -> {
-                    if ((event.getProperty().getValue().toString()).equals("Utilizzo delle risorse")){
+                    if ((event.getProperty().getValue().toString()).equals(QueryType.getQueryTypes())){
                         //  layout.addComponent(new Label("Selected: " + event.getProperty().getValue()));
                         users.setVisible(false);
                         from.setVisible(false);

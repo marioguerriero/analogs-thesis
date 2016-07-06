@@ -59,7 +59,7 @@ public class AnalyzerController {
                         "timeRangesUsage(normalize=normalize)");
             case MOST_USED_OS:
                 return (ListVector) engine.eval(
-                        "mostUsedOse(users=users,normalize=normalize)");
+                        "mostUsedOS(users=users,normalize=normalize)");
             case RESOURCE_ADDED_PER_DAY:
                 return (ListVector) engine.eval(
                         "resourceAddedPerDays(users=users,from=from,to=to,normalize=normalize)");
