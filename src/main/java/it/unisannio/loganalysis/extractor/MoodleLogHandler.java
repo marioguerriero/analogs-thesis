@@ -1,5 +1,6 @@
 package it.unisannio.loganalysis.extractor;
 
+
 import it.unisannio.loganalysis.extractor.model.*;
 
 import java.sql.*;
@@ -287,64 +288,6 @@ public class MoodleLogHandler implements ILogHandler {
                 this.id++;
             }
 
-            //adding resource, type: enrol
-            resultSet = statement.executeQuery("SELECT id, enrol, courseid, roleid, timecreated, timemodified " +
-                    "FROM  m_enrol");
-            while(resultSet.next()) {
-                Map<String, ResourceProperty> properties = new HashMap<>();
-                Resource r = new Resource("enrol", properties);
-                r.setIdResource(this.id);
-                properties.put("sourceid", new ResourceProperty(r, "sourceid", resultSet.getString("id")));
-                properties.put("sourcedb", new ResourceProperty(r, "sourcedb",dbidentifier));
-                properties.put("enrol", new ResourceProperty(r, "enrol", resultSet.getString("enrol")));
-                properties.put("timecreated", new ResourceProperty(r, "timecreated", resultSet.getString("timecreated")+"000"));
-                properties.put("timemodified", new ResourceProperty(r, "timemodified", resultSet.getString("timemodified")+"000"));
-                for(Resource rs: resources) {
-                    if(rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                            && rs.getType().equals("course")
-                            && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("courseid"))) {
-                        properties.put("courseid", new ResourceProperty(r, "courseid", rs.getIdResource() + ""));
-                        r.setResourceParent(rs);
-                    }
-                }
-                for(Resource rs: resources) {
-                    if(rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                            && rs.getType().equals("role")
-                            && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("roleid")))
-                        properties.put("roleid", new ResourceProperty(r, "roleid", rs.getIdResource()+""));
-                }
-                resources.add(r);
-                this.id++;
-            }
-
-            //adding resource, type: user_enrolment
-            resultSet = statement.executeQuery("SELECT id, enrolid, userid, timecreated, timestart, timemodified " +
-                    "FROM  m_user_enrolments");
-            while(resultSet.next()) {
-                Map<String, ResourceProperty> properties = new HashMap<>();
-                Resource r = new Resource("user_enrolment", properties);
-                r.setIdResource(this.id);
-                properties.put("sourceid", new ResourceProperty(r, "sourceid", resultSet.getString("id")));
-                properties.put("sourcedb", new ResourceProperty(r, "sourcedb",dbidentifier));
-                properties.put("timecreated", new ResourceProperty(r, "timecreated", resultSet.getString("timecreated")+"000"));
-                properties.put("timemodified", new ResourceProperty(r, "timemodified", resultSet.getString("timemodified")+"000"));
-                properties.put("timestart", new ResourceProperty(r, "timestart", resultSet.getString("timestart")+"000"));
-                for(User u: users) {
-                    if(u.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                            && u.getProperties().get("sourceid").getValue().equals(resultSet.getString("userid")))
-                        properties.put("userid", new ResourceProperty(r, "userid", u.getIdUser()+""));
-                }
-                for(Resource rs: resources) {
-                    if(rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                            && rs.getType().equals("enrol")
-                            && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("enrolid"))) {
-                        properties.put("enrolid", new ResourceProperty(r, "enroldid", rs.getIdResource() + ""));
-                        r.setResourceParent(rs);
-                    }
-                }
-                resources.add(r);
-                this.id++;
-            }
 
             //adding resource, type: module
             resultSet = statement.executeQuery("SELECT id, name " +
@@ -385,6 +328,70 @@ public class MoodleLogHandler implements ILogHandler {
 
                 resources.add(r);
                 this.id++;
+            }
+
+
+
+            //adding resource, type: file
+            resultSet = statement.executeQuery("SELECT id, component, filearea, filepath, userid, filesize, mimetype, source, author, timecreated, timemodified " +
+                    "FROM  m_files");
+            while(resultSet.next()) {
+                Map<String, ResourceProperty> properties = new HashMap<>();
+                Resource r = new Resource("file", properties);
+                r.setIdResource(this.id);
+                if(resultSet.getString("author") != null) {
+                    properties.put("sourceid", new ResourceProperty(r, "sourceid", resultSet.getString("id")));
+                    properties.put("sourcedb", new ResourceProperty(r, "sourcedb", dbidentifier));
+                    properties.put("timecreated", new ResourceProperty(r, "timecreated", resultSet.getString("timecreated")));
+                    properties.put("timemodified", new ResourceProperty(r, "timemodified", resultSet.getString("timemodified")));
+                    properties.put("component", new ResourceProperty(r, "component", resultSet.getString("component")));
+                    properties.put("filearea", new ResourceProperty(r, "filearea", resultSet.getString("filearea")));
+                    properties.put("filepath", new ResourceProperty(r, "filepath", resultSet.getString("filepath")));
+                    for(User u: users) {
+                        if(u.getProperties().get("sourcedb").getValue().equals(dbidentifier)
+                                && u.getProperties().get("sourceid").getValue().equals(resultSet.getString("userid")))
+                            properties.put("userid", new ResourceProperty(r, "userid", u.getIdUser()+""));
+                    }
+                    properties.put("filesize", new ResourceProperty(r, "filesize", resultSet.getString("filesize")));
+                    properties.put("mimetype", new ResourceProperty(r, "mimetype", resultSet.getString("mimetype")));
+                    properties.put("source", new ResourceProperty(r, "source", resultSet.getString("source")));
+                    properties.put("author", new ResourceProperty(r, "author", resultSet.getString("author")));
+                    resources.add(r);
+                    this.id++;
+                }
+            }
+
+
+            //adding action file submission
+            resultSet = statement.executeQuery("SELECT id, userid, author, timecreated, timemodified " +
+                    "FROM  m_files");
+            while(resultSet.next()) {
+                if(resultSet.getString("author") != null) {
+                    Map<String, ActionProperty> properties = new HashMap<>();
+                    Action a = new Action();
+                    a.setProperties(properties);
+                    properties.put("sourcedb", new ActionProperty(a, "sourcedb", dbidentifier));
+                    if(resultSet.getString("timecreated").equals(resultSet.getString("timemodified"))) {
+                        a.setType('c');
+                        a.setMillis(resultSet.getLong("timecreated") * 1000);
+                    }
+                    else {
+                        a.setType('u');
+                        a.setMillis(resultSet.getLong("timemodified") * 1000);
+                    }
+                    for (Resource rs : resources) {
+                        if (rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
+                                && rs.getType().equalsIgnoreCase("file")
+                                && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("id")))
+                            a.setResource(rs);
+                    }
+                    for (User u : users) {
+                        if (u.getProperties().get("sourcedb").getValue().equals(dbidentifier)
+                                && u.getProperties().get("sourceid").getValue().equals(resultSet.getString("userid")))
+                            a.setUserFrom(u);
+                    }
+                    actions.add(a);
+                }
             }
 
 
@@ -481,34 +488,6 @@ public class MoodleLogHandler implements ILogHandler {
                             read = true;
                             if(rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
                                     && rs.getType().equals("course_catergory")
-                                    && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("objectid"))) {
-                                a.setResource(rs);
-                                break;
-                            }
-                            else
-                                read = false;
-                        }
-                    }
-                        break;
-                    case "enrol_instance": {
-                        for(Resource rs: resources) {
-                            read = true;
-                            if(rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                                    && rs.getType().equals("enrol")
-                                    && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("objectid"))) {
-                                a.setResource(rs);
-                                break;
-                            }
-                            else
-                                read = false;
-                        }
-                    }
-                        break;
-                    case "user_enrolment": {
-                        for(Resource rs: resources) {
-                            read = true;
-                            if(rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                                    && rs.getType().equals("user_enrolment")
                                     && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("objectid"))) {
                                 a.setResource(rs);
                                 break;

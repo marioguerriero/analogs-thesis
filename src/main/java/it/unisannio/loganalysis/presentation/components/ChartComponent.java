@@ -152,6 +152,50 @@ public class ChartComponent extends CustomComponent {
                 break;
             case DAILY_ACTIVITIES:
 
+                configuration.getChart().setType(ChartType.LINE);
+                configuration.getChart().setZoomType(ZoomType.XY);
+
+                days = data.getElementAsVector("days");
+                daysArr = new String[days.length()];
+                for(int i = 0; i < days.length(); i++) {
+                    daysArr[i] = days.getElementAsString(i);
+                }
+
+                XAxis x = new XAxis();
+                x.setCategories(daysArr);
+                configuration.addxAxis(x);
+
+
+
+                 activeUsers = data.getElementAsVector("activeUsers");
+                activeUsersArr = new Double[activeUsers.length()];
+                for(int i = 0; i < activeUsers.length(); i++) {
+                  //  System.out.println(activeUsers.getElementAsDouble(i));
+                    activeUsersArr[i] = activeUsers.getElementAsDouble(i);
+                }
+
+                DataSeries seriesU = new DataSeries();
+                seriesU.setPlotOptions(new PlotOptionsColumn());
+                seriesU.setName("Active Users");
+                seriesU.setData(activeUsersArr);
+               // configuration.setSeries(seriesU);
+
+
+                activeResources = data.getElementAsVector("activeResources");
+                activeResourcesArr = new Double[activeResources.length()];
+                for(int i = 0; i < activeResources.length(); i++)
+                    activeResourcesArr[i] = activeResources.getElementAsDouble(i);
+
+
+                DataSeries series = new DataSeries();
+                PlotOptionsSpline plotOptions = new PlotOptionsSpline();
+                series.setPlotOptions(plotOptions);
+                series.setName("Active Resources");
+                series.setData(activeResourcesArr);
+                configuration.setSeries(seriesU,series);
+
+                chart.drawChart(configuration);
+
 
 
                 break;

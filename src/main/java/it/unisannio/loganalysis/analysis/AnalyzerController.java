@@ -32,7 +32,7 @@ public class AnalyzerController {
     public ListVector performQuery(Query query, Integer[] users, long from, long to,
                                    ListVector attributes, boolean normalize) throws ScriptException {
 
-        for(Integer u : users) System.out.println(u);
+        //for(Integer u : users) System.out.println(u);
 
         engine.put("users", users);
         engine.put("from", from);
