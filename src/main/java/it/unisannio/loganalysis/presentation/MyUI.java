@@ -10,7 +10,7 @@ import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.*;
 
 import it.unisannio.loganalysis.analysis.AnalyzerController;
-import it.unisannio.loganalysis.analysis.QueryController;
+import it.unisannio.loganalysis.analysis.TableHandler;
 import it.unisannio.loganalysis.extractor.FacadeLogSource;
 import it.unisannio.loganalysis.presentation.components.*;
 import org.renjin.sexp.ListVector;
@@ -48,7 +48,7 @@ public class MyUI extends UI {
             logSourceSelector.setValueChangeListener((Property.ValueChangeListener) valueChangeEvent -> {
                 try {
 
-                    QueryController controller = QueryController.getInstance();
+                    TableHandler controller = TableHandler.getInstance();
                     controller.setDbSource(valueChangeEvent.getProperty().getValue().toString());
                     controller.loadTables();
 
@@ -58,7 +58,7 @@ public class MyUI extends UI {
                     e.printStackTrace();
                 } catch (ScriptException e) {
                     e.printStackTrace();
-                } catch (QueryController.NullDataSourceException e) {
+                } catch (TableHandler.NullDataSourceException e) {
                     e.printStackTrace();
                 }
             });

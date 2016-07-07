@@ -4,8 +4,8 @@ import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.model.*;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
-import it.unisannio.loganalysis.analysis.Query;
 import it.unisannio.loganalysis.analysis.QueryType;
+import it.unisannio.loganalysis.analysis.QueryTypeHandler;
 import org.renjin.sexp.ListVector;
 import org.renjin.sexp.Vector;
 
@@ -42,24 +42,24 @@ public class ChartComponent extends CustomComponent {
         setCompositionRoot(layout);
     }
 
-    public void setData(Query query, ListVector data) {
+    public void setData(QueryType query, ListVector data) {
       /*  ChartType type = null;
-        if(query == Query.RESOURCE_USAGE || query == Query.RESOURCE_USAGE_TIME) {
+        if(query == QueryType.RESOURCE_USAGE || query == QueryType.RESOURCE_USAGE_TIME) {
             type = ChartType.COLUMN;
             data.getElementAsVector("");
         }
-        else if(query== Query.DAILY_ACTIVE_USERS || query== Query.DAILY_ACTIVE_RESOURCES || query == Query.TIME_RANGE_USAGE
-                || query == Query.RESOURCE_ADDED_PER_DAY)
+        else if(query== QueryType.DAILY_ACTIVE_USERS || query== QueryType.DAILY_ACTIVE_RESOURCES || query == QueryType.TIME_RANGE_USAGE
+                || query == QueryType.RESOURCE_ADDED_PER_DAY)
             type = ChartType.LINE;
 
-        else if(query == Query.MOST_USED_OS)
+        else if(query == QueryType.MOST_USED_OS)
             type = ChartType.PIE;
 
-        else if (query == Query.DAILY_ACTIVITIES) {}
+        else if (query == QueryType.DAILY_ACTIVITIES) {}
         */
 
         Configuration configuration = chart.getConfiguration();
-        configuration.setTitle(QueryType.getDescription(query));
+        configuration.setTitle(QueryTypeHandler.getDescription(query));
 
         switch(query) {
             case RESOURCE_USAGE:

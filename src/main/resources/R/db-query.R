@@ -28,7 +28,7 @@ buildResourcesTable <- function(sourcedb=NULL) {
   table <- "resource"
   eav <- "rav"
 
-  # Query resources
+  # QueryType resources
   sql <- paste("select * from",table)
   q <- dbSendQuery(con,sql)
   entity <- fetch(q,n=-1)
@@ -73,7 +73,7 @@ buildUsersTable <- function(sourcedb=NULL) {
   table <- "user"
   eav <- "uav"
 
-  # Query resources
+  # QueryType resources
   sql <- paste("select * from",table)
   q <- dbSendQuery(con,sql)
   entity <- fetch(q,n=-1)
@@ -118,7 +118,7 @@ buildActionsTable <- function(sourcedb=NULL) {
   table <- "action"
   eav <- "aav"
 
-  # Query resources
+  # QueryType resources
   sql <- paste("select * from",table)
   q <- dbSendQuery(con,sql)
   entity <- fetch(q,n=-1)

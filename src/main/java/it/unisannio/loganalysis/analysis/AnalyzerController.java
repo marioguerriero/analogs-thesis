@@ -3,7 +3,6 @@ package it.unisannio.loganalysis.analysis;
 import org.renjin.sexp.ListVector;
 
 import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -29,7 +28,7 @@ public class AnalyzerController {
         engine.eval(new FileReader(getClass().getResource("/R/analyzer.R").getPath()));
     }
 
-    public ListVector performQuery(Query query, Integer[] users, long from, long to,
+    public ListVector performQuery(QueryType query, Integer[] users, long from, long to,
                                    ListVector attributes, boolean normalize) throws ScriptException {
 
         //for(Integer u : users) System.out.println(u);

@@ -3,7 +3,6 @@ package it.unisannio.loganalysis.analysis;
 import org.renjin.sexp.ListVector;
 
 import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -11,20 +10,20 @@ import java.io.FileReader;
 /**
  * Created by mario on 04/07/16.
  */
-public class QueryController {
+public class TableHandler {
 
-    private static QueryController instance = null;
+    private static TableHandler instance = null;
 
     private ScriptEngine engine;
     private String dbSource;
 
 
-    public static QueryController getInstance() throws FileNotFoundException, ScriptException {
-        if(instance == null) instance = new QueryController();
+    public static TableHandler getInstance() throws FileNotFoundException, ScriptException {
+        if(instance == null) instance = new TableHandler();
         return instance;
     }
 
-    protected QueryController() throws FileNotFoundException, ScriptException {
+    protected TableHandler() throws FileNotFoundException, ScriptException {
         engine = EngineController.getInstance().getEngine();
 
         // Evaluate db-query script

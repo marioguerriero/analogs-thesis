@@ -2,12 +2,8 @@ package it.unisannio.loganalysis.presentation.components;
 
 import com.vaadin.data.Property;
 import com.vaadin.ui.*;
-import it.unisannio.loganalysis.analysis.Query;
-import it.unisannio.loganalysis.analysis.QueryController;
 import it.unisannio.loganalysis.extractor.FacadeLogSource;
 
-import javax.script.ScriptException;
-import java.io.FileNotFoundException;
 import java.lang.reflect.InvocationTargetException;
 
 /**

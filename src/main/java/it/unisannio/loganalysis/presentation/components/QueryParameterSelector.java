@@ -2,9 +2,9 @@ package it.unisannio.loganalysis.presentation.components;
 
 import com.vaadin.data.Property;
 import com.vaadin.ui.*;
-import it.unisannio.loganalysis.analysis.Query;
-import it.unisannio.loganalysis.analysis.QueryController;
 import it.unisannio.loganalysis.analysis.QueryType;
+import it.unisannio.loganalysis.analysis.TableHandler;
+import it.unisannio.loganalysis.analysis.QueryTypeHandler;
 import org.renjin.sexp.*;
 
 import javax.script.ScriptException;
@@ -28,7 +28,7 @@ public class QueryParameterSelector extends CustomComponent {
 
 
     public QueryParameterSelector() {
-        Panel panel = new Panel("Query Selection");
+        Panel panel = new Panel("QueryType Selection");
         VerticalLayout layout = new VerticalLayout();
         layout.setMargin(true);
         panel.setResponsive(true);
@@ -56,52 +56,52 @@ public class QueryParameterSelector extends CustomComponent {
         to.setVisible(false);
 
         queryType = new ComboBox("Tipo della query");
-        for(Query q : QueryType.getQueries()) {
+        for(QueryType q : QueryTypeHandler.getQueries()) {
             queryType.addItem(q);
-            queryType.setItemCaption(q, QueryType.getDescription(q));
+            queryType.setItemCaption(q, QueryTypeHandler.getDescription(q));
         }
 
         queryType.addValueChangeListener(
                 (Property.ValueChangeListener) event -> {
-                    if (getQueryType() == Query.DAILY_ACTIVE_RESOURCES){
+                    if (getQueryType() == QueryType.DAILY_ACTIVE_RESOURCES){
                         //  layout.addComponent(new Label("Selected: " + event.getProperty().getValue()));
                         users.setVisible(false);
                         from.setVisible(true);
                         to.setVisible(true);
                     }
-                    if(getQueryType() == Query.DAILY_ACTIVE_USERS){
+                    if(getQueryType() == QueryType.DAILY_ACTIVE_USERS){
                         users.setVisible(false);
                         from.setVisible(true);
                         to.setVisible(true);
                     }
 
-                    if(getQueryType() == Query.DAILY_ACTIVITIES){
+                    if(getQueryType() == QueryType.DAILY_ACTIVITIES){
                         users.setVisible(false);
                         from.setVisible(true);
                         to.setVisible(true);
 
                     }
 
-                    if(getQueryType() == Query.MOST_USED_OS){
+                    if(getQueryType() == QueryType.MOST_USED_OS){
                         users.setVisible(true);
                         from.setVisible(false);
                         to.setVisible(false);
                     }
 
-                    if(getQueryType() == Query.RESOURCE_ADDED_PER_DAY){
+                    if(getQueryType() == QueryType.RESOURCE_ADDED_PER_DAY){
                         users.setVisible(true);
                         from.setVisible(true);
                         to.setVisible(true);
                     }
 
-                    if(getQueryType() == Query.RESOURCE_USAGE){
+                    if(getQueryType() == QueryType.RESOURCE_USAGE){
                         users.setVisible(true);
                         from.setVisible(true);
                         to.setVisible(true);
                         //attribute
                     }
 
-                    if(getQueryType() == Query.RESOURCE_USAGE_TIME){
+                    if(getQueryType() == QueryType.RESOURCE_USAGE_TIME){
                         users.setVisible(true);
                         from.setVisible(true);
                         to.setVisible(true);
@@ -109,7 +109,7 @@ public class QueryParameterSelector extends CustomComponent {
 
                     }
 
-                    if(getQueryType() == Query.TIME_RANGE_USAGE){
+                    if(getQueryType() == QueryType.TIME_RANGE_USAGE){
                         users.setVisible(false);
                         from.setVisible(false);
                         to.setVisible(false);
@@ -156,8 +156,8 @@ public class QueryParameterSelector extends CustomComponent {
         return to.getValue().getTime();
     }
 
-    public Query getQueryType() {
-        return (Query) queryType.getValue();
+    public QueryType getQueryType() {
+        return (QueryType) queryType.getValue();
     }
 
     public Integer[] getUsers(){
@@ -190,7 +190,7 @@ public class QueryParameterSelector extends CustomComponent {
         usersMap = new HashMap<>();
         ListVector usersDf = null;
         try {
-            usersDf = QueryController.getInstance().getUsers();
+            usersDf = TableHandler.getInstance().getUsers();
             org.renjin.sexp.Vector ids = usersDf.getElementAsVector("idUser");
             org.renjin.sexp.Vector usernames = usersDf.getElementAsVector("username");
 
