@@ -31,8 +31,6 @@ public class AnalyzerController {
     public ListVector performQuery(QueryType query, Integer[] users, long from, long to,
                                    ListVector attributes, boolean normalize) throws ScriptException {
 
-        //for(Integer u : users) System.out.println(u);
-
         engine.put("users", users);
         engine.put("from", from);
         engine.put("to", to);
@@ -41,9 +39,11 @@ public class AnalyzerController {
 
         switch (query) {
             case RESOURCE_USAGE:
+                ////////////
                 return (ListVector) engine.eval(
                         "resourcesUsage(users=users,from=from,to=to,attributes=attributes,normalize=normalize)");
             case RESOURCE_USAGE_TIME:
+                ////////////
                 return (ListVector) engine.eval(
                         "resourcesUsageTime(users=users,from=from,to=to,attributes=attributes,normalize=normalize)");
             case DAILY_ACTIVE_USERS:
@@ -62,6 +62,7 @@ public class AnalyzerController {
                 return (ListVector) engine.eval(
                         "mostUsedOS(users=users,normalize=normalize)");
             case RESOURCE_ADDED_PER_DAY:
+                /////// Tutti 0?
                 return (ListVector) engine.eval(
                         "resourceAddedPerDays(users=users,from=from,to=to,normalize=normalize)");
         }

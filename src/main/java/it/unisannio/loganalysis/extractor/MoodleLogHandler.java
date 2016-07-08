@@ -3,6 +3,7 @@ package it.unisannio.loganalysis.extractor;
 
 import it.unisannio.loganalysis.extractor.model.*;
 
+import java.lang.reflect.InvocationTargetException;
 import java.sql.*;
 import java.util.*;
 
@@ -25,6 +26,25 @@ public class MoodleLogHandler implements ILogHandler {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void main(String[] args) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        String db1 = "moodle";
+        String host1 = "localhost";
+        String port1 = "5432";
+        String dialect1 = "postgresql";
+
+        String host2 = "localhost";
+        String port2 = "3306";
+        String dialect2 = "mysql";
+        String db2 = "bugs";
+
+        FacadeLogSource facadeLogSource = new FacadeLogSource();
+
+        //facadeLogSource.addDataSource("moodle", dialect1, host1, port1, db1, "postgres", "mario");
+        //facadeLogSource.addDataSource("bugzilla", dialect2, host2, port2, db2, "thesis", "thesis");
+
+        facadeLogSource.closeSession();
     }
 
     public int getId() { return id; }

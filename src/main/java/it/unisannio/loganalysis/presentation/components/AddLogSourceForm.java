@@ -1,6 +1,5 @@
 package it.unisannio.loganalysis.presentation.components;
 
-import com.vaadin.data.validator.IntegerRangeValidator;
 import com.vaadin.data.validator.NullValidator;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.*;
@@ -16,13 +15,14 @@ public class AddLogSourceForm extends CustomComponent {
     private TextField port;
     private TextField dbname;
     private TextField username;
-    private TextField password;
+    private PasswordField password;
     private Button confirmButton;
 
     public AddLogSourceForm() {
         FormLayout form = new FormLayout();
 
         serviceTypeCb = new ComboBox();
+        serviceTypeCb.addItem("Moodle");
 
         dialect = new ComboBox("Tipo Database");
         dialect.addItem("MySQL");
@@ -35,7 +35,6 @@ public class AddLogSourceForm extends CustomComponent {
         port = new TextField("Port");
         port.setRequired(true);
         port.addValidator(new NullValidator("Campo obbligatorio", false));
-        port.addValidator(new IntegerRangeValidator("Numero di porta errato", 1, 65535));
 
         dbname = new TextField("Nome del database");
         dbname.setRequired(true);
@@ -46,7 +45,7 @@ public class AddLogSourceForm extends CustomComponent {
         username.setRequired(true);
         username.addValidator(new NullValidator("Campo obbligatorio", false));
 
-        password = new TextField("Password");
+        password = new PasswordField("Password");
         password.setRequired(true);
         password.addValidator(new NullValidator("Campo obbligatorio", false));
 

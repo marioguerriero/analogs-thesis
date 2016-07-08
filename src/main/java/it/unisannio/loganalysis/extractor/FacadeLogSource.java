@@ -23,7 +23,7 @@ public class FacadeLogSource {
         String db2 = "bugs";
 
         try {
-            addDataSource("moodle", dialect1, host1, port1, db1, "postgres", "graziano");
+            addDataSource("moodle", dialect1, host1, port1, db1, "postgres", "mario");
             addDataSource("bugzilla", dialect2, host2, port2, db2, "thesis", "thesis");
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
@@ -54,7 +54,7 @@ public class FacadeLogSource {
         ILogHandler logHandler = (ILogHandler) c.getConstructor(String.class, String.class, String.class, String.class, String.class, String.class, String.class).newInstance(identifier, dialect, host, port, sourcedb, username, password);
         LogSourceHandler.getInstance().attach(identifier, logHandler);
 
-      // ModelDatabaseHandler.getInstance().parseLogHandler(logHandler);
+       //ModelDatabaseHandler.getInstance().parseLogHandler(logHandler);
     }
 
     public Collection<String> getDataSourcesTypes() {
