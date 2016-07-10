@@ -52,6 +52,7 @@ public class MyUI extends UI {
 
                     TableHandler controller = TableHandler.getInstance();
                     controller.setDbSource(valueChangeEvent.getProperty().getValue().toString());
+                    System.out.println(controller.getDbSource());
                     controller.loadTables();
                     queryParameterSelector.updateValues();
                 } catch (FileNotFoundException e) {
@@ -109,9 +110,16 @@ public class MyUI extends UI {
 
         form.setAddListener((Button.ClickListener) clickEvent -> {
             try {
+                System.out.println(form.getType());
+                System.out.println(form.getDialect());
+                System.out.println(form.getHost());
+                System.out.println(form.getPort());
+                System.out.println(form.getSourceDb());
+                System.out.println(form.getUsername());
+                System.out.println(form.getPassword());
                 FacadeLogSource.getInstance().addDataSource(
                         form.getType(), form.getDialect(), form.getHost(), form.getPort(), form.getSourceDb(),
-                        form.getUsername(), form.getpassword());
+                        form.getUsername(), form.getPassword());
             } catch (ClassNotFoundException | IllegalAccessException | NoSuchMethodException | InstantiationException | InvocationTargetException e) {
                 e.printStackTrace();
             }

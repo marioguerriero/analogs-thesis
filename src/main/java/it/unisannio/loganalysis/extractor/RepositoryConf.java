@@ -28,12 +28,12 @@ public class RepositoryConf {
     public Map<String, String> readSources() {
         Scanner scanner = null;
         try {
-            scanner = new Scanner(new File(getClass().getResource("/"+path).getPath()));
+            scanner = new Scanner(new File(path));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
 
-        Map<String, String> map = new HashMap();
+        Map<String, String> map = new HashMap<>();
 
         String line = null;
         while(scanner.hasNextLine()) {

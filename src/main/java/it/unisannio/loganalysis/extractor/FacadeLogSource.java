@@ -26,7 +26,7 @@ public class FacadeLogSource {
 
         String identifier = host+"_"+port+"_"+sourcedb;
 
-        RepositoryConf repositoryConf = new RepositoryConf("sources");
+        RepositoryConf repositoryConf = new RepositoryConf(getClass().getResource("/sources").getPath());
         String classname = repositoryConf.readSources().get(type);
         Class c = Class.forName(classname);
         ILogHandler logHandler = (ILogHandler) c.getConstructor(String.class, String.class, String.class, String.class, String.class, String.class).newInstance(dialect, host, port, sourcedb, username, password);

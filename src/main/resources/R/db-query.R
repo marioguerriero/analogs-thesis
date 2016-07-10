@@ -18,16 +18,7 @@ dbconnectionurl <- paste("jdbc:mysql://",dbhost,":",dbport,"/",dbname,sep="")
 # Merge resource table with rav
 ###############################
 buildTables <- function(sourcedb=NULL) {
-  #runner <- function(x) {
-  #  x(sourcedb)
-  #}
-
-  #fns <- c(buildResourcesTable, buildUsersTable, buildActionsTable)
-
-  #mclapply(fns, runner, mc.cores = detectCores())
-
-  con <<- dbConnect(RMySQL(),url=sourcedb,user=dbuser,password=dbpassword)
-
+  #con <<- dbConnect(RMySQL(),url=sourcedb,user=dbuser,password=dbpassword)
   resources <<- buildResourcesTable()
   users <<- buildUsersTable()
   actions <<- buildActionsTable()
@@ -40,7 +31,9 @@ buildResourcesTable <- function() {
   table <- "resource"
   eav <- "rav"
 
-  # Query resources
+  con <<- dbConnect(RMySQL(),url=sourcedb,user=dbuser,password=dbpassword)
+
+# Query resources
   sql <- paste("select * from",table)
   q <- dbSendQuery(con,sql)
   entity <- fetch(q,n=-1)

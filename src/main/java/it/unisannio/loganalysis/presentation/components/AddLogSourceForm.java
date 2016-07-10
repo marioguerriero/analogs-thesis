@@ -3,6 +3,7 @@ package it.unisannio.loganalysis.presentation.components;
 import com.vaadin.data.validator.NullValidator;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.*;
+import it.unisannio.loganalysis.extractor.FacadeLogSource;
 
 /**
  * Created by grazianoS on 03/07/16.
@@ -22,11 +23,11 @@ public class AddLogSourceForm extends CustomComponent {
         FormLayout form = new FormLayout();
 
         serviceTypeCb = new ComboBox();
-        serviceTypeCb.addItem("Moodle");
+        serviceTypeCb.addItems(FacadeLogSource.getInstance().getDataSourcesTypes());
 
         dialect = new ComboBox("Tipo Database");
-        dialect.addItem("MySQL");
-        dialect.addItem("PostgreSQL");
+        dialect.addItem("mysql");
+        dialect.addItem("postgresql");
 
         host = new TextField("Host");
         host.setRequired(true);
@@ -94,7 +95,7 @@ public class AddLogSourceForm extends CustomComponent {
         return username.getValue();
     }
 
-    public String getpassword() {
+    public String getPassword() {
         return password.getValue();
     }
 }
