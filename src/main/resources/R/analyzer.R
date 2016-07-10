@@ -8,34 +8,60 @@ options(digits=22)
 
 # ok - testata
 # https://demo.vaadin.com/charts/#ColumnWithMultiLevelDrilldown
-resourcesUsage <- function(users=NULL,from=NULL,to=NULL,attributes=NULL,normalize=FALSE){
+resourcesUsage <- function(users=NULL,from=NULL,to=NULL,attrs=NULL,normalize=FALSE){
 type <- unique(resources[,"type"])
 usage <- c(0)
 
 result <- data.frame(type,usage)
 
-for(r in resources$idResource) {
-t <- resources[which(resources$idResource == r),"type"]
+localActions <- actions
+localResources <- resources
+localUsers <- users
 
-u <- actions[which(actions$idResource == r),"idUser"]
-u <- u[1]
+# Filter attributes
+if(!is.null(attrs)) {
+# Filter actions
+if(attrs$key %in% colnames(localActions))
+for(k in attrs$key) {
+localActions <- localActions[-which(localActions[,k] != attrs[which(attrs$key ==k),"value"]),]
+}
+# Filter users
+if(attrs$key %in% colnames(localUsers))
+for(k in attrs$key) {
+localUsers <- localUsers[-which(localUsers[,k] != attrs[which(attrs$key ==k),"value"]),]
+}
 
-actionsCount <- length(which(
-actions$idResource == r & (
-(is.null(users) || all(users %in% u)) &
-(is.null(from) || actions$millis >= from) &
-(is.null(to) || actions$millis <= to) &
-(is.null(attributes) || length(actions[,paste("action.",attributes$key,sep="")]) > 0 &&
-attributes$value %in% actions[which(
-actions$idResource == r  & actions$idUser %in% u &
-actions[,paste("action.",attr$key,sep="")] != NAV
-),paste("action.",attributes$key,sep="")] ) &
-(is.null(attributes) | actions[,paste("action.",attr$key,sep="")] != NAV)
+# Filter resources
+if(attrs$key %in% colnames(localResources))
+for(k in attrs$key) {
+localResources <- localResources[-which(localResources[,k] != attrs[which(attrs$key ==k),"value"]),]
+}
+}
+
+for(r in localResources$idResource) {
+t <- localResources[which(localResources$idResource == r),"type"]
+
+u <- localActions[which(localActions$idResource == r),"idUser"]
+
+actionsCount <- nrow(localActions[which(
+localActions$idResource == r & (
+(is.null(users) || all(localUsers %in% u)) &
+(is.null(from) || localActions$millis >= from) &
+(is.null(to) || localActions$millis <= to)
 )
-))
+),])
 
-oldValue <- result[which(result$type == resources[which(resources$idResource == r),"type"]),"usage"]
-result[which(result$type == resources[which(resources$idResource == r),"type"]),"usage"] <- (oldValue+actionsCount)
+#if(!is.null(attrs)) {
+#  for(k in attrs$key) {
+#    v <- tmp[,paste("action.",attr$key,sep="")]
+#    tmp <- tmp[-which(v != attrs[,"value"]),]
+#  }
+#}
+
+#actionsCount <- nrow(tmp)
+
+oldValue <- result[which(result$type == localResources[which(localResources$idResource == r),"type"]),"usage"]
+result[which(result$type == localResources[which(localResources$idResource == r),"type"]),"usage"] <- (oldValue+actionsCount)
 }
 
 # Normalize
@@ -51,29 +77,47 @@ return(result)
 
 # ok - testata
 # https://demo.vaadin.com/charts/#ColumnWithMultiLevelDrilldown
-resourcesUsageTime <- function(users=NULL,from=NULL,to=NULL,attributes=NULL,normalize=FALSE){
+resourcesUsageTime <- function(users=NULL,from=NULL,to=NULL,attrs=NULL,normalize=FALSE){
   type <- unique(resources[,"type"])
 time <- c(0)
 
 result <- data.frame(type,time)
 
-for(r in resources$idResource) {
-  t <- resources[which(resources$idResource == r),"type"]
+localActions <- actions
+localResources <- resources
+localUsers <- users
 
-u <- actions[which(actions$idResource == r),"idUser"]
+# Filter attributes
+if(!is.null(attrs)) {
+  # Filter actions
+if(attrs$key %in% colnames(localActions))
+for(k in attrs$key) {
+  localActions <- localActions[-which(localActions[,k] != attrs[which(attrs$key ==k),"value"]),]
+}
+# Filter users
+if(attrs$key %in% colnames(localUsers))
+for(k in attrs$key) {
+  localUsers <- localUsers[-which(localUsers[,k] != attrs[which(attrs$key ==k),"value"]),]
+}
 
-times <- (actions$action.totaltime[
+# Filter resources
+if(attrs$key %in% colnames(localResources))
+for(k in attrs$key) {
+  localResources <- localResources[-which(localResources[,k] != attrs[which(attrs$key ==k),"value"]),]
+}
+}
+
+for(r in localResources$idResource) {
+  t <- localResources[which(localResources$idResource == r),"type"]
+
+u <- localActions[which(localActions$idResource == r),"idUser"]
+
+times <- (localActions$action.totaltime[
 which(
-actions$idResource == r & actions$action.totaltime != NAV & (
-(is.null(users) || all(users %in% u)) &
-(is.null(from) || actions$millis >= from) &
-(is.null(to) || actions$millis <= to) ) &
-(is.null(attributes) || length(actions[,paste("action.",attributes$key,sep="")]) > 0 &&
-attributes$value %in% actions[which(
-actions$idResource == r  & actions$idUser %in% u &
-actions[,paste("action.",attr$key,sep="")] != NAV
-),paste("action.",attributes$key,sep="")] ) &
-(is.null(attributes) | actions[,paste("action.",attr$key,sep="")] != NAV)
+localActions$idResource == r & localActions$action.totaltime != NAV & (
+(is.null(users) || all(localUsers %in% u)) &
+(is.null(from) || localActions$millis >= from) &
+(is.null(to) || localActions$millis <= to) )
 )
 ])
 
@@ -84,6 +128,34 @@ totaltime <- sum(times)
 
 result[which(type == t),"time"] <- (result[which(type == t),"time"] + totaltime)
 }
+
+#for(r in resources$idResource) {
+#  t <- resources[which(resources$idResource == r),"type"]
+#
+#  u <- actions[which(actions$idResource == r),"idUser"]
+#
+#  times <- (actions$action.totaltime[
+#    which(
+#      actions$idResource == r & actions$action.totaltime != NAV & (
+#      (is.null(users) || all(users %in% u)) &
+#      (is.null(from) || actions$millis >= from) &
+#      (is.null(to) || actions$millis <= to) )# &
+#        #(is.null(attrs) || length(actions[,paste("action.",attrs$key,sep="")]) > 0 &&
+#        #   attrs$value %in% actions[which(
+#        #     actions$idResource == r  & actions$idUser %in% u &
+#        #       actions[,paste("action.",attr$key,sep="")] != NAV
+#        #   ),paste("action.",attr$key,sep="")] ) &
+#        #(is.null(attrs) | actions[,paste("action.",attr$key,sep="")] != NAV)
+#    )
+#  ])
+#
+#  # Convert string to numeric
+#  times <- as.numeric(times)
+#
+#  totaltime <- sum(times)
+#
+#  result[which(type == t),"time"] <- (result[which(type == t),"time"] + totaltime)
+#}
 
 # Normalize
 if(normalize) {
@@ -98,8 +170,32 @@ return(result)
 
 # ok - testata
 # https://demo.vaadin.com/charts/#BasicLine
-dailyActiveUsers <- function(from,to,normalize=FALSE) {
-  days <- c()
+dailyActiveUsers <- function(from,to,attrs=NULL,normalize=FALSE) {
+  localActions <- actions
+localResources <- resources
+localUsers <- users
+
+# Filter attributes
+if(!is.null(attrs)) {
+  # Filter actions
+if(attrs$key %in% colnames(localActions))
+for(k in attrs$key) {
+  localActions <- localActions[-which(localActions[,k] != attrs[which(attrs$key ==k),"value"]),]
+}
+# Filter users
+if(attrs$key %in% colnames(localUsers))
+for(k in attrs$key) {
+  localUsers <- localUsers[-which(localUsers[,k] != attrs[which(attrs$key ==k),"value"]),]
+}
+
+# Filter resources
+if(attrs$key %in% colnames(localResources))
+for(k in attrs$key) {
+  localResources <- localResources[-which(localResources[,k] != attrs[which(attrs$key ==k),"value"]),]
+}
+}
+
+days <- c()
 activeUsers <- c()
 
 fromDate <- as.POSIXct(from/1000, origin="1970-01-01")
@@ -108,13 +204,15 @@ fromDate <- as.Date(fromDate)
 toDate <- as.POSIXct(to/1000, origin="1970-01-01")
 toDate <- as.Date(toDate)
 
-actionDays <- actions$millis
+actionDays <- localActions$millis
 actionDays <- as.POSIXct(actionDays/1000, origin="1970-01-01")
 actionDays <- as.Date(actionDays)
 
+
 while(fromDate <= toDate) {
   days <- append(days, as.Date(fromDate))
-activeUsers <- append(activeUsers, length(unique(actions[which(actionDays == fromDate),"idUser"])))
+activeUsers <- append(activeUsers, length(unique(localActions[
+which(actionDays == fromDate),"idUser"])))
 
 fromDate <- (fromDate + 1)
 }
@@ -134,8 +232,32 @@ return(result)
 
 # ok - testata
 # https://demo.vaadin.com/charts/#BasicLine
-dailyActiveResources <- function(from,to,normalize=FALSE) {
-  days <- c()
+dailyActiveResources <- function(from,to,attrs=NULL,normalize=FALSE) {
+  localActions <- actions
+localResources <- resources
+localUsers <- users
+
+# Filter attributes
+if(!is.null(attrs)) {
+  # Filter actions
+if(attrs$key %in% colnames(localActions))
+for(k in attrs$key) {
+  localActions <- localActions[-which(localActions[,k] != attrs[which(attrs$key ==k),"value"]),]
+}
+# Filter users
+if(attrs$key %in% colnames(localUsers))
+for(k in attrs$key) {
+  localUsers <- localUsers[-which(localUsers[,k] != attrs[which(attrs$key ==k),"value"]),]
+}
+
+# Filter resources
+if(attrs$key %in% colnames(localResources))
+for(k in attrs$key) {
+  localResources <- localResources[-which(localResources[,k] != attrs[which(attrs$key ==k),"value"]),]
+}
+}
+
+days <- c()
 activeResources <- c()
 
 fromDate <- as.POSIXct(from/1000, origin="1970-01-01")
@@ -144,13 +266,13 @@ fromDate <- as.Date(fromDate)
 toDate <- as.POSIXct(to/1000, origin="1970-01-01")
 toDate <- as.Date(toDate)
 
-actionDays <- actions$millis
+actionDays <- localActions$millis
 actionDays <- as.POSIXct(actionDays/1000, origin="1970-01-01")
 actionDays <- as.Date(actionDays)
 
 while(fromDate <= toDate) {
   days <- append(days, as.Date(fromDate))
-activeResources <- append(activeResources, length(unique(actions[which(actionDays == fromDate),"idResource"])))
+activeResources <- append(activeResources, length(unique(localActions[which(actionDays == fromDate),"idResource"])))
 
 fromDate <- (fromDate + 1)
 }
@@ -170,14 +292,38 @@ return(result)
 
 # ok - testata
 # https://demo.vaadin.com/charts/#BasicLineGettingMousePointerPosition
-dailyActivitiesReleatedToUsersAndResources <- function(from,to,normalize=FALSE) {
-  merge(dailyActiveUsers(from,to,normalize),dailyActiveResources(from,to,normalize))
+dailyActivitiesReleatedToUsersAndResources <- function(from,to,attrs=NULL,normalize=FALSE) {
+  merge(dailyActiveUsers(from,to,attrs,normalize),dailyActiveResources(from,to,attrs,normalize))
 }
 
 # ok - testata
 # https://demo.vaadin.com/charts/#BasicLine
-timeRangesUsage <- function(normalize=FALSE) {
-  hours <- c("00:00-00:59", "00:01-01:59", "02:00-02:59", "00:03-03:59", "00:04-04:59",
+timeRangesUsage <- function(attrs=NULL,normalize=FALSE) {
+  localActions <- actions
+localResources <- resources
+localUsers <- users
+
+# Filter attributes
+if(!is.null(attrs)) {
+  # Filter actions
+if(attrs$key %in% colnames(localActions))
+for(k in attrs$key) {
+  localActions <- localActions[-which(localActions[,k] != attrs[which(attrs$key ==k),"value"]),]
+}
+# Filter users
+if(attrs$key %in% colnames(localUsers))
+for(k in attrs$key) {
+  localUsers <- localUsers[-which(localUsers[,k] != attrs[which(attrs$key ==k),"value"]),]
+}
+
+# Filter resources
+if(attrs$key %in% colnames(localResources))
+for(k in attrs$key) {
+  localResources <- localResources[-which(localResources[,k] != attrs[which(attrs$key ==k),"value"]),]
+}
+}
+
+hours <- c("00:00-00:59", "00:01-01:59", "02:00-02:59", "00:03-03:59", "00:04-04:59",
 "05:00-05:59", "06:00-06:59", "07:00-07:59", "08:00-08:59", "00:09-09:59",
 "10:00-10:59", "11:00-11:59", "12:00-12:59", "13:00-13:59", "14:00-14:59",
 "15:00-15:59", "16:00-16:59", "17:00-17:59", "18:00-18:59", "19:00-19:59",
@@ -187,7 +333,7 @@ hourCount <- vector(mode="integer", length=24)
 
 usageDf <- data.frame(hours,hourCount)
 
-for(millis in actions$millis) {
+for(millis in localActions$millis) {
   hour <- (millis/(1000*60*60)) %% 24
 usageDf[hour+1,2] <- usageDf[hour+1,2] + 1
 }
@@ -205,16 +351,40 @@ return(usageDf)
 
 # ok - testata
 # https://demo.vaadin.com/charts/#PieChart
-mostUsedOS <- function(users=NULL,normalize=FALSE) {
-  os <- unique(actions[which(actions$action.os != NAV),"action.os"])
+mostUsedOS <- function(users=NULL,attrs=NULL,normalize=FALSE) {
+  localActions <- actions
+localResources <- resources
+localUsers <- users
+
+# Filter attributes
+if(!is.null(attrs)) {
+  # Filter actions
+if(attrs$key %in% colnames(localActions))
+for(k in attrs$key) {
+  localActions <- localActions[-which(localActions[,k] != attrs[which(attrs$key ==k),"value"]),]
+}
+# Filter users
+if(attrs$key %in% colnames(localUsers))
+for(k in attrs$key) {
+  localUsers <- localUsers[-which(localUsers[,k] != attrs[which(attrs$key ==k),"value"]),]
+}
+
+# Filter resources
+if(attrs$key %in% colnames(localResources))
+for(k in attrs$key) {
+  localResources <- localResources[-which(localResources[,k] != attrs[which(attrs$key ==k),"value"]),]
+}
+}
+
+os <- unique(localActions[which(localActions$action.os != NAV),"action.os"])
 count <- rep(0, length(os))
 
 result <- data.frame(os,count)
 
-for(idAction in actions$idAction) {
-  u <- actions[which(actions$idAction == idAction),"idUser"]
+for(idAction in localActions$idAction) {
+  u <- localActions[which(localActions$idAction == idAction),"idUser"]
 
-actionOs <- actions[which(actions$idAction == idAction & (
+actionOs <- localActions[which(localActions$idAction == idAction & (
 (is.null(users) || all(u %in% users)))),"action.os"]
 
 result[which(result$os == actionOs),"count"] <- (result[which(result$os == actionOs),"count"] + 1)
@@ -233,8 +403,32 @@ return(result)
 
 # ok - testata
 # https://demo.vaadin.com/charts/#BasicLineWithDataLabels
-resourceAddedPerDays <- function(users=NULL,from=NULL,to=NULL,normalize=FALSE) {
-  days <- c()
+resourceAddedPerDays <- function(users=NULL,from=NULL,to=NULL,attrs=NULL,normalize=FALSE) {
+  localActions <- actions
+localResources <- resources
+localUsers <- users
+
+# Filter attributes
+if(!is.null(attrs)) {
+  # Filter actions
+if(attrs$key %in% colnames(localActions))
+for(k in attrs$key) {
+  localActions <- localActions[-which(localActions[,k] != attrs[which(attrs$key ==k),"value"]),]
+}
+# Filter users
+if(attrs$key %in% colnames(localUsers))
+for(k in attrs$key) {
+  localUsers <- localUsers[-which(localUsers[,k] != attrs[which(attrs$key ==k),"value"]),]
+}
+
+# Filter resources
+if(attrs$key %in% colnames(localResources))
+for(k in attrs$key) {
+  localResources <- localResources[-which(localResources[,k] != attrs[which(attrs$key ==k),"value"]),]
+}
+}
+
+days <- c()
 resourcesAdded <- c()
 
 fromDate <- as.POSIXct(from/1000, origin="1970-01-01")
@@ -243,14 +437,14 @@ fromDate <- as.Date(fromDate)
 toDate <- as.POSIXct(to/1000, origin="1970-01-01")
 toDate <- as.Date(toDate)
 
-actionDays <- actions$millis
+actionDays <- localActions$millis
 actionDays <- as.POSIXct(actionDays/1000, origin="1970-01-01")
 actionDays <- as.Date(actionDays)
 
 while(fromDate <= toDate) {
   days <- append(days, as.Date(fromDate))
 
-tmp <- actions
+tmp <- localActions
 tmp$millis <- as.POSIXct(tmp$millis/1000, origin="1970-01-01")
 tmp$millis <- as.Date(actionDays)
 

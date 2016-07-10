@@ -31,21 +31,21 @@ public class AnalyzerController {
     public ListVector performQuery(QueryType query, Integer[] users, long from, long to,
                                    ListVector attributes, boolean normalize) throws ScriptException {
 
-        engine.put("users", users);
+        engine.put("users", users != null && users.length > 0 ? users : null);
         engine.put("from", from);
         engine.put("to", to);
-        engine.put("attributes", attributes);
+        engine.put("attrs", attributes != null && attributes.length() > 0 ? attributes : null);
         engine.put("normalize", normalize);
 
         switch (query) {
             case RESOURCE_USAGE:
                 ////////////
                 return (ListVector) engine.eval(
-                        "resourcesUsage(users=users,from=from,to=to,attributes=attributes,normalize=normalize)");
+                        "resourcesUsage(users=users,from=from,to=to,attrs=attrs,normalize=normalize)");
             case RESOURCE_USAGE_TIME:
                 ////////////
                 return (ListVector) engine.eval(
-                        "resourcesUsageTime(users=users,from=from,to=to,attributes=attributes,normalize=normalize)");
+                        "resourcesUsageTime(users=users,from=from,to=to,attrs=attrs,normalize=normalize)");
             case DAILY_ACTIVE_USERS:
                 return (ListVector) engine.eval(
                         "dailyActiveUsers(from=from,to=to,normalize=normalize)");
