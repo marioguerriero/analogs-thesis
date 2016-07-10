@@ -22,6 +22,10 @@ public class LogSourceHandler {
         sourceHandlers = new HashMap<>();
     }
 
+    public boolean contains(String id) {
+        return sourceHandlers.containsKey(id);
+    }
+
     public void attach(String id, ILogHandler sourceHandler) {
         sourceHandlers.put(id, sourceHandler);
     }

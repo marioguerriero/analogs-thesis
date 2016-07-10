@@ -6,6 +6,10 @@ import java.util.*;
 /**
  * Created by paolomoriello on 29/06/16.
  */
+
+/**
+ * Created by paolomoriello on 29/06/16.
+ */
 @Entity
 @Table(name = "user")
 public class User {

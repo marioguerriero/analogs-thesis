@@ -15,11 +15,9 @@ public class MoodleLogHandler implements ILogHandler {
     private Connection connection;
     private Statement statement;
     private int id;
-    private String dbidentifier;
 
 
-    public MoodleLogHandler(String dbidentifier, String dialect, String host, String port, String sourcedb, String username, String password) {
-        this.dbidentifier = dbidentifier;
+    public MoodleLogHandler(String dialect, String host, String port, String sourcedb, String username, String password) {
         try {
             connection = DriverManager.getConnection("jdbc:"+dialect+"://"+host+":"+port+"/"+sourcedb+"?" +
             "user="+username+"&password="+password);
@@ -28,34 +26,14 @@ public class MoodleLogHandler implements ILogHandler {
         }
     }
 
-    public static void main(String[] args) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        String db1 = "moodle";
-        String host1 = "localhost";
-        String port1 = "5432";
-        String dialect1 = "postgresql";
-
-        String host2 = "localhost";
-        String port2 = "3306";
-        String dialect2 = "mysql";
-        String db2 = "bugs";
-
-        FacadeLogSource facadeLogSource = new FacadeLogSource();
-
-        //facadeLogSource.addDataSource("moodle", dialect1, host1, port1, db1, "postgres", "mario");
-        //facadeLogSource.addDataSource("bugzilla", dialect2, host2, port2, db2, "thesis", "thesis");
-
-        facadeLogSource.closeSession();
-    }
-
-    public int getId() { return id; }
 
 
     @Override
-    public Model buildModel(int id) {
+    public Model buildModel() {
         Set<User> users = new HashSet<>();
         Set<Action> actions = new HashSet<>();
         Set<Resource> resources = new HashSet<>();
-        this.id = id;
+        this.id = 1;
 
         ResultSet resultSet = null;
         try {
@@ -75,8 +53,7 @@ public class MoodleLogHandler implements ILogHandler {
                 String timecreated = "timecreated";
                 boolean temp = false;
                 for(User u: users) {
-                    if(u.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                            && u.getUsername().equals(username) && !temp) {
+                    if(u.getUsername().equals(username) && !temp) {
                         temp = true;
                         u.appendProperty("role", resultSet.getString("shortname"));
                     }
@@ -86,7 +63,6 @@ public class MoodleLogHandler implements ILogHandler {
                     User u = new User(realname, username, properties);
                     u.setIdUser(this.id);
                     properties.put("sourceid", new UserProperty(u, "sourceid", resultSet.getString("userid")));
-                    properties.put("sourcedb", new UserProperty(u, "sourcedb", dbidentifier));
                     properties.put(country, new UserProperty(u, country, resultSet.getString(country)));
                     properties.put(lang, new UserProperty(u, lang, resultSet.getString(lang)));
                     properties.put(firstaccess, new UserProperty(u, firstaccess, resultSet.getString(firstaccess)+"000"));
@@ -107,7 +83,6 @@ public class MoodleLogHandler implements ILogHandler {
                 Resource r = new Resource("course_category", properties);
                 r.setIdResource(this.id);
                 properties.put("sourceid", new ResourceProperty(r, "sourceid", resultSet.getString("id")));
-                properties.put("sourcedb", new ResourceProperty(r, "sourcedb",dbidentifier));
                 properties.put("name", new ResourceProperty(r, "name", resultSet.getString("name")));
                 properties.put("description", new ResourceProperty(r, "description", resultSet.getString("description")));
                 properties.put("timemodified", new ResourceProperty(r, "timemodified", resultSet.getString("timemodified")+"000"));
@@ -123,11 +98,10 @@ public class MoodleLogHandler implements ILogHandler {
                 Resource r = new Resource("course", properties);
                 r.setIdResource(this.id);
                 properties.put("sourceid", new ResourceProperty(r, "sourceid", resultSet.getString("id")));
-                properties.put("sourcedb", new ResourceProperty(r, "sourcedb",dbidentifier));
                 for(Resource rs: resources) {
-                    if(rs.getProperties().get("sourcedb").getValue().equals(dbidentifier) && rs.getType().equalsIgnoreCase("course_category") && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("category"))) {
+                    if(rs.getType().equalsIgnoreCase("course_category") && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("category"))) {
                         properties.put("category", new ResourceProperty(r, "category", rs.getIdResource() + ""));
-                        r.setResourceParent(rs);
+                        r.setIdParent(rs);
                     }
                 }
                 properties.put("fullname", new ResourceProperty(r, "fullname", resultSet.getString("fullname")));
@@ -148,13 +122,11 @@ public class MoodleLogHandler implements ILogHandler {
                 r.setIdResource(this.id);
                 properties.put("name", new ResourceProperty(r, "name", resultSet.getString("name")));
                 properties.put("sourceid", new ResourceProperty(r, "sourceid", resultSet.getString("id")));
-                properties.put("sourcedb", new ResourceProperty(r, "sourcedb", dbidentifier));
                 for(Resource rs: resources) {
-                    if(rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                            && rs.getType().equalsIgnoreCase("course")
+                    if(rs.getType().equalsIgnoreCase("course")
                             && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("course"))) {
                         properties.put("course", new ResourceProperty(r, "course", rs.getIdResource() + ""));
-                        r.setResourceParent(rs);
+                        r.setIdParent(rs);
                     }
                 }
                 properties.put("intro", new ResourceProperty(r, "intro", resultSet.getString("intro")));
@@ -173,17 +145,14 @@ public class MoodleLogHandler implements ILogHandler {
                 Action a = new Action();
                 a.setMillis(resultSet.getLong("timecreated")*1000);
                 a.setProperties(properties);
-                properties.put("sourcedb", new ActionProperty(a, "sourcedb", dbidentifier));
                 a.setType('c');
                 for(Resource rs: resources) {
-                    if(rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                            && rs.getType().equalsIgnoreCase("assignment")
+                    if(rs.getType().equalsIgnoreCase("assignment")
                             && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("assignment")))
                         a.setResource(rs);
                 }
                 for(User u: users) {
-                    if(u.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                            && u.getProperties().get("sourceid").getValue().equals(resultSet.getString("userid")))
+                    if(u.getProperties().get("sourceid").getValue().equals(resultSet.getString("userid")))
                         a.setUserFrom(u);
                 }
                 actions.add(a);
@@ -198,11 +167,9 @@ public class MoodleLogHandler implements ILogHandler {
                 Resource r = new Resource("comment", properties);
                 r.setIdResource(this.id);
                 properties.put("sourceid", new ResourceProperty(r, "sourceid", resultSet.getString("id")));
-                properties.put("sourcedb", new ResourceProperty(r, "sourcedb",dbidentifier));
                 properties.put("content", new ResourceProperty(r, "content", resultSet.getString("content")));
                 for(User u: users) {
-                    if(u.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                            && u.getProperties().get("sourceid").getValue().equals(resultSet.getString("userid")))
+                    if(u.getProperties().get("sourceid").getValue().equals(resultSet.getString("userid")))
                         properties.put("userid", new ResourceProperty(r, "userid", u.getIdUser()+""));
                 }
                 properties.put("timecreated", new ResourceProperty(r, "timecreated", resultSet.getString("timecreated")+"000"));
@@ -219,20 +186,17 @@ public class MoodleLogHandler implements ILogHandler {
                 Resource r = new Resource("course_event", properties);
                 r.setIdResource(this.id);
                 properties.put("sourceid",new ResourceProperty(r, "sourceid", resultSet.getString("id")));
-                properties.put("sourcedb", new ResourceProperty(r, "sourcedb",dbidentifier));
                 properties.put("name", new ResourceProperty(r, "name", resultSet.getString("name")));
                 properties.put("description", new ResourceProperty(r, "description", resultSet.getString("description")));
                 for(Resource rs: resources) {
-                    if(rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                            && rs.getType().equals("course")
+                    if(rs.getType().equals("course")
                             && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("courseid"))) {
                         properties.put("courseid", new ResourceProperty(r, "courseid", rs.getIdResource() + ""));
-                        r.setResourceParent(rs);
+                        r.setIdParent(rs);
                     }
                 }
                 for(User u: users) {
-                    if(u.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                            && u.getProperties().get("sourceid").getValue().equals(resultSet.getString("userid")))
+                    if(u.getProperties().get("sourceid").getValue().equals(resultSet.getString("userid")))
                         properties.put("userid", new ResourceProperty(r, "userid", u.getIdUser()+""));
                 }
                 properties.put("eventtype", new ResourceProperty(r, "eventtype", resultSet.getString("eventtype")));
@@ -253,13 +217,10 @@ public class MoodleLogHandler implements ILogHandler {
                 Resource r = new Resource("message", properties);
                 r.setIdResource(this.id);
                 properties.put("sourceid", new ResourceProperty(r, "sourceid", resultSet.getString("id")));
-                properties.put("sourcedb", new ResourceProperty(r, "sourcedb",dbidentifier));
                 for(User u: users) {
-                    if(u.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                            && u.getProperties().get("sourceid").getValue().equals(resultSet.getString("useridfrom")))
+                    if(u.getProperties().get("sourceid").getValue().equals(resultSet.getString("useridfrom")))
                         properties.put("useridfrom", new ResourceProperty(r, "useridfrom", u.getIdUser()+""));
-                    else if(u.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                            && u.getProperties().get("sourceid").getValue().equals(resultSet.getString("useridto")))
+                    else if(u.getProperties().get("sourceid").getValue().equals(resultSet.getString("useridto")))
                         properties.put("useridto", new ResourceProperty(r, "useridto", u.getIdUser()+""));
                 }
                 properties.put("subject", new ResourceProperty(r, "subject", resultSet.getString("subject")));
@@ -278,13 +239,11 @@ public class MoodleLogHandler implements ILogHandler {
                 Resource r = new Resource("lesson", properties);
                 r.setIdResource(this.id);
                 properties.put("sourceid", new ResourceProperty(r, "sourceid", resultSet.getString("id")));
-                properties.put("sourcedb", new ResourceProperty(r, "sourcedb",dbidentifier));
                 for(Resource rs: resources) {
-                    if(rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                            && rs.getType().equals("course")
+                    if(rs.getType().equals("course")
                             && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("course"))) {
                         properties.put("courseid", new ResourceProperty(r, "courseid", rs.getIdResource()+""));
-                        r.setResourceParent(rs);
+                        r.setIdParent(rs);
                     }
                 }
                 properties.put("name", new ResourceProperty(r, "name", resultSet.getString("name")));
@@ -302,7 +261,6 @@ public class MoodleLogHandler implements ILogHandler {
                 Resource r = new Resource("role", properties);
                 r.setIdResource(this.id);
                 properties.put("sourceid", new ResourceProperty(r, "sourceid", resultSet.getString("id")));
-                properties.put("sourcedb", new ResourceProperty(r, "sourcedb",dbidentifier));
                 properties.put("name", new ResourceProperty(r, "name", resultSet.getString("shortname")));
                 resources.add(r);
                 this.id++;
@@ -317,7 +275,6 @@ public class MoodleLogHandler implements ILogHandler {
                 Resource r = new Resource("module", properties);
                 r.setIdResource(this.id);
                 properties.put("sourceid", new ResourceProperty(r, "sourceid", resultSet.getString("id")));
-                properties.put("sourcedb", new ResourceProperty(r, "sourcedb",dbidentifier));
                 properties.put("name", new ResourceProperty(r, "name", resultSet.getString("name")));
                 resources.add(r);
                 this.id++;
@@ -331,17 +288,14 @@ public class MoodleLogHandler implements ILogHandler {
                 Resource r = new Resource("course_module", properties);
                 r.setIdResource(this.id);
                 properties.put("sourceid", new ResourceProperty(r, "sourceid", resultSet.getString("id")));
-                properties.put("sourcedb", new ResourceProperty(r, "sourcedb",dbidentifier));
                 properties.put("timecreated", new ResourceProperty(r, "timecreated", resultSet.getString("added")));
 
                 for(Resource rs: resources) {
-                    if(rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                            && rs.getType().equals("course")
+                    if(rs.getType().equals("course")
                             && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("course"))) {
                         properties.put("courseid", new ResourceProperty(r, "courseid", rs.getIdResource() + ""));
                     }
-                    else if(rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                            && rs.getType().equals("module")
+                    else if(rs.getType().equals("module")
                             && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("module")))
                         properties.put("moduleid", new ResourceProperty(r, "moduleid", rs.getIdResource()+""));
                 }
@@ -361,15 +315,13 @@ public class MoodleLogHandler implements ILogHandler {
                 r.setIdResource(this.id);
                 if(resultSet.getString("author") != null) {
                     properties.put("sourceid", new ResourceProperty(r, "sourceid", resultSet.getString("id")));
-                    properties.put("sourcedb", new ResourceProperty(r, "sourcedb", dbidentifier));
                     properties.put("timecreated", new ResourceProperty(r, "timecreated", resultSet.getString("timecreated")));
                     properties.put("timemodified", new ResourceProperty(r, "timemodified", resultSet.getString("timemodified")));
                     properties.put("component", new ResourceProperty(r, "component", resultSet.getString("component")));
                     properties.put("filearea", new ResourceProperty(r, "filearea", resultSet.getString("filearea")));
                     properties.put("filepath", new ResourceProperty(r, "filepath", resultSet.getString("filepath")));
                     for(User u: users) {
-                        if(u.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                                && u.getProperties().get("sourceid").getValue().equals(resultSet.getString("userid")))
+                        if(u.getProperties().get("sourceid").getValue().equals(resultSet.getString("userid")))
                             properties.put("userid", new ResourceProperty(r, "userid", u.getIdUser()+""));
                     }
                     properties.put("filesize", new ResourceProperty(r, "filesize", resultSet.getString("filesize")));
@@ -390,7 +342,6 @@ public class MoodleLogHandler implements ILogHandler {
                     Map<String, ActionProperty> properties = new HashMap<>();
                     Action a = new Action();
                     a.setProperties(properties);
-                    properties.put("sourcedb", new ActionProperty(a, "sourcedb", dbidentifier));
                     if(resultSet.getString("timecreated").equals(resultSet.getString("timemodified"))) {
                         a.setType('c');
                         a.setMillis(resultSet.getLong("timecreated") * 1000);
@@ -400,14 +351,12 @@ public class MoodleLogHandler implements ILogHandler {
                         a.setMillis(resultSet.getLong("timemodified") * 1000);
                     }
                     for (Resource rs : resources) {
-                        if (rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                                && rs.getType().equalsIgnoreCase("file")
+                        if (rs.getType().equalsIgnoreCase("file")
                                 && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("id")))
                             a.setResource(rs);
                     }
                     for (User u : users) {
-                        if (u.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                                && u.getProperties().get("sourceid").getValue().equals(resultSet.getString("userid")))
+                        if (u.getProperties().get("sourceid").getValue().equals(resultSet.getString("userid")))
                             a.setUserFrom(u);
                     }
                     actions.add(a);
@@ -423,13 +372,11 @@ public class MoodleLogHandler implements ILogHandler {
                 Resource r = new Resource("scorm", properties);
                 r.setIdResource(this.id);
                 properties.put("sourceid",new ResourceProperty(r, "sourceid", resultSet.getString("id")));
-                properties.put("sourcedb", new ResourceProperty(r, "sourcedb",dbidentifier));
                 for(Resource rs: resources) {
-                    if(rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                            && rs.getType().equals("course")
+                    if(rs.getType().equals("course")
                             && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("course"))) {
                         properties.put("courseid", new ResourceProperty(r, "courseid", rs.getIdResource() + ""));
-                        r.setResourceParent(rs);
+                        r.setIdParent(rs);
                     }
                 }
                 properties.put("name", new ResourceProperty(r, "name", resultSet.getString("name")));
@@ -450,8 +397,7 @@ public class MoodleLogHandler implements ILogHandler {
                     case "role": {
                         for(Resource rs: resources) {
                             read = true;
-                            if(rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                                    && rs.getType().equals("role")
+                            if(rs.getType().equals("role")
                                     && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("objectid"))) {
                                 a.setResource(rs);
                                 break;
@@ -464,8 +410,7 @@ public class MoodleLogHandler implements ILogHandler {
                     case "course": {
                         for(Resource rs: resources) {
                             read = true;
-                            if(rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                                    && rs.getType().equals("course")
+                            if(rs.getType().equals("course")
                                     && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("courseid"))) {
                                 a.setResource(rs);
                                 break;
@@ -478,8 +423,7 @@ public class MoodleLogHandler implements ILogHandler {
                     case "comment": {
                         for(Resource rs: resources) {
                             read = true;
-                            if(rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                                    && rs.getType().equals("comment")
+                            if(rs.getType().equals("comment")
                                     && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("objectid"))) {
                                 a.setResource(rs);
                                 break;
@@ -492,8 +436,7 @@ public class MoodleLogHandler implements ILogHandler {
                     case "message": {
                         for(Resource rs: resources) {
                             read = true;
-                            if(rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                                    && rs.getType().equals("message")
+                            if(rs.getType().equals("message")
                                     && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("objectid"))) {
                                 a.setResource(rs);
                                 break;
@@ -506,8 +449,7 @@ public class MoodleLogHandler implements ILogHandler {
                     case "course_catergory": {
                         for(Resource rs: resources) {
                             read = true;
-                            if(rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                                    && rs.getType().equals("course_catergory")
+                            if(rs.getType().equals("course_catergory")
                                     && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("objectid"))) {
                                 a.setResource(rs);
                                 break;
@@ -521,8 +463,7 @@ public class MoodleLogHandler implements ILogHandler {
                         if(resultSet.getString("objecttable").equals("course_modules")) {
                             for(Resource rs: resources) {
                                 read = true;
-                                if(rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                                        && rs.getType().equals("course_module")
+                                if(rs.getType().equals("course_module")
                                         && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("objectid"))) {
                                     a.setResource(rs);
                                     break;
@@ -534,8 +475,7 @@ public class MoodleLogHandler implements ILogHandler {
                         else if(resultSet.getString("objecttable").equals("scorm")) {
                             for(Resource rs: resources) {
                                 read = true;
-                                if(rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                                        && rs.getType().equals("scorm")
+                                if(rs.getType().equals("scorm")
                                         && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("objectid"))) {
                                     a.setResource(rs);
                                     break;
@@ -547,8 +487,7 @@ public class MoodleLogHandler implements ILogHandler {
                         else if(resultSet.getString("objecttable").equals("resource")) {
                             for(Resource rs: resources) {
                                 read = true;
-                                if(rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                                        && rs.getType().equals("lesson")
+                                if(rs.getType().equals("lesson")
                                         && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("objectid"))) {
                                     a.setResource(rs);
                                     break;
@@ -562,8 +501,7 @@ public class MoodleLogHandler implements ILogHandler {
                     case "calendar_event": {
                         for(Resource rs: resources) {
                             read = true;
-                            if(rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                                    && rs.getType().equals("event")
+                            if(rs.getType().equals("event")
                                     && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("objectid"))) {
                                 a.setResource(rs);
                                 break;
@@ -576,8 +514,7 @@ public class MoodleLogHandler implements ILogHandler {
                     case "status": {
                         for(Resource rs: resources) {
                             read = true;
-                            if(rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                                    && rs.getType().equals("scorm")
+                            if(rs.getType().equals("scorm")
                                     && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("objectid"))) {
                                 a.setResource(rs);
                                 break;
@@ -600,17 +537,14 @@ public class MoodleLogHandler implements ILogHandler {
                     a.setMillis(resultSet.getLong("timecreated")*1000);
                     a.setProperties(properties);
                     for(User u: users) {
-                        if(u.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                                && u.getProperties().get("sourceid").getValue().equals(resultSet.getString("userid")))
+                        if(u.getProperties().get("sourceid").getValue().equals(resultSet.getString("userid")))
                             a.setUserFrom(u);
                     }
                     for(User u: users) {
-                        if(u.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                                && resultSet.getString("relateduserid") != null
+                        if(resultSet.getString("relateduserid") != null
                                 && u.getProperties().get("sourceid").getValue().equals(resultSet.getString("relateduserid")))
                             a.setUserTo(u);
                     }
-                    properties.put("sourcedb", new ActionProperty(a, "sourcedb", dbidentifier));
                     a.setType(resultSet.getString("crud").charAt(0));
                     properties.put("eventname", new ActionProperty(a, "eventname", resultSet.getString("eventname")));
                     properties.put("target", new ActionProperty(a, "target", resultSet.getString("target")));
@@ -627,17 +561,14 @@ public class MoodleLogHandler implements ILogHandler {
                 Action a = new Action();
                 a.setMillis(resultSet.getLong("timemodified")*1000);
                 a.setProperties(properties);
-                properties.put("sourcedb", new ActionProperty(a, "sourcedb", dbidentifier));
                 for(Resource rs: resources) {
-                    if(rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                            && rs.getType().equals("scorm")
+                    if(rs.getType().equals("scorm")
                             && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("scormid")))
                         a.setResource(rs);
                 }
                 properties.put("target", new ActionProperty(a, "target", "scorm"));
                 for(User u: users) {
-                    if(u.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                            && u.getProperties().get("sourceid").getValue().equals(resultSet.getString("userid")))
+                    if(u.getProperties().get("sourceid").getValue().equals(resultSet.getString("userid")))
                         a.setUserFrom(u);
                 }
                 String element = resultSet.getString("element");

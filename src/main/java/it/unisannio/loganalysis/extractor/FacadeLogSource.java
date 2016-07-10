@@ -47,25 +47,29 @@ public class FacadeLogSource {
     public void addDataSource(String type, String dialect, String host, String port, String sourcedb, String username, String password)
             throws ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
 
-        String identifier = dialect+"://"+host+":"+port+"/"+sourcedb;
+        String identifier = host+"_"+port+"_"+sourcedb;
 
-        String classname = new LogSourceConf(getClass().getResource("/sources").getPath()).readConf().get(type);
+        RepositoryConf repositoryConf = new RepositoryConf("sources");
+        String classname = repositoryConf.readSources().get(type);
         Class c = Class.forName(classname);
-        ILogHandler logHandler = (ILogHandler) c.getConstructor(String.class, String.class, String.class, String.class, String.class, String.class, String.class).newInstance(identifier, dialect, host, port, sourcedb, username, password);
-        LogSourceHandler.getInstance().attach(identifier, logHandler);
+        ILogHandler logHandler = (ILogHandler) c.getConstructor(String.class, String.class, String.class, String.class, String.class, String.class).newInstance(dialect, host, port, sourcedb, username, password);
 
-       //ModelDatabaseHandler.getInstance().parseLogHandler(logHandler);
+        LogSourceHandler logSourceHandler = LogSourceHandler.getInstance();
+        ModelDatabaseHandler modelDatabaseHandler;
+        if(!logSourceHandler.contains(identifier)) {
+            logSourceHandler.attach(identifier, logHandler);
+        }
+
+        modelDatabaseHandler = new ModelDatabaseHandler(identifier);
+        modelDatabaseHandler.parseLogHandler(identifier);
     }
 
     public Collection<String> getDataSourcesTypes() {
-        return new LogSourceConf(getClass().getResource("/sources").getPath()).readConf().keySet();
+        return new RepositoryConf(getClass().getResource("/sources").getPath()).readSources().keySet();
     }
 
     public Collection<String> getDataSources() {
         return LogSourceHandler.getInstance().getIds();
     }
 
-    public void closeSession() {
-        ModelDatabaseHandler.getInstance().closeSession();
-    }
 }

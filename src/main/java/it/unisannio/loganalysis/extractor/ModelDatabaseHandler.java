@@ -6,8 +6,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 
-import java.sql.*;
-import java.util.Stack;
+import java.util.Collection;
 
 
 /**
@@ -15,42 +14,24 @@ import java.util.Stack;
  */
 public class ModelDatabaseHandler {
 
-    private static ModelDatabaseHandler modelDatabaseHandler;
     private Configuration configuration;
     private SessionFactory sessionFactory;
-    private int start_id;
 
-    public ModelDatabaseHandler() {
+    public ModelDatabaseHandler(String dbname) {
         configuration = new Configuration().configure(getClass().getResource("/hibernate.cfg.xml"));
+
+        configuration.setProperty("hibernate.connection.url", "jdbc:mysql://localhost/"+dbname+"?createDatabaseIfNotExist=true");
         sessionFactory = configuration.buildSessionFactory();
-        start_id = getNextId();
     }
 
 
-    public void closeSession() {
-        sessionFactory.close();
-    }
-
-
-    public static ModelDatabaseHandler getInstance() {
-        if(modelDatabaseHandler == null)
-            modelDatabaseHandler = new ModelDatabaseHandler();
-        return modelDatabaseHandler;
-    }
-
-    public void parseLogHandler(ILogHandler datasourcehandler) {
-        Model m = datasourcehandler.buildModel(start_id);
-        start_id = datasourcehandler.getId();
-        setNextId(start_id);
-
-        System.out.println("Start filling the database");
-
+    public void parseLogHandler(String handlerIdentifier) {
+        ILogHandler datasourcehandler = LogSourceHandler.getInstance().getSourceHandler(handlerIdentifier);
+        Model m = datasourcehandler.buildModel();
         fillDatabase(m);
-
-        System.out.println("Database filled correctly");
     }
 
-    private int getNextId() {
+    /*private int getNextId() {
         Connection connection;
         Statement statement = null;
         ResultSet resultSet = null;
@@ -102,7 +83,7 @@ public class ModelDatabaseHandler {
                 }
             }
         }
-    }
+    }*/
 
 
     private void fillDatabase(Model model) {
@@ -111,23 +92,26 @@ public class ModelDatabaseHandler {
 
         for(User u: model.getUsers()) {
             transaction = session.beginTransaction();
-            session.save(u);
+            session.saveOrUpdate(u);
             transaction.commit();
             for(UserProperty up: u.getProperties().values()) {
                 //System.out.println(up.getValue());
                 transaction = session.beginTransaction();
-                session.save(up);
+                session.saveOrUpdate(up);
                 transaction.commit();
             }
         }
 
         for (Resource r: model.getResources()) {
+            //System.out.println("parent "+r.getIdParent().getIdResource());
+            //System.out.println("resource "+r.getIdResource());
+            saveParent(session, model.getResources(), r);
             transaction = session.beginTransaction();
-            session.save(r);
+            session.saveOrUpdate(r);
             transaction.commit();
             for(ResourceProperty rp: r.getProperties().values()) {
                 transaction = session.beginTransaction();
-                session.save(rp);
+                session.saveOrUpdate(rp);
                 transaction.commit();
             }
 
@@ -139,10 +123,26 @@ public class ModelDatabaseHandler {
             transaction.commit();
             for(ActionProperty ap: a.getProperties().values()) {
                 transaction = session.beginTransaction();
-                session.save(ap);
+                session.saveOrUpdate(ap);
                 transaction.commit();
             }
         }
         session.close();
+        sessionFactory.close();
+    }
+
+
+    private void saveParent(Session session, Collection<Resource> resourceSet, Resource resource) {
+        if(resource.getIdParent() == null)
+            return;
+        int id = resource.getIdParent().getIdResource();
+        for(Resource r: resourceSet) {
+            if(r.getIdResource() == id) {
+                saveParent(session, resourceSet, r);
+                Transaction transaction = session.beginTransaction();
+                session.saveOrUpdate(r);
+                transaction.commit();
+            }
+        }
     }
 }
