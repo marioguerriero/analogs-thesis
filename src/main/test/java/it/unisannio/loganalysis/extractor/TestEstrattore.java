@@ -35,8 +35,6 @@ public class TestEstrattore {
         facadeLogSource.addDataSource("bugzilla", dialect2, host2, port2, db2, "thesis", "thesis");
 
         assertEquals(facadeLogSource.getDataSources().size(), 2);
-
-        facadeLogSource.closeSession();
     }
 
 

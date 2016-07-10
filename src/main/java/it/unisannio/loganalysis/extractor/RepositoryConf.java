@@ -28,7 +28,7 @@ public class RepositoryConf {
     public Map<String, String> readSources() {
         Scanner scanner = null;
         try {
-            scanner = new Scanner(new File(path));
+            scanner = new Scanner(new File(getClass().getResource("/"+path).getPath()));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

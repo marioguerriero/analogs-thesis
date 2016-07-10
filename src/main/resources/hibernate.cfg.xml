@@ -10,9 +10,6 @@
         <property name="hibernate.connection.driver_class">
             com.mysql.jdbc.Driver
         </property>
-        <property name="hibernate.connection.url">
-            jdbc:mysql://localhost/loganalysis
-        </property>
         <property name='connection.pool_size'>
             1
         </property>
@@ -23,7 +20,7 @@
             thesis
         </property>
         <property name="hbm2ddl.auto">
-            validate
+            create
         </property>
         <property name="hibernate.show_sql">
             false
