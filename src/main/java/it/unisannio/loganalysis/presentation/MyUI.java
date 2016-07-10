@@ -1,9 +1,6 @@
 package it.unisannio.loganalysis.presentation;
 
-import com.vaadin.annotations.Theme;
-import com.vaadin.annotations.Title;
-import com.vaadin.annotations.VaadinServletConfiguration;
-import com.vaadin.annotations.Widgetset;
+import com.vaadin.annotations.*;
 import com.vaadin.data.Property;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
@@ -37,12 +34,12 @@ public class MyUI extends UI {
     private ChartComponent chartView;
 
 
+
+
     @Override
     protected void init(VaadinRequest vaadinRequest) {
         VerticalLayout verticalLayout = new VerticalLayout();
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-
-
 
         try {
             logSourceSelector = new LogSourceSelector();
@@ -104,26 +101,49 @@ public class MyUI extends UI {
     }
 
     private void showAddSourceDialog() {
-        Window window = new Window();
+        Window window = new Window("Aggiungi Sorgente dati");
         AddLogSourceForm form = new AddLogSourceForm();
         window.setContent(form);
+      //  Window windowLoad = new Window("Caricamento");
+        ProgressBar bar = new ProgressBar();
+        bar.setDescription("Caricamento...");
+        bar.setIndeterminate(true);
 
         form.setAddListener((Button.ClickListener) clickEvent -> {
-            try {
-                System.out.println(form.getType());
-                System.out.println(form.getDialect());
-                System.out.println(form.getHost());
-                System.out.println(form.getPort());
-                System.out.println(form.getSourceDb());
-                System.out.println(form.getUsername());
-                System.out.println(form.getPassword());
-                FacadeLogSource.getInstance().addDataSource(
-                        form.getType(), form.getDialect(), form.getHost(), form.getPort(), form.getSourceDb(),
-                        form.getUsername(), form.getPassword());
-            } catch (ClassNotFoundException | IllegalAccessException | NoSuchMethodException | InstantiationException | InvocationTargetException e) {
-                e.printStackTrace();
-            }
+          //  windowLoad.setContent(bar);
+
+           // windowLoad.center();
+          //  windowLoad.setClosable(true);
+          //  windowLoad.setSizeFull();
+         //   addWindow(windowLoad);
+
+
+            new Thread(() -> {
+            UI.getCurrent().access(() -> {
+
+                window.setContent(bar);
+                window.setEnabled(false);
+                try {
+
+                    FacadeLogSource.getInstance().addDataSource(
+                            form.getType(), form.getDialect(), form.getHost(), form.getPort(), form.getSourceDb(),
+                            form.getUsername(), form.getPassword());
+
+                } catch (ClassNotFoundException | IllegalAccessException | NoSuchMethodException | InstantiationException | InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+
+
+                removeWindow(window);
+
+                logSourceSelector.setSources(FacadeLogSource.getInstance().getDataSources());
+
+            });
+
+            }).start();
         });
+
+
         window.center();
         addWindow(window);
     }

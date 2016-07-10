@@ -69,6 +69,9 @@ public class AddLogSourceForm extends CustomComponent {
 
     public void setAddListener(Button.ClickListener listener) {
         confirmButton.addClickListener(listener);
+
+
+
     }
 
     public String getType() {
