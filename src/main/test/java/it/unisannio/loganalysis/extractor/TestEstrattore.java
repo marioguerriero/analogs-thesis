@@ -36,6 +36,4 @@ public class TestEstrattore {
 
         assertEquals(facadeLogSource.getDataSources().size(), 2);
     }
-
-
 }
