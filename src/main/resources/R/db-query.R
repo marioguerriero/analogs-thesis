@@ -15,7 +15,18 @@ dbconnectionurl <- paste("jdbc:mysql://",dbhost,":",dbport,"/",dbname,sep="")
 # Create database connection
 con <<- dbConnect(RMySQL(),url=dbconnectionurl,user=dbuser,password=dbpassword)
 
+###############################
+# Merge resource table with rav
+###############################
 buildTables <- function(sourcedb=NULL) {
+  #runner <- function(x) {
+  #  x(sourcedb)
+  #}
+
+  #fns <- c(buildResourcesTable, buildUsersTable, buildActionsTable)
+
+  #mclapply(fns, runner, mc.cores = detectCores())
+
   resources <<- buildResourcesTable(sourcedb)
   users <<- buildUsersTable(sourcedb)
   actions <<- buildActionsTable(sourcedb)
@@ -28,7 +39,9 @@ buildResourcesTable <- function(sourcedb=NULL) {
   table <- "resource"
   eav <- "rav"
 
-  # QueryType resources
+  #con <- dbConnect(MySQL(),dbname=dbname,username="root",password="mario")
+
+  # Query resources
   sql <- paste("select * from",table)
   q <- dbSendQuery(con,sql)
   entity <- fetch(q,n=-1)
@@ -40,29 +53,29 @@ buildResourcesTable <- function(sourcedb=NULL) {
 
   # add columns for attributes
   attrs <- unique(eav$attribute)
-  for(a in attrs) {
-    cname <- paste(table,".",a,sep="")
-    entity[,cname] <- NAV
-  }
+  entity[,paste(table,".",attrs,sep="")] <- NAV
 
   # Add resources attributes
   for(id in entity[,"idResource"]) {
-    for(attr in attrs) {
-      row <- which(grepl(id, eav$entityId) & grepl(attr, eav$attribute))
-      value <- eav[row,"value"]
 
-      row <- which(grepl(id, entity$idResource))
+    # Get rav table
+    sql <- paste("select * from ","rav","where entityId =",id)
+    q <- dbSendQuery(con,sql)
+    res <- fetch(q,n=-1)
 
-      if(length(value) == 1) {
-        entity[row,paste(table,".",attr,sep="")] <- value
-      }
+    id <- as.numeric(id)
+
+    for(a in res$attribute) {
+      entity[which(entity$idResource == id),paste(table,".",a,sep="")] <- res$value[which(res$attribute == a)]
     }
+
   }
 
   if(!is.null(sourcedb)) {
     entity <- entity[which(entity$resource.sourcedb == sourcedb),]
   }
 
+  #resources <<- entity
   return(entity)
 }
 
@@ -73,7 +86,9 @@ buildUsersTable <- function(sourcedb=NULL) {
   table <- "user"
   eav <- "uav"
 
-  # QueryType resources
+  #con <- dbConnect(MySQL(),dbname=dbname,username="root",password="mario")
+
+  # Query resources
   sql <- paste("select * from",table)
   q <- dbSendQuery(con,sql)
   entity <- fetch(q,n=-1)
@@ -83,24 +98,22 @@ buildUsersTable <- function(sourcedb=NULL) {
   q <- dbSendQuery(con,sql)
   eav <- fetch(q,n=-1)
 
-  #  add columns for attributes
+  # add columns for attributes
   attrs <- unique(eav$attribute)
-  for(a in attrs) {
-    cname <- paste(table,".",a,sep="")
-    entity[,cname] <- NAV
-  }
+  entity[,paste(table,".",attrs,sep="")] <- NAV
 
   # Add resources attributes
-  for(id in entity[,"idUser"]) {
-    for(attr in attrs) {
-      row <- which(grepl(id, eav$entityId) & grepl(attr, eav$attribute))
-      value <- eav[row,"value"]
+  for(id in entity[,"idUser"])  {
 
-      row <- which(grepl(id, entity$idUser))
+    # Get rav table
+    sql <- paste("select * from ","uav","where entityId =",id)
+    q <- dbSendQuery(con,sql)
+    res <- fetch(q,n=-1)
 
-      if(length(value) == 1) {
-        entity[row,paste(table,".",attr,sep="")] <- value
-      }
+    id <- as.numeric(id)
+
+    for(a in res$attribute) {
+      entity[which(entity$idUser == id),paste(table,".",a,sep="")] <- res$value[which(res$attribute == a)]
     }
   }
 
@@ -108,6 +121,7 @@ buildUsersTable <- function(sourcedb=NULL) {
     entity <- entity[which(entity$user.sourcedb == sourcedb),]
   }
 
+  #users <<- entity
   return(entity)
 }
 
@@ -118,7 +132,9 @@ buildActionsTable <- function(sourcedb=NULL) {
   table <- "action"
   eav <- "aav"
 
-  # QueryType resources
+  #con <- dbConnect(MySQL(),dbname=dbname,username="root",password="mario")
+
+  # Query resources
   sql <- paste("select * from",table)
   q <- dbSendQuery(con,sql)
   entity <- fetch(q,n=-1)
@@ -128,24 +144,22 @@ buildActionsTable <- function(sourcedb=NULL) {
   q <- dbSendQuery(con,sql)
   eav <- fetch(q,n=-1)
 
-  #  add columns for attributes
+  # add columns for attributes
   attrs <- unique(eav$attribute)
-  for(a in attrs) {
-    cname <- paste(table,".",a,sep="")
-    entity[,cname] <- NAV
-  }
+  entity[,paste(table,".",attrs,sep="")] <- NAV
 
   # Add resources attributes
-  for(id in entity[,"idAction"]) {
-    for(attr in attrs) {
-      row <- which(grepl(id, eav$entityId) & grepl(attr, eav$attribute))
-      value <- eav[row,"value"]
+  for(id in entity[,"idAction"])  {
 
-      row <- which(grepl(id, entity$idAction))
+    # Get rav table
+    sql <- paste("select * from ","aav","where entityId =",id)
+    q <- dbSendQuery(con,sql)
+    res <- fetch(q,n=-1)
 
-      if(length(value) == 1) {
-        entity[row,paste(table,".",attr,sep="")] <- value
-      }
+    id <- as.numeric(id)
+
+    for(a in res$attribute) {
+      entity[which(entity$idAction == id),paste(table,".",a,sep="")] <- res$value[which(res$attribute == a)]
     }
   }
 
@@ -153,6 +167,7 @@ buildActionsTable <- function(sourcedb=NULL) {
     entity <- entity[which(entity$action.sourcedb == sourcedb),]
   }
 
+  #actions <<- entity
   return(entity)
 }
 
