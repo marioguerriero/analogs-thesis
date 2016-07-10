@@ -169,8 +169,7 @@ public class QueryParameterSelector extends CustomComponent {
     }
 
     public Integer[] getUsers(){
-        return new Integer[0];
-        /*Collection<String> selected = (Collection<String>) users.getValue();
+        Collection<String> selected = (Collection<String>) users.getValue();
 
         List<Integer> selectedIds = new ArrayList<>();
         for(int id : usersMap.keySet()) {
@@ -184,7 +183,7 @@ public class QueryParameterSelector extends CustomComponent {
         for(Integer id : selectedIds) {
             ids[i++] = id;
         }
-        return ids;*/
+        return ids;
     }
 
     public ListVector getAttributes(){
