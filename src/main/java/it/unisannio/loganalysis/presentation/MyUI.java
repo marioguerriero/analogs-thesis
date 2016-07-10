@@ -5,6 +5,7 @@ import com.vaadin.annotations.Title;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.annotations.Widgetset;
 import com.vaadin.data.Property;
+import com.vaadin.server.Sizeable;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.*;
@@ -36,10 +37,12 @@ public class MyUI extends UI {
     private QueryParameterSelector queryParameterSelector;
     private ChartComponent chartView;
 
+
     @Override
     protected void init(VaadinRequest vaadinRequest) {
         VerticalLayout verticalLayout = new VerticalLayout();
         HorizontalLayout horizontalLayout = new HorizontalLayout();
+
 
 
         try {
@@ -51,9 +54,7 @@ public class MyUI extends UI {
                     QueryController controller = QueryController.getInstance();
                     controller.setDbSource(valueChangeEvent.getProperty().getValue().toString());
                     controller.loadTables();
-
                     queryParameterSelector.updateValues();
-
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 } catch (ScriptException e) {
@@ -67,36 +68,46 @@ public class MyUI extends UI {
         }
 
         queryParameterSelector = new QueryParameterSelector();
-
         queryParameterSelector.setExecuteQueryListener(() -> {
             AnalyzerController analyzerController = AnalyzerController.getInstance();
-
             Integer[] users = queryParameterSelector.getUsers();
             ListVector df = analyzerController.performQuery(queryParameterSelector.getQueryType(),
                     users.length > 0 ? users : null,
                     queryParameterSelector.getFrom(), queryParameterSelector.getTo(),
                     queryParameterSelector.getAttributes(),queryParameterSelector.isNormalized());
-
             chartView.setData(queryParameterSelector.getQueryType(), df);
         });
 
+
+
         chartView = new ChartComponent();
 
-
         horizontalLayout.addComponents(queryParameterSelector, chartView);
+        horizontalLayout.setExpandRatio(chartView, 65);
+        horizontalLayout.setExpandRatio(queryParameterSelector,35);
+        horizontalLayout.setSizeFull();
         horizontalLayout.setSpacing(true);
+        horizontalLayout.setResponsive(true);
+
 
         verticalLayout.addComponents(logSourceSelector, horizontalLayout);
+        verticalLayout.setExpandRatio(logSourceSelector,30);
+        verticalLayout.setExpandRatio(horizontalLayout,70);
         verticalLayout.setMargin(true);
         verticalLayout.setSpacing(true);
-
         setContent(verticalLayout);
+
+
+
+
+
     }
 
     private void showAddSourceDialog() {
         Window window = new Window();
         AddLogSourceForm form = new AddLogSourceForm();
         window.setContent(form);
+
         form.setAddListener((Button.ClickListener) clickEvent -> {
             try {
                 FacadeLogSource.getInstance().addDataSource(
