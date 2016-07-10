@@ -5,7 +5,7 @@ import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.*;
 
 /**
- * Created by graziano on 03/07/16.
+ * Created by grazianoS on 03/07/16.
  */
 public class AddLogSourceForm extends CustomComponent {
 

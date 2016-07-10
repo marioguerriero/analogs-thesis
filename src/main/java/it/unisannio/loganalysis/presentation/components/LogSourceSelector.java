@@ -18,6 +18,7 @@ public class LogSourceSelector extends CustomComponent {
 
     public LogSourceSelector() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         logSources = new ComboBox();
+        logSources.setWidth("400px");
         FacadeLogSource facadeLogSource = FacadeLogSource.getInstance();
         logSources.addItems(facadeLogSource.getDataSources());
 
@@ -28,14 +29,10 @@ public class LogSourceSelector extends CustomComponent {
         });
 
         HorizontalLayout layout = new HorizontalLayout();
-
-        layout.addComponent(new Label("Sorgente di dati di log"));
+        layout.addComponent(new Label("Sorgente di dati di log:"));
         layout.addComponent(logSources);
         layout.addComponent(addSourceBtn);
-
-       // layout.setSizeUndefined();
         layout.setSpacing(true);
-
         setCompositionRoot(layout);
     }
 

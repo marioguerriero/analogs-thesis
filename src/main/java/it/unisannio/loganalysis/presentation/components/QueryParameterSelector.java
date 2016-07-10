@@ -40,13 +40,18 @@ public class QueryParameterSelector extends CustomComponent {
         //TwinColSelect
         users = new TwinColSelect("Selezione utenti");
 
+
         from = new DateField("Da");
+        from.setSizeFull();
+        from.setResponsive(true);
         from.setDateFormat("dd MMM yyyy");
         Calendar c = Calendar.getInstance();
         c.set(Calendar.MONTH, c.get(Calendar.MONTH)-1);
         from.setValue(c.getTime());
 
         to = new DateField("A");
+        to.setSizeFull();
+        to.setResponsive(true);
         to.setDateFormat("dd MMM yyyy");
         to.setValue(new Date());
         normalized = new CheckBox("Normalizza il risultato");
@@ -56,6 +61,8 @@ public class QueryParameterSelector extends CustomComponent {
         to.setVisible(false);
 
         queryType = new ComboBox("Tipo della query");
+        queryType.setSizeFull();
+        queryType.setResponsive(true);
         for(QueryType q : QueryTypeHandler.getQueries()) {
             queryType.addItem(q);
             queryType.setItemCaption(q, QueryTypeHandler.getDescription(q));
@@ -65,6 +72,7 @@ public class QueryParameterSelector extends CustomComponent {
                 (Property.ValueChangeListener) event -> {
                     if (getQueryType() == QueryType.DAILY_ACTIVE_RESOURCES){
                         //  layout.addComponent(new Label("Selected: " + event.getProperty().getValue()));
+
                         users.setVisible(false);
                         from.setVisible(true);
                         to.setVisible(true);
