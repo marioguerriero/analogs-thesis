@@ -1,16 +1,16 @@
 package it.unisannio.loganalysis.extractor.model;
 
-import java.util.Set;
+import java.util.Collection;
 
 /**
  * Created by paolomoriello on 30/06/16.
  */
 public class Model {
-    private Set<Resource> resources;
-    private Set<User> users;
-    private Set<Action> actions;
+    private Collection<Resource> resources;
+    private Collection<User> users;
+    private Collection<Action> actions;
 
-    public Model(Set<Resource> resources, Set<User> users, Set<Action> actions) {
+    public Model(Collection<Resource> resources, Collection<User> users, Collection<Action> actions) {
         this.resources = resources;
         this.users = users;
         this.actions = actions;
@@ -40,28 +40,28 @@ public class Model {
         return result;
     }
 
-    public Set<Resource> getResources() {
+    public Collection<Resource> getResources() {
 
         return resources;
     }
 
-    public void setResources(Set<Resource> resources) {
+    public void CollectionResources(Collection<Resource> resources) {
         this.resources = resources;
     }
 
-    public Set<User> getUsers() {
+    public Collection<User> getUsers() {
         return users;
     }
 
-    public void setUsers(Set<User> users) {
+    public void CollectionUsers(Collection<User> users) {
         this.users = users;
     }
 
-    public Set<Action> getActions() {
+    public Collection<Action> getActions() {
         return actions;
     }
 
-    public void setActions(Set<Action> actions) {
+    public void CollectionActions(Collection<Action> actions) {
         this.actions = actions;
     }
 }

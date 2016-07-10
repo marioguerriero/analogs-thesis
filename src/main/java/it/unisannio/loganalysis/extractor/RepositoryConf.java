@@ -1,9 +1,10 @@
-import sun.rmi.runtime.Log;
+package it.unisannio.loganalysis.extractor;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
 
 /**
  * Created by paolomoriello on 04/07/16.

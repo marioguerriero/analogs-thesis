@@ -1,5 +1,6 @@
 package it.unisannio.loganalysis.extractor.model;
 
+
 import javax.persistence.*;
 
 /**

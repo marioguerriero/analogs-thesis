@@ -1,6 +1,5 @@
 package it.unisannio.loganalysis.extractor;
 
-
 import it.unisannio.loganalysis.extractor.model.*;
 
 import java.sql.*;
@@ -18,12 +17,8 @@ public class BugzillaLogHandler implements ILogHandler {
 
     private Connection connection = null;
     private Statement statement = null;
-    private String dbidentifier;
-    private int id;
 
-    public BugzillaLogHandler(String dbidentifier, String dialect, String host, String port, String sourcedb, String username, String password) {
-        this.dbidentifier = dbidentifier;
-
+    public BugzillaLogHandler(String dialect, String host, String port, String sourcedb, String username, String password) {
         try {
             connection = DriverManager.getConnection("jdbc:"+dialect+"://"+host+":"+port+"/"+sourcedb+"?" +
                     "user="+username+"&password="+password);
@@ -33,14 +28,9 @@ public class BugzillaLogHandler implements ILogHandler {
     }
 
 
-    public int getId() {
-        return id;
-    }
-
-
     @Override
-    public Model buildModel(int id) {
-        this.id = id;
+    public Model buildModel() {
+        int id = 1;
         Set<User> users = new HashSet<>();
         Set<Action> actions = new HashSet<>();
         Set<Resource> resources = new HashSet<>();
@@ -59,8 +49,7 @@ public class BugzillaLogHandler implements ILogHandler {
                 String username = resultSet.getString("login_name");
                 boolean temp = false;
                 for (User u : users) {
-                    if (u.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                            && u.getUsername().equals(username) && !temp) {
+                    if (u.getUsername().equals(username) && !temp) {
                         temp = true;
                         u.appendProperty("role", resultSet.getString("name"));
                     }
@@ -69,15 +58,14 @@ public class BugzillaLogHandler implements ILogHandler {
                     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SS");
                     Map<String, UserProperty> properties = new HashMap<>();
                     User u = new User(fullname, username, properties);
-                    u.setIdUser(this.id);
+                    u.setIdUser(id);
                     properties.put("sourceid", new UserProperty(u, "sourceid", resultSet.getString("userid")));
-                    properties.put("sourcedb", new UserProperty(u, "sourcedb", dbidentifier));
                     properties.put("lastaccess", new UserProperty(u, "lastaccess", simpleDateFormat.parse(resultSet.getString("last_seen_date")).getTime()+""));
                     properties.put("timecreated", new UserProperty(u, "timecreated", simpleDateFormat.parse(resultSet.getString("profiles_when")).getTime()+""));
                     properties.put("role", new UserProperty(u, "role", resultSet.getString("name")));
                     users.add(u);
                 }
-                this.id++;
+                id++;
             }
 
 
@@ -87,13 +75,12 @@ public class BugzillaLogHandler implements ILogHandler {
             while(resultSet.next()) {
                 Map<String, ResourceProperty> properties = new HashMap<>();
                 Resource r = new Resource("product", properties);
-                r.setIdResource(this.id);
+                r.setIdResource(id);
                 properties.put("sourceid", new ResourceProperty(r, "sourceid", resultSet.getString("id")));
-                properties.put("sourcedb", new ResourceProperty(r, "sourcedb", dbidentifier));
                 properties.put("name", new ResourceProperty(r, "name", resultSet.getString("name")));
                 properties.put("description", new ResourceProperty(r, "description", resultSet.getString("description")));
                 resources.add(r);
-                this.id++;
+                id++;
             }
 
             //adding resource, type: component
@@ -102,21 +89,19 @@ public class BugzillaLogHandler implements ILogHandler {
             while(resultSet.next()) {
                 Map<String, ResourceProperty> properties = new HashMap<>();
                 Resource r = new Resource("component", properties);
-                r.setIdResource(this.id);
+                r.setIdResource(id);
                 properties.put("sourceid", new ResourceProperty(r, "sourceid", resultSet.getString("id")));
-                properties.put("sourcedb", new ResourceProperty(r, "sourcedb", dbidentifier));
                 properties.put("name", new ResourceProperty(r, "name", resultSet.getString("name")));
                 properties.put("description", new ResourceProperty(r, "description", resultSet.getString("description")));
                 for(Resource rs: resources) {
-                    if(rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                            && rs.getType().equals("product")
+                    if(rs.getType().equals("product")
                             && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("product_id"))) {
                         properties.put("product_id", new ResourceProperty(r, "product_id", rs.getIdResource() + ""));
-                        r.setResourceParent(rs);
+                        r.setIdParent(rs);
                     }
                 }
                 resources.add(r);
-                this.id++;
+                id++;
             }
 
 
@@ -127,30 +112,27 @@ public class BugzillaLogHandler implements ILogHandler {
             while(resultSet.next()) {
                 Map<String, ResourceProperty> properties = new HashMap<>();
                 Resource r = new Resource("bug", properties);
-                r.setIdResource(this.id);
+                r.setIdResource(id);
                 for(User u: users) {
-                    if(u.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                            && u.getProperties().get("sourceid").getValue().equals(resultSet.getString("assigned_to")))
+                    if(u.getProperties().get("sourceid").getValue().equals(resultSet.getString("assigned_to")))
                         properties.put("userid", new ResourceProperty(r, "userid", u.getIdUser()+""));
                 }
                 for(Resource rs: resources) {
-                    if(rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                            && rs.getType().equals("component")
+                    if(rs.getType().equals("component")
                             && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("component_id"))) {
                         properties.put("component_id", new ResourceProperty(r, "component_id", rs.getIdResource() + ""));
-                        r.setResourceParent(rs);
+                        r.setIdParent(rs);
                     }
                 }
                 properties.put("sourceid", new ResourceProperty(r, "sourceid", resultSet.getString("bug_id")));
-                properties.put("sourcedb", new ResourceProperty(r, "sourcedb", dbidentifier));
-                properties.put("status", new ResourceProperty(r, "status", resultSet.getString("bug_status")));
-                properties.put("startdate", new ResourceProperty(r, "startdate", resultSet.getString("creation_ts")));
+                properties.put("bug_status", new ResourceProperty(r, "bug_status", resultSet.getString("bug_status")));
+                properties.put("starttime", new ResourceProperty(r, "starttime", resultSet.getString("creation_ts")));
                 if(resultSet.getString("bug_status").equalsIgnoreCase("resolved"))
                     properties.put("totaltime", new ResourceProperty(r, "totaltime", ""+calcTotal(resultSet.getString("creation_ts") ,resultSet.getString("delta_ts"))));
                 properties.put("timemodified", new ResourceProperty(r, "timemodified", resultSet.getString("delta_ts")));
                 properties.put("deadline", new ResourceProperty(r, "deadline", resultSet.getString("deadline")));
                 resources.add(r);
-                this.id++;
+                id++;
             }
 
 
@@ -163,15 +145,12 @@ public class BugzillaLogHandler implements ILogHandler {
                 a.setMillis(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(resultSet.getString("bug_when")).getTime());
                 a.setProperties(properties);
                 for(Resource rs: resources) {
-                    if(rs.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                            && rs.getType().equals("bug")
+                    if(rs.getType().equals("bug")
                             && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("bug_id")))
                         a.setResource(rs);
                 }
-                properties.put("sourcedb", new ActionProperty(a, "sourcedb", dbidentifier));
                 for(User u: users) {
-                    if(u.getProperties().get("sourcedb").getValue().equals(dbidentifier)
-                            && u.getProperties().get("sourceid").getValue().equals(resultSet.getString("who")))
+                    if(u.getProperties().get("sourceid").getValue().equals(resultSet.getString("who")))
                         a.setUserFrom(u);
                 }
                 properties.put("os", new ActionProperty(a, "os", resultSet.getString("op_sys")));
