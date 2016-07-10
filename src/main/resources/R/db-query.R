@@ -10,7 +10,6 @@ dbpassword <- "thesis"
 dbname <- "loganalysis"
 dbhost <- "localhost"
 dbport <- 3306
-dbconnectionurl <- paste("jdbc:mysql://",dbhost,":",dbport,"/",dbname,sep="")
 
 # Create database connection
 
@@ -18,7 +17,10 @@ dbconnectionurl <- paste("jdbc:mysql://",dbhost,":",dbport,"/",dbname,sep="")
 # Merge resource table with rav
 ###############################
 buildTables <- function(sourcedb=NULL) {
-  #con <<- dbConnect(RMySQL(),url=sourcedb,user=dbuser,password=dbpassword)
+  dbconnectionurl <- paste("jdbc:mysql://",dbhost,":",dbport,"/",sourcedb,sep="")
+  con <<- dbConnect(RMySQL(),url=dbconnectionurl,user=dbuser,password=dbpassword)
+
+
   resources <<- buildResourcesTable()
   users <<- buildUsersTable()
   actions <<- buildActionsTable()
@@ -31,9 +33,7 @@ buildResourcesTable <- function() {
   table <- "resource"
   eav <- "rav"
 
-  con <<- dbConnect(RMySQL(),url=sourcedb,user=dbuser,password=dbpassword)
-
-# Query resources
+  # Query resources
   sql <- paste("select * from",table)
   q <- dbSendQuery(con,sql)
   entity <- fetch(q,n=-1)
@@ -70,7 +70,7 @@ buildResourcesTable <- function() {
 ###############################
 # Merge user table with uav
 ###############################
-buildUsersTable <- function() {
+buildUsersTable <- function(sourcedb=NULL) {
   table <- "user"
   eav <- "uav"
 
@@ -110,7 +110,7 @@ buildUsersTable <- function() {
 ###############################
 # Merge action table with aav
 ###############################
-buildActionsTable <- function() {
+buildActionsTable <- function(sourcedb=NULL) {
   table <- "action"
   eav <- "aav"
 
@@ -141,6 +141,10 @@ buildActionsTable <- function() {
     for(a in res$attribute) {
       entity[which(entity$idAction == id),paste(table,".",a,sep="")] <- res$value[which(res$attribute == a)]
     }
+  }
+
+  if(!is.null(sourcedb)) {
+    entity <- entity[which(entity$action.sourcedb == sourcedb),]
   }
 
   #actions <<- entity
