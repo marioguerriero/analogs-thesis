@@ -1,9 +1,6 @@
 package it.unisannio.loganalysis.presentation;
 
-import com.vaadin.annotations.Theme;
-import com.vaadin.annotations.Title;
-import com.vaadin.annotations.VaadinServletConfiguration;
-import com.vaadin.annotations.Widgetset;
+import com.vaadin.annotations.*;
 import com.vaadin.data.Property;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
@@ -19,6 +16,8 @@ import javax.script.ScriptException;
 import javax.servlet.annotation.WebServlet;
 import java.io.FileNotFoundException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This UI is the application entry point. A UI may either represent a browser window 
@@ -37,12 +36,12 @@ public class MyUI extends UI {
     private ChartComponent chartView;
 
 
+
+
     @Override
     protected void init(VaadinRequest vaadinRequest) {
         VerticalLayout verticalLayout = new VerticalLayout();
         HorizontalLayout horizontalLayout = new HorizontalLayout();
-
-
 
         try {
             logSourceSelector = new LogSourceSelector();
@@ -97,33 +96,39 @@ public class MyUI extends UI {
         verticalLayout.setSpacing(true);
         setContent(verticalLayout);
 
-
-
-
-
     }
 
     private void showAddSourceDialog() {
-        Window window = new Window();
+        Window window = new Window("Aggiungi Sorgente dati");
         AddLogSourceForm form = new AddLogSourceForm();
         window.setContent(form);
-
+      //  Window windowLoad = new Window();
+       /* ProgressBar bar = new ProgressBar();
+        bar.setDescription("Caricamento...");
+        bar.setIndeterminate(true);
+*/
         form.setAddListener((Button.ClickListener) clickEvent -> {
-            try {
-                System.out.println(form.getType());
-                System.out.println(form.getDialect());
-                System.out.println(form.getHost());
-                System.out.println(form.getPort());
-                System.out.println(form.getSourceDb());
-                System.out.println(form.getUsername());
-                System.out.println(form.getPassword());
-                FacadeLogSource.getInstance().addDataSource(
-                        form.getType(), form.getDialect(), form.getHost(), form.getPort(), form.getSourceDb(),
-                        form.getUsername(), form.getPassword());
-            } catch (ClassNotFoundException | IllegalAccessException | NoSuchMethodException | InstantiationException | InvocationTargetException e) {
-                e.printStackTrace();
-            }
+           // windowLoad.setContent(bar);
+
+        /*    windowLoad.center();
+            windowLoad.setClosable(false);
+            windowLoad.setSizeFull();
+            addWindow(windowLoad);ù*/
+
+                try {
+                    FacadeLogSource.getInstance().addDataSource(
+                            form.getType(), form.getDialect(), form.getHost(), form.getPort(), form.getSourceDb(),
+                            form.getUsername(), form.getPassword());
+
+                    removeWindow(window);
+                    logSourceSelector.setSources(FacadeLogSource.getInstance().getDataSources());
+
+                } catch (ClassNotFoundException | IllegalAccessException | NoSuchMethodException | InstantiationException | InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+
         });
+
         window.center();
         addWindow(window);
     }

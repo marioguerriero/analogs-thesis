@@ -5,6 +5,7 @@ import com.vaadin.ui.*;
 import it.unisannio.loganalysis.extractor.FacadeLogSource;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
 
 /**
  * Created by graziano on 03/07/16.
@@ -21,7 +22,6 @@ public class LogSourceSelector extends CustomComponent {
         logSources.setWidth("400px");
         FacadeLogSource facadeLogSource = FacadeLogSource.getInstance();
         logSources.addItems(facadeLogSource.getDataSources());
-
         addSourceBtn = new Button("Aggiungi");
         addSourceBtn.addClickListener((Button.ClickListener) clickEvent -> {
             if(addSourceListener != null)
@@ -42,6 +42,10 @@ public class LogSourceSelector extends CustomComponent {
 
     public void setValueChangeListener(Property.ValueChangeListener valueChangeListener) {
         logSources.addValueChangeListener(valueChangeListener);
+    }
+
+    public void setSources(Collection<String> sources){
+        logSources.addItems(sources);
     }
 
     public interface AddSourceListener {
