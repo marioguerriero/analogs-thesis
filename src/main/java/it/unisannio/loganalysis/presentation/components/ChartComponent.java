@@ -3,9 +3,8 @@ package it.unisannio.loganalysis.presentation.components;
 
 import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.model.*;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Panel;
+
+import com.vaadin.ui.*;
 import it.unisannio.loganalysis.analysis.QueryType;
 import it.unisannio.loganalysis.analysis.QueryTypeHandler;
 import org.renjin.sexp.ListVector;
@@ -18,6 +17,7 @@ import org.renjin.sexp.Vector;
 public class ChartComponent extends CustomComponent {
 
     private Chart chart;
+    private TextArea field;
 
 
 
@@ -26,25 +26,34 @@ public class ChartComponent extends CustomComponent {
 
         Panel panel = new Panel("Chart");
         HorizontalLayout layout = new HorizontalLayout();
+
         layout.setSizeFull();
         layout.setResponsive(true);
         chart = new Chart();
         chart.setResponsive(true);
         layout.addComponent(chart);
         layout.setSizeFull();
+        field = new TextArea("Descrizione Numerica");
+        field.setResponsive(true);
+        field.setVisible(false);
+        layout.addComponent(field);
         panel.setResponsive(true);
         panel.setContent(layout);
         setCompositionRoot(panel);
 
+
     }
+
+
 
     public void setData(QueryType query, ListVector data) {
         Configuration configuration = chart.getConfiguration();
         configuration.setTitle(QueryTypeHandler.getDescription(query));
 
         switch(query) {
-            case RESOURCE_USAGE:  //non funziona
+            case RESOURCE_USAGE:
 
+                field.setVisible(false);
                 configuration.getChart().setType(ChartType.COLUMN);
                 configuration.getChart().setZoomType(ZoomType.XY);
                 Vector type = data.getElementAsVector("type");
@@ -54,18 +63,24 @@ public class ChartComponent extends CustomComponent {
                 plotOptionsColumn.setColorByPoint(true);
                 dataSeries.setPlotOptions(plotOptionsColumn);
 
-
+                String sru= "";
                 for(int i=0; i< type.length(); i++){
                     DataSeriesItem dataSeriesItem = new DataSeriesItem(type.getElementAsString(i), usage.getElementAsDouble(i));
                     dataSeries.addItemWithDrilldown(dataSeriesItem);
+                 //   sru = sru+type.getElementAsString(i)+": "+ usage.getElementAsDouble(i)+"\n";
+
+                   // field.setValue("Utilizzo delle risorse:\n"+ sru);
+                  //  field.setVisible(true);
 
                 }
+
                 configuration.setSeries(dataSeries);
                 chart.drawChart(configuration);
 
 
                 break;
-            case RESOURCE_USAGE_TIME: //non funziona
+            case RESOURCE_USAGE_TIME:
+                field.setVisible(false);
                 configuration.getChart().setType(ChartType.COLUMN);
                 configuration.getChart().setZoomType(ZoomType.XY);
 
@@ -76,9 +91,13 @@ public class ChartComponent extends CustomComponent {
                 plotOptionsColumn.setColorByPoint(true);
                 dataSeries.setPlotOptions(plotOptionsColumn);
 
+                String srut="";
                 for(int i=0; i< type_usage.length(); i++){
                     DataSeriesItem dataSeriesItem = new DataSeriesItem(type_usage.getElementAsString(i), time.getElementAsDouble(i));
                     dataSeries.addItemWithDrilldown(dataSeriesItem);
+                 //   srut =srut+type_usage.getElementAsString(i)+": "+ time.getElementAsDouble(i);
+                  //  field.setValue("Utilizzo delle risorse:\n"+ srut);
+                  //  field.setVisible(true);
                 }
                 configuration.setSeries(dataSeries);
                 chart.drawChart(configuration);
@@ -87,9 +106,12 @@ public class ChartComponent extends CustomComponent {
 
                 break;
             case DAILY_ACTIVE_USERS:
+                field.setVisible(false);
                 configuration.getChart().setType(ChartType.LINE);
                 configuration.getChart().setZoomType(ZoomType.XY);
                 Vector days = data.getElementAsVector("days");
+
+
                 String[] daysArr = new String[days.length()];
                 for(int i = 0; i < days.length(); i++) {
                     daysArr[i] = days.getElementAsString(i);
@@ -105,6 +127,7 @@ public class ChartComponent extends CustomComponent {
 
                     activeUsersArr[i] = activeUsers.getElementAsDouble(i);
 
+
                 }
 
                 ListSeries ls = new ListSeries();
@@ -115,6 +138,7 @@ public class ChartComponent extends CustomComponent {
                 break;
             case DAILY_ACTIVE_RESOURCES:
 
+                field.setVisible(false);
                 configuration.getChart().setType(ChartType.LINE);
                 configuration.getChart().setZoomType(ZoomType.XY);
 
@@ -130,8 +154,11 @@ public class ChartComponent extends CustomComponent {
 
                 Vector activeResources = data.getElementAsVector("activeResources");
                 Double[] activeResourcesArr = new Double[activeResources.length()];
-                for(int i = 0; i < activeResources.length(); i++)
+                for(int i = 0; i < activeResources.length(); i++) {
                     activeResourcesArr[i] = activeResources.getElementAsDouble(i);
+
+
+                }
 
                 ls = new ListSeries();
                 ls.setData(activeResourcesArr);
@@ -142,6 +169,7 @@ public class ChartComponent extends CustomComponent {
                 break;
             case DAILY_ACTIVITIES:
 
+                field.setVisible(false);
                 configuration.getChart().setType(ChartType.LINE);
                 configuration.getChart().setZoomType(ZoomType.XY);
 
@@ -158,11 +186,9 @@ public class ChartComponent extends CustomComponent {
 
                 activeUsers = data.getElementAsVector("activeUsers");
                 activeUsersArr = new Double[activeUsers.length()];
-
                 for(int i = 0; i < activeUsers.length(); i++) {
                   //  System.out.println(activeUsers.getElementAsDouble(i));
                     activeUsersArr[i] = activeUsers.getElementAsDouble(i);
-
 
                 }
 
@@ -174,8 +200,10 @@ public class ChartComponent extends CustomComponent {
                 activeResources = data.getElementAsVector("activeResources");
                 activeResourcesArr = new Double[activeResources.length()];
 
+
                 for(int i = 0; i < activeResources.length(); i++) {
                     activeResourcesArr[i] = activeResources.getElementAsDouble(i);
+
                 }
                 DataSeries series = new DataSeries();
                 PlotOptionsSpline plotOptions = new PlotOptionsSpline();
@@ -189,6 +217,7 @@ public class ChartComponent extends CustomComponent {
 
                 break;
             case TIME_RANGE_USAGE:
+                field.setVisible(false);
                 configuration.getChart().setType(ChartType.LINE);
                 configuration.getChart().setZoomType(ZoomType.XY);
                 Vector hours = data.getElementAsVector("hours");
@@ -217,14 +246,17 @@ public class ChartComponent extends CustomComponent {
                 PlotOptionsPie plotOptionsPie = new PlotOptionsPie();
                 plotOptionsPie.setCursor(Cursor.POINTER);
                 dataSeries.setPlotOptions(plotOptionsPie);
-             //   String s = "";
+                String sm = "";
                 for(int i=0; i< os.length(); i++){
                     DataSeriesItem dataSeriesItem = new DataSeriesItem(os.getElementAsString(i), count.getElementAsDouble(i));
                     dataSeries.addItemWithDrilldown(dataSeriesItem);
 
-                 /*   s = s+os.getElementAsString(i)+": "+ count.getElementAsDouble(i)+" ";
-                    field1.setVisible(true);
-                    field1.setValue("OS utilizzati -> "+ s);*/
+                    sm = sm+os.getElementAsString(i)+": "+ count.getElementAsInt(i)+"\n";
+
+                    field.setValue("Os utilizzati:\n"+ sm);
+                    field.setVisible(true);
+
+
                 }
                 configuration.setSeries(dataSeries);
                 chart.drawChart(configuration);
@@ -233,6 +265,7 @@ public class ChartComponent extends CustomComponent {
 
                 break;
             case RESOURCE_ADDED_PER_DAY:
+                field.setVisible(false);
                 configuration.getChart().setType(ChartType.LINE);
                 configuration.getChart().setZoomType(ZoomType.XY);
                  days = data.getElementAsVector("days");
@@ -255,6 +288,9 @@ public class ChartComponent extends CustomComponent {
         }
 
     }
+
+
+
 
 
 

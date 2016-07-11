@@ -31,19 +31,21 @@ public class AnalyzerController {
     public ListVector performQuery(QueryType query, Integer[] users, long from, long to,
                                    ListVector attributes, boolean normalize) throws ScriptException {
 
-        engine.put("users", users != null && users.length > 0 ? users : null);
+        engine.put("usr", users != null && users.length > 0 ? users : null);
         engine.put("from", from);
         engine.put("to", to);
         engine.put("attrs", attributes != null && attributes.length() > 0 ? attributes : null);
         engine.put("normalize", normalize);
 
+        System.out.println(users);
+
         switch (query) {
             case RESOURCE_USAGE:
                 return (ListVector) engine.eval(
-                        "resourcesUsage(users=users,from=from,to=to,attrs=attrs,normalize=normalize)");
+                        "resourcesUsage(usr=usr,from=from,to=to,attrs=attrs,normalize=normalize)");
             case RESOURCE_USAGE_TIME:
                 return (ListVector) engine.eval(
-                        "resourcesUsageTime(users=users,from=from,to=to,attrs=attrs,normalize=normalize)");
+                        "resourcesUsageTime(usr=usr,from=from,to=to,attrs=attrs,normalize=normalize)");
             case DAILY_ACTIVE_USERS:
                 return (ListVector) engine.eval(
                         "dailyActiveUsers(from=from,to=to,attrs=attrs,normalize=normalize)");
@@ -58,10 +60,10 @@ public class AnalyzerController {
                         "timeRangesUsage(attrs=attrs,normalize=normalize)");
             case MOST_USED_OS:
                 return (ListVector) engine.eval(
-                        "mostUsedOS(users=users,attrs=attrs,normalize=normalize)");
+                        "mostUsedOS(usr=usr,attrs=attrs,normalize=normalize)");
             case RESOURCE_ADDED_PER_DAY:
                 return (ListVector) engine.eval(
-                        "resourceAddedPerDays(users=users,from=from,to=to,attrs=attrs,normalize=normalize)");
+                        "resourceAddedPerDays(usr=usr,from=from,to=to,attrs=attrs,normalize=normalize)");
         }
 
         return null;

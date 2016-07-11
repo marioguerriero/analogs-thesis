@@ -147,7 +147,6 @@ public class QueryParameterSelector extends CustomComponent {
 
         layout.setSpacing(true);
         layout.setSizeUndefined();
-
         setCompositionRoot(panel);
 
     }
@@ -212,6 +211,7 @@ public class QueryParameterSelector extends CustomComponent {
             e.printStackTrace();
         }
 
+        users.removeAllItems();
         users.addItems(usersMap.values());
     }
 

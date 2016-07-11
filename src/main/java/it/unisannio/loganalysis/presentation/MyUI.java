@@ -27,7 +27,7 @@ import java.util.List;
  * overridden to add component to the user interface and initialize non-component functionality.
  */
 @Theme("mytheme")
-@Title("Log Analysis Tool")
+@Title("AnaLogs")
 @Widgetset("it.unisannio.loganalysis.MyAppWidgetset")
 public class MyUI extends UI {
 
@@ -102,36 +102,26 @@ public class MyUI extends UI {
         Window window = new Window("Aggiungi Sorgente dati");
         AddLogSourceForm form = new AddLogSourceForm();
         window.setContent(form);
-      //  Window windowLoad = new Window();
-       /* ProgressBar bar = new ProgressBar();
-        bar.setDescription("Caricamento...");
-        bar.setIndeterminate(true);
-*/
         form.setAddListener((Button.ClickListener) clickEvent -> {
-           // windowLoad.setContent(bar);
 
-        /*    windowLoad.center();
-            windowLoad.setClosable(false);
-            windowLoad.setSizeFull();
-            addWindow(windowLoad);ù*/
+            try {
 
-                try {
-                    FacadeLogSource.getInstance().addDataSource(
-                            form.getType(), form.getDialect(), form.getHost(), form.getPort(), form.getSourceDb(),
-                            form.getUsername(), form.getPassword());
+                FacadeLogSource.getInstance().addDataSource(
+                        form.getType(), form.getDialect(), form.getHost(), form.getPort(), form.getSourceDb(),
+                        form.getUsername(), form.getPassword());
 
-                    removeWindow(window);
-                    logSourceSelector.setSources(FacadeLogSource.getInstance().getDataSources());
+                removeWindow(window);
+                logSourceSelector.setSources(FacadeLogSource.getInstance().getDataSources());
 
-                } catch (ClassNotFoundException | IllegalAccessException | NoSuchMethodException | InstantiationException | InvocationTargetException e) {
-                    e.printStackTrace();
-                }
+            } catch (ClassNotFoundException | IllegalAccessException | NoSuchMethodException | InstantiationException | InvocationTargetException e) {
+                e.printStackTrace();
 
+            }
         });
-
         window.center();
         addWindow(window);
     }
+
 
     @WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)
     @VaadinServletConfiguration(ui = MyUI.class, productionMode = false)

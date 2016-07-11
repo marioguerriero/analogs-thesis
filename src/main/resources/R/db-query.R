@@ -5,8 +5,8 @@ library(RMySQL)
 NAV <- "#NA"
 
 # Database connection parameters
-dbuser <- "root"
-dbpassword <- "mario"
+dbuser <- "thesis"
+dbpassword <- "thesis"
 dbname <- "loganalysis"
 dbhost <- "localhost"
 dbport <- 3306
@@ -19,7 +19,7 @@ dbconnectionurl <- paste("jdbc:mysql://",dbhost,":",dbport,"/",dbname,sep="")
 # Merge resource table with rav
 ###############################
 buildTables <- function(sourcedb=NULL) {
-  dbconnectionurl <- paste("jdbc:mysql://",dbhost,":",dbport,"/",sourcedb,sep="")
+  dbconnectionurl <- paste("jdbc:mysql://",dbhost,":",dbport,"/",sourcedb,"?useSSL=false",sep="")
   con <<- dbConnect(RMySQL(),url=dbconnectionurl,user=dbuser,password=dbpassword)
   resources <<- buildResourcesTable()
   users <<- buildUsersTable()
