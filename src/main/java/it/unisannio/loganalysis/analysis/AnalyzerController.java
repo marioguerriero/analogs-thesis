@@ -31,40 +31,37 @@ public class AnalyzerController {
     public ListVector performQuery(QueryType query, Integer[] users, long from, long to,
                                    ListVector attributes, boolean normalize) throws ScriptException {
 
-        engine.put("users", users);
+        engine.put("users", users != null && users.length > 0 ? users : null);
         engine.put("from", from);
         engine.put("to", to);
-        engine.put("attributes", attributes);
+        engine.put("attrs", attributes != null && attributes.length() > 0 ? attributes : null);
         engine.put("normalize", normalize);
 
         switch (query) {
             case RESOURCE_USAGE:
-                ////////////
                 return (ListVector) engine.eval(
-                        "resourcesUsage(users=users,from=from,to=to,attributes=attributes,normalize=normalize)");
+                        "resourcesUsage(users=users,from=from,to=to,attrs=attrs,normalize=normalize)");
             case RESOURCE_USAGE_TIME:
-                ////////////
                 return (ListVector) engine.eval(
-                        "resourcesUsageTime(users=users,from=from,to=to,attributes=attributes,normalize=normalize)");
+                        "resourcesUsageTime(users=users,from=from,to=to,attrs=attrs,normalize=normalize)");
             case DAILY_ACTIVE_USERS:
                 return (ListVector) engine.eval(
-                        "dailyActiveUsers(from=from,to=to,normalize=normalize)");
+                        "dailyActiveUsers(from=from,to=to,attrs=attrs,normalize=normalize)");
             case DAILY_ACTIVE_RESOURCES:
                 return (ListVector) engine.eval(
-                        "dailyActiveResources(from=from,to=to,normalize=normalize)");
+                        "dailyActiveResources(from=from,to=to,attrs=attrs,normalize=normalize)");
             case DAILY_ACTIVITIES:
                 return (ListVector) engine.eval(
-                        "dailyActivitiesReleatedToUsersAndResources(from=from,to=to,normalize=normalize)");
+                        "dailyActivitiesReleatedToUsersAndResources(from=from,to=to,attrs=attrs,normalize=normalize)");
             case TIME_RANGE_USAGE:
                 return (ListVector) engine.eval(
-                        "timeRangesUsage(normalize=normalize)");
+                        "timeRangesUsage(attrs=attrs,normalize=normalize)");
             case MOST_USED_OS:
                 return (ListVector) engine.eval(
-                        "mostUsedOS(users=users,normalize=normalize)");
+                        "mostUsedOS(users=users,attrs=attrs,normalize=normalize)");
             case RESOURCE_ADDED_PER_DAY:
-                /////// Tutti 0?
                 return (ListVector) engine.eval(
-                        "resourceAddedPerDays(users=users,from=from,to=to,normalize=normalize)");
+                        "resourceAddedPerDays(users=users,from=from,to=to,attrs=attrs,normalize=normalize)");
         }
 
         return null;
