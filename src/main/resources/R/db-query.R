@@ -19,7 +19,8 @@ dbconnectionurl <- paste("jdbc:mysql://",dbhost,":",dbport,"/",dbname,sep="")
 # Merge resource table with rav
 ###############################
 buildTables <- function(sourcedb=NULL) {
-  con <<- dbConnect(MySQL(),dbname=sourcedb,username="root",password="mario")
+  dbconnectionurl <- paste("jdbc:mysql://",dbhost,":",dbport,"/",sourcedb,sep="")
+  con <<- dbConnect(RMySQL(),url=dbconnectionurl,user=dbuser,password=dbpassword)
   resources <<- buildResourcesTable()
   users <<- buildUsersTable()
   actions <<- buildActionsTable()
