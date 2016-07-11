@@ -16,6 +16,8 @@ import javax.script.ScriptException;
 import javax.servlet.annotation.WebServlet;
 import java.io.FileNotFoundException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This UI is the application entry point. A UI may either represent a browser window 
@@ -94,55 +96,38 @@ public class MyUI extends UI {
         verticalLayout.setSpacing(true);
         setContent(verticalLayout);
 
-
-
-
-
     }
 
     private void showAddSourceDialog() {
         Window window = new Window("Aggiungi Sorgente dati");
         AddLogSourceForm form = new AddLogSourceForm();
         window.setContent(form);
-      //  Window windowLoad = new Window("Caricamento");
-        ProgressBar bar = new ProgressBar();
+      //  Window windowLoad = new Window();
+       /* ProgressBar bar = new ProgressBar();
         bar.setDescription("Caricamento...");
         bar.setIndeterminate(true);
-
+*/
         form.setAddListener((Button.ClickListener) clickEvent -> {
-          //  windowLoad.setContent(bar);
+           // windowLoad.setContent(bar);
 
-           // windowLoad.center();
-          //  windowLoad.setClosable(true);
-          //  windowLoad.setSizeFull();
-         //   addWindow(windowLoad);
+        /*    windowLoad.center();
+            windowLoad.setClosable(false);
+            windowLoad.setSizeFull();
+            addWindow(windowLoad);ù*/
 
-
-            new Thread(() -> {
-            UI.getCurrent().access(() -> {
-
-                window.setContent(bar);
-                window.setEnabled(false);
                 try {
-
                     FacadeLogSource.getInstance().addDataSource(
                             form.getType(), form.getDialect(), form.getHost(), form.getPort(), form.getSourceDb(),
                             form.getUsername(), form.getPassword());
+
+                    removeWindow(window);
+                    logSourceSelector.setSources(FacadeLogSource.getInstance().getDataSources());
 
                 } catch (ClassNotFoundException | IllegalAccessException | NoSuchMethodException | InstantiationException | InvocationTargetException e) {
                     e.printStackTrace();
                 }
 
-
-                removeWindow(window);
-
-                logSourceSelector.setSources(FacadeLogSource.getInstance().getDataSources());
-
-            });
-
-            }).start();
         });
-
 
         window.center();
         addWindow(window);
