@@ -16,7 +16,7 @@ dbconnectionurl <- paste("jdbc:mysql://",dbhost,":",dbport,"/",dbname,sep="")
 
 
 ###############################
-# Merge resource table with rav
+# Merge resource table with eavs
 ###############################
 buildTables <- function(sourcedb=NULL) {
   dbconnectionurl <- paste("jdbc:mysql://",dbhost,":",dbport,"/",sourcedb,sep="")
@@ -27,18 +27,18 @@ buildTables <- function(sourcedb=NULL) {
 }
 
 ###############################
-# Merge resource table with rav
+# Merge resource table with resourceproperty
 ###############################
 buildResourcesTable <- function() {
   table <- "resource"
-  eav <- "rav"
+  eav <- "resourceproperty"
 
   # Query resources
   sql <- paste("select * from",table)
   q <- dbSendQuery(con,sql)
   entity <- fetch(q,n=-1)
 
-  # Get rav table
+  # Get resourceproperty table
   sql <- paste("select * from",eav)
   q <- dbSendQuery(con,sql)
   eav <- fetch(q,n=-1)
@@ -50,8 +50,8 @@ buildResourcesTable <- function() {
   # Add resources attributes
   for(id in entity[,"idResource"]) {
 
-    # Get rav table
-    sql <- paste("select * from ","rav","where entityId =",id)
+    # Get resourceproperty table
+    sql <- paste("select * from ","resourceproperty","where entityId =",id)
     q <- dbSendQuery(con,sql)
     res <- fetch(q,n=-1)
 
@@ -68,18 +68,18 @@ buildResourcesTable <- function() {
 }
 
 ###############################
-# Merge user table with uav
+# Merge user table with userproperty
 ###############################
 buildUsersTable <- function() {
   table <- "user"
-  eav <- "uav"
+  eav <- "userproperty"
 
   # Query resources
   sql <- paste("select * from",table)
   q <- dbSendQuery(con,sql)
   entity <- fetch(q,n=-1)
 
-  # Get rav table
+  # Get resourceproperty table
   sql <- paste("select * from",eav)
   q <- dbSendQuery(con,sql)
   eav <- fetch(q,n=-1)
@@ -91,8 +91,8 @@ buildUsersTable <- function() {
   # Add resources attributes
   for(id in entity[,"idUser"])  {
 
-    # Get rav table
-    sql <- paste("select * from ","uav","where entityId =",id)
+    # Get resourceproperty table
+    sql <- paste("select * from ","userproperty","where entityId =",id)
     q <- dbSendQuery(con,sql)
     res <- fetch(q,n=-1)
 
@@ -108,18 +108,18 @@ buildUsersTable <- function() {
 }
 
 ###############################
-# Merge action table with aav
+# Merge action table with actionproperty
 ###############################
 buildActionsTable <- function() {
   table <- "action"
-  eav <- "aav"
+  eav <- "actionproperty"
 
   # Query resources
   sql <- paste("select * from",table)
   q <- dbSendQuery(con,sql)
   entity <- fetch(q,n=-1)
 
-  # Get rav table
+  # Get resourceproperty table
   sql <- paste("select * from",eav)
   q <- dbSendQuery(con,sql)
   eav <- fetch(q,n=-1)
@@ -131,8 +131,8 @@ buildActionsTable <- function() {
   # Add resources attributes
   for(id in entity[,"idAction"])  {
 
-    # Get rav table
-    sql <- paste("select * from ","aav","where entityId =",id)
+    # Get resourceproperty table
+    sql <- paste("select * from ","actionproperty","where entityId =",id)
     q <- dbSendQuery(con,sql)
     res <- fetch(q,n=-1)
 
