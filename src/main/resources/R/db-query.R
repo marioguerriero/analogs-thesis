@@ -5,22 +5,21 @@ library(RMySQL)
 NAV <- "#NA"
 
 # Database connection parameters
-dbuser <- "thesis"
-dbpassword <- "thesis"
+dbuser <- "root"
+dbpassword <- "mario"
 dbname <- "loganalysis"
 dbhost <- "localhost"
 dbport <- 3306
+dbconnectionurl <- paste("jdbc:mysql://",dbhost,":",dbport,"/",dbname,sep="")
 
 # Create database connection
+
 
 ###############################
 # Merge resource table with rav
 ###############################
 buildTables <- function(sourcedb=NULL) {
-  dbconnectionurl <- paste("jdbc:mysql://",dbhost,":",dbport,"/",sourcedb,sep="")
-  con <<- dbConnect(RMySQL(),url=dbconnectionurl,user=dbuser,password=dbpassword)
-
-
+  con <<- dbConnect(MySQL(),dbname=sourcedb,username="root",password="mario")
   resources <<- buildResourcesTable()
   users <<- buildUsersTable()
   actions <<- buildActionsTable()
@@ -70,7 +69,7 @@ buildResourcesTable <- function() {
 ###############################
 # Merge user table with uav
 ###############################
-buildUsersTable <- function(sourcedb=NULL) {
+buildUsersTable <- function() {
   table <- "user"
   eav <- "uav"
 
@@ -110,7 +109,7 @@ buildUsersTable <- function(sourcedb=NULL) {
 ###############################
 # Merge action table with aav
 ###############################
-buildActionsTable <- function(sourcedb=NULL) {
+buildActionsTable <- function() {
   table <- "action"
   eav <- "aav"
 
@@ -143,14 +142,18 @@ buildActionsTable <- function(sourcedb=NULL) {
     }
   }
 
-  if(!is.null(sourcedb)) {
-    entity <- entity[which(entity$action.sourcedb == sourcedb),]
-  }
-
   #actions <<- entity
   return(entity)
 }
 
 getUsers <- function() {
-  return(users[,c("idUser","username")])
+  return(users)
+}
+
+getResources <- function() {
+  return(resources)
+}
+
+getActions <- function() {
+  return(actions)
 }

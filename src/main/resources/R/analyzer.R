@@ -14,29 +14,9 @@ usage <- c(0)
 
 result <- data.frame(type,usage)
 
-localActions <- actions
-localResources <- resources
-localUsers <- users
-
-# Filter attributes
-if(!is.null(attrs)) {
-# Filter actions
-if(attrs$key %in% colnames(localActions))
-for(k in attrs$key) {
-localActions <- localActions[-which(localActions[,k] != attrs[which(attrs$key ==k),"value"]),]
-}
-# Filter users
-if(attrs$key %in% colnames(localUsers))
-for(k in attrs$key) {
-localUsers <- localUsers[-which(localUsers[,k] != attrs[which(attrs$key ==k),"value"]),]
-}
-
-# Filter resources
-if(attrs$key %in% colnames(localResources))
-for(k in attrs$key) {
-localResources <- localResources[-which(localResources[,k] != attrs[which(attrs$key ==k),"value"]),]
-}
-}
+localActions <- buildFilteredDataframe(df=actions,attrs=attrs)
+localResources <- buildFilteredDataframe(df=resources,attrs=attrs)
+localUsers <- buildFilteredDataframe(df=users,attrs=attrs)
 
 for(r in localResources$idResource) {
 t <- localResources[which(localResources$idResource == r),"type"]
@@ -83,29 +63,9 @@ time <- c(0)
 
 result <- data.frame(type,time)
 
-localActions <- actions
-localResources <- resources
-localUsers <- users
-
-# Filter attributes
-if(!is.null(attrs)) {
-  # Filter actions
-if(attrs$key %in% colnames(localActions))
-for(k in attrs$key) {
-  localActions <- localActions[-which(localActions[,k] != attrs[which(attrs$key ==k),"value"]),]
-}
-# Filter users
-if(attrs$key %in% colnames(localUsers))
-for(k in attrs$key) {
-  localUsers <- localUsers[-which(localUsers[,k] != attrs[which(attrs$key ==k),"value"]),]
-}
-
-# Filter resources
-if(attrs$key %in% colnames(localResources))
-for(k in attrs$key) {
-  localResources <- localResources[-which(localResources[,k] != attrs[which(attrs$key ==k),"value"]),]
-}
-}
+localActions <- buildFilteredDataframe(df=actions,attrs=attrs)
+localResources <- buildFilteredDataframe(df=resources,attrs=attrs)
+localUsers <- buildFilteredDataframe(df=users,attrs=attrs)
 
 for(r in localResources$idResource) {
   t <- localResources[which(localResources$idResource == r),"type"]
@@ -171,29 +131,9 @@ return(result)
 # ok - testata
 # https://demo.vaadin.com/charts/#BasicLine
 dailyActiveUsers <- function(from,to,attrs=NULL,normalize=FALSE) {
-  localActions <- actions
-localResources <- resources
-localUsers <- users
-
-# Filter attributes
-if(!is.null(attrs)) {
-  # Filter actions
-if(attrs$key %in% colnames(localActions))
-for(k in attrs$key) {
-  localActions <- localActions[-which(localActions[,k] != attrs[which(attrs$key ==k),"value"]),]
-}
-# Filter users
-if(attrs$key %in% colnames(localUsers))
-for(k in attrs$key) {
-  localUsers <- localUsers[-which(localUsers[,k] != attrs[which(attrs$key ==k),"value"]),]
-}
-
-# Filter resources
-if(attrs$key %in% colnames(localResources))
-for(k in attrs$key) {
-  localResources <- localResources[-which(localResources[,k] != attrs[which(attrs$key ==k),"value"]),]
-}
-}
+  localActions <- buildFilteredDataframe(df=actions,attrs=attrs)
+localResources <- buildFilteredDataframe(df=resources,attrs=attrs)
+localUsers <- buildFilteredDataframe(df=users,attrs=attrs)
 
 days <- c()
 activeUsers <- c()
@@ -233,29 +173,9 @@ return(result)
 # ok - testata
 # https://demo.vaadin.com/charts/#BasicLine
 dailyActiveResources <- function(from,to,attrs=NULL,normalize=FALSE) {
-  localActions <- actions
-localResources <- resources
-localUsers <- users
-
-# Filter attributes
-if(!is.null(attrs)) {
-  # Filter actions
-if(attrs$key %in% colnames(localActions))
-for(k in attrs$key) {
-  localActions <- localActions[-which(localActions[,k] != attrs[which(attrs$key ==k),"value"]),]
-}
-# Filter users
-if(attrs$key %in% colnames(localUsers))
-for(k in attrs$key) {
-  localUsers <- localUsers[-which(localUsers[,k] != attrs[which(attrs$key ==k),"value"]),]
-}
-
-# Filter resources
-if(attrs$key %in% colnames(localResources))
-for(k in attrs$key) {
-  localResources <- localResources[-which(localResources[,k] != attrs[which(attrs$key ==k),"value"]),]
-}
-}
+  localActions <- buildFilteredDataframe(df=actions,attrs=attrs)
+localResources <- buildFilteredDataframe(df=resources,attrs=attrs)
+localUsers <- buildFilteredDataframe(df=users,attrs=attrs)
 
 days <- c()
 activeResources <- c()
@@ -299,29 +219,9 @@ dailyActivitiesReleatedToUsersAndResources <- function(from,to,attrs=NULL,normal
 # ok - testata
 # https://demo.vaadin.com/charts/#BasicLine
 timeRangesUsage <- function(attrs=NULL,normalize=FALSE) {
-  localActions <- actions
-localResources <- resources
-localUsers <- users
-
-# Filter attributes
-if(!is.null(attrs)) {
-  # Filter actions
-if(attrs$key %in% colnames(localActions))
-for(k in attrs$key) {
-  localActions <- localActions[-which(localActions[,k] != attrs[which(attrs$key ==k),"value"]),]
-}
-# Filter users
-if(attrs$key %in% colnames(localUsers))
-for(k in attrs$key) {
-  localUsers <- localUsers[-which(localUsers[,k] != attrs[which(attrs$key ==k),"value"]),]
-}
-
-# Filter resources
-if(attrs$key %in% colnames(localResources))
-for(k in attrs$key) {
-  localResources <- localResources[-which(localResources[,k] != attrs[which(attrs$key ==k),"value"]),]
-}
-}
+  localActions <- buildFilteredDataframe(df=actions,attrs=attrs)
+localResources <- buildFilteredDataframe(df=resources,attrs=attrs)
+localUsers <- buildFilteredDataframe(df=users,attrs=attrs)
 
 hours <- c("00:00-00:59", "00:01-01:59", "02:00-02:59", "00:03-03:59", "00:04-04:59",
 "05:00-05:59", "06:00-06:59", "07:00-07:59", "08:00-08:59", "00:09-09:59",
@@ -352,29 +252,9 @@ return(usageDf)
 # ok - testata
 # https://demo.vaadin.com/charts/#PieChart
 mostUsedOS <- function(users=NULL,attrs=NULL,normalize=FALSE) {
-  localActions <- actions
-localResources <- resources
-localUsers <- users
-
-# Filter attributes
-if(!is.null(attrs)) {
-  # Filter actions
-if(attrs$key %in% colnames(localActions))
-for(k in attrs$key) {
-  localActions <- localActions[-which(localActions[,k] != attrs[which(attrs$key ==k),"value"]),]
-}
-# Filter users
-if(attrs$key %in% colnames(localUsers))
-for(k in attrs$key) {
-  localUsers <- localUsers[-which(localUsers[,k] != attrs[which(attrs$key ==k),"value"]),]
-}
-
-# Filter resources
-if(attrs$key %in% colnames(localResources))
-for(k in attrs$key) {
-  localResources <- localResources[-which(localResources[,k] != attrs[which(attrs$key ==k),"value"]),]
-}
-}
+  localActions <- buildFilteredDataframe(df=actions,attrs=attrs)
+localResources <- buildFilteredDataframe(df=resources,attrs=attrs)
+localUsers <- buildFilteredDataframe(df=users,attrs=attrs)
 
 os <- unique(localActions[which(localActions$action.os != NAV),"action.os"])
 count <- rep(0, length(os))
@@ -404,29 +284,9 @@ return(result)
 # ok - testata
 # https://demo.vaadin.com/charts/#BasicLineWithDataLabels
 resourceAddedPerDays <- function(users=NULL,from=NULL,to=NULL,attrs=NULL,normalize=FALSE) {
-  localActions <- actions
-localResources <- resources
-localUsers <- users
-
-# Filter attributes
-if(!is.null(attrs)) {
-  # Filter actions
-if(attrs$key %in% colnames(localActions))
-for(k in attrs$key) {
-  localActions <- localActions[-which(localActions[,k] != attrs[which(attrs$key ==k),"value"]),]
-}
-# Filter users
-if(attrs$key %in% colnames(localUsers))
-for(k in attrs$key) {
-  localUsers <- localUsers[-which(localUsers[,k] != attrs[which(attrs$key ==k),"value"]),]
-}
-
-# Filter resources
-if(attrs$key %in% colnames(localResources))
-for(k in attrs$key) {
-  localResources <- localResources[-which(localResources[,k] != attrs[which(attrs$key ==k),"value"]),]
-}
-}
+  localActions <- buildFilteredDataframe(df=actions,attrs=attrs)
+localResources <- buildFilteredDataframe(df=resources,attrs=attrs)
+localUsers <- buildFilteredDataframe(df=users,attrs=attrs)
 
 days <- c()
 resourcesAdded <- c()
@@ -472,3 +332,16 @@ return(result)
 }
 
 # tempo uso, action starttime e endtime
+
+buildFilteredDataframe <- function(df = NULL, attrs = NULL) {
+  res <- df
+# Filter attributes
+if(!is.null(attrs)) {
+  # Filter actions
+if(attrs$key %in% colnames(res))
+for(k in attrs$key) {
+  res <- res[-which(res[,k] != attrs[which(attrs$key ==k),"value"]),]
+}
+}
+return(res)
+}
