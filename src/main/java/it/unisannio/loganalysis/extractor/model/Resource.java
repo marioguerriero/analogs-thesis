@@ -14,8 +14,8 @@ public class Resource {
     @Column(name = "type")
     private String type;
     @ManyToOne
-    @JoinColumn(name = "idParent")
-    private Resource idParent;
+    @JoinColumn(name = "idResourceAssociated")
+    private Resource idResourceAssociated;
     @OneToMany(mappedBy = "resource")
     @MapKey(name = "key")
     private Map<String, ResourceProperty> properties;
@@ -51,12 +51,12 @@ public class Resource {
         this.type = type;
     }
 
-    public Resource getIdParent() {
-        return idParent;
+    public Resource getIdResourceAssociated() {
+        return idResourceAssociated;
     }
 
-    public void setIdParent(Resource resourceParent) {
-        this.idParent = resourceParent;
+    public void setIdResourceAssociated(Resource resourceParent) {
+        this.idResourceAssociated = resourceParent;
     }
 
     @Override

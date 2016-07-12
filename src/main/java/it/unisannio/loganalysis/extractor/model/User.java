@@ -6,10 +6,6 @@ import java.util.*;
 /**
  * Created by paolomoriello on 29/06/16.
  */
-
-/**
- * Created by paolomoriello on 29/06/16.
- */
 @Entity
 @Table(name = "user")
 public class User {
@@ -19,6 +15,9 @@ public class User {
     private String fullname;
     @Column(name = "username")
     private String username;
+    @ElementCollection
+    @JoinTable(name = "usertype", joinColumns = @JoinColumn(name ="idUser"))
+    private Set<String> types = new HashSet<>();
     @OneToMany(mappedBy = "user")
     @MapKey(name = "key")
     private Map<String, UserProperty> properties;
@@ -59,20 +58,24 @@ public class User {
         return properties;
     }
 
-    public void setProperties(Map properties) {
-        this.properties = properties;
-    }
-
     public void addProperty(String key, UserProperty property) {
         properties.put(key, property);
     }
 
-    public void appendProperty(String key, String value) {
-        if(properties.containsKey(key)) {
-            if (!properties.get(key).getValue().contains(value)) {
-                properties.get(key).setValue(properties.get(key).getValue() + "," + value);
-            }
-        }
+    public void setProperties(Map<String, UserProperty> properties) {
+        this.properties = properties;
+    }
+
+    public Set<String> getTypes() {
+        return types;
+    }
+
+    public void setTypes(Set<String> types) {
+        this.types = types;
+    }
+
+    public void addType(String type) {
+        types.add(type);
     }
 
     @Override
@@ -85,6 +88,7 @@ public class User {
         if (idUser != user.idUser) return false;
         if (fullname != null ? !fullname.equals(user.fullname) : user.fullname != null) return false;
         if (username != null ? !username.equals(user.username) : user.username != null) return false;
+        if (types != null ? !types.equals(user.types) : user.types != null) return false;
         return properties != null ? properties.equals(user.properties) : user.properties == null;
 
     }
@@ -94,6 +98,7 @@ public class User {
         int result = idUser;
         result = 31 * result + (fullname != null ? fullname.hashCode() : 0);
         result = 31 * result + (username != null ? username.hashCode() : 0);
+        result = 31 * result + (types != null ? types.hashCode() : 0);
         result = 31 * result + (properties != null ? properties.hashCode() : 0);
         return result;
     }

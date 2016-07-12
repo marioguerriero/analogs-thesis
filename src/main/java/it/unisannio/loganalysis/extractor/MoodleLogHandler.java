@@ -3,7 +3,6 @@ package it.unisannio.loganalysis.extractor;
 
 import it.unisannio.loganalysis.extractor.model.*;
 
-import java.lang.reflect.InvocationTargetException;
 import java.sql.*;
 import java.util.*;
 
@@ -55,7 +54,8 @@ public class MoodleLogHandler implements ILogHandler {
                 for(User u: users) {
                     if(u.getUsername().equals(username) && !temp) {
                         temp = true;
-                        u.appendProperty("role", resultSet.getString("shortname"));
+                        if(resultSet.getString("shortname") != null)
+                            u.addType(resultSet.getString("shortname"));
                     }
                 }
                 if(!temp) {
@@ -101,7 +101,7 @@ public class MoodleLogHandler implements ILogHandler {
                 for(Resource rs: resources) {
                     if(rs.getType().equalsIgnoreCase("course_category") && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("category"))) {
                         properties.put("category", new ResourceProperty(r, "category", rs.getIdResource() + ""));
-                        r.setIdParent(rs);
+                        r.setIdResourceAssociated(rs);
                     }
                 }
                 properties.put("fullname", new ResourceProperty(r, "fullname", resultSet.getString("fullname")));
@@ -126,7 +126,7 @@ public class MoodleLogHandler implements ILogHandler {
                     if(rs.getType().equalsIgnoreCase("course")
                             && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("course"))) {
                         properties.put("course", new ResourceProperty(r, "course", rs.getIdResource() + ""));
-                        r.setIdParent(rs);
+                        r.setIdResourceAssociated(rs);
                     }
                 }
                 properties.put("intro", new ResourceProperty(r, "intro", resultSet.getString("intro")));
@@ -192,7 +192,7 @@ public class MoodleLogHandler implements ILogHandler {
                     if(rs.getType().equals("course")
                             && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("courseid"))) {
                         properties.put("courseid", new ResourceProperty(r, "courseid", rs.getIdResource() + ""));
-                        r.setIdParent(rs);
+                        r.setIdResourceAssociated(rs);
                     }
                 }
                 for(User u: users) {
@@ -243,7 +243,7 @@ public class MoodleLogHandler implements ILogHandler {
                     if(rs.getType().equals("course")
                             && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("course"))) {
                         properties.put("courseid", new ResourceProperty(r, "courseid", rs.getIdResource()+""));
-                        r.setIdParent(rs);
+                        r.setIdResourceAssociated(rs);
                     }
                 }
                 properties.put("name", new ResourceProperty(r, "name", resultSet.getString("name")));
@@ -376,7 +376,7 @@ public class MoodleLogHandler implements ILogHandler {
                     if(rs.getType().equals("course")
                             && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("course"))) {
                         properties.put("courseid", new ResourceProperty(r, "courseid", rs.getIdResource() + ""));
-                        r.setIdParent(rs);
+                        r.setIdResourceAssociated(rs);
                     }
                 }
                 properties.put("name", new ResourceProperty(r, "name", resultSet.getString("name")));

@@ -7,7 +7,7 @@ import javax.persistence.*;
  * Created by paolomoriello on 01/07/16.
  */
 @Entity
-@Table(name = "rav")
+@Table(name = "resourceproperty")
 public class ResourceProperty {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator="hibernate_sequence")

@@ -51,7 +51,8 @@ public class BugzillaLogHandler implements ILogHandler {
                 for (User u : users) {
                     if (u.getUsername().equals(username) && !temp) {
                         temp = true;
-                        u.appendProperty("role", resultSet.getString("name"));
+                        if(resultSet.getString("name") != null)
+                            u.addType(resultSet.getString("name"));
                     }
                 }
                 if (!temp) {
@@ -97,7 +98,7 @@ public class BugzillaLogHandler implements ILogHandler {
                     if(rs.getType().equals("product")
                             && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("product_id"))) {
                         properties.put("product_id", new ResourceProperty(r, "product_id", rs.getIdResource() + ""));
-                        r.setIdParent(rs);
+                        r.setIdResourceAssociated(rs);
                     }
                 }
                 resources.add(r);
@@ -121,7 +122,7 @@ public class BugzillaLogHandler implements ILogHandler {
                     if(rs.getType().equals("component")
                             && rs.getProperties().get("sourceid").getValue().equals(resultSet.getString("component_id"))) {
                         properties.put("component_id", new ResourceProperty(r, "component_id", rs.getIdResource() + ""));
-                        r.setIdParent(rs);
+                        r.setIdResourceAssociated(rs);
                     }
                 }
                 properties.put("sourceid", new ResourceProperty(r, "sourceid", resultSet.getString("bug_id")));

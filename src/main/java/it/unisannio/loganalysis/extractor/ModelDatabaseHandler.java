@@ -103,7 +103,7 @@ public class ModelDatabaseHandler {
         }
 
         for (Resource r: model.getResources()) {
-            //System.out.println("parent "+r.getIdParent().getIdResource());
+            //System.out.println("parent "+r.getIdResourceAssociated().getIdResource());
             //System.out.println("resource "+r.getIdResource());
             saveParent(session, model.getResources(), r);
             transaction = session.beginTransaction();
@@ -133,9 +133,9 @@ public class ModelDatabaseHandler {
 
 
     private void saveParent(Session session, Collection<Resource> resourceSet, Resource resource) {
-        if(resource.getIdParent() == null)
+        if(resource.getIdResourceAssociated() == null)
             return;
-        int id = resource.getIdParent().getIdResource();
+        int id = resource.getIdResourceAssociated().getIdResource();
         for(Resource r: resourceSet) {
             if(r.getIdResource() == id) {
                 saveParent(session, resourceSet, r);
