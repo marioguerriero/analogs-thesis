@@ -24,7 +24,7 @@ public class AddLogSourceForm extends CustomComponent {
     public AddLogSourceForm() {
         FormLayout form = new FormLayout();
 
-
+//
         serviceTypeCb = new ComboBox();
         serviceTypeCb.addItems(FacadeLogSource.getInstance().getDataSourcesTypes());
         serviceTypeCb.addValueChangeListener(new Property.ValueChangeListener() {
