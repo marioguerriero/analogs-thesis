@@ -1,33 +1,36 @@
 package it.unisannio.loganalysis.presentation;
 
-import com.vaadin.annotations.*;
+import com.vaadin.annotations.Theme;
+import com.vaadin.annotations.Title;
+import com.vaadin.annotations.VaadinServletConfiguration;
+import com.vaadin.annotations.Widgetset;
 import com.vaadin.data.Property;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.*;
-
 import it.unisannio.loganalysis.analysis.AnalyzerController;
 import it.unisannio.loganalysis.analysis.TableHandler;
 import it.unisannio.loganalysis.extractor.FacadeLogSource;
-import it.unisannio.loganalysis.presentation.components.*;
+import it.unisannio.loganalysis.presentation.components.AddLogSourceForm;
+import it.unisannio.loganalysis.presentation.components.ChartComponent;
+import it.unisannio.loganalysis.presentation.components.LogSourceSelector;
+import it.unisannio.loganalysis.presentation.components.QueryParameterSelector;
 import org.renjin.sexp.ListVector;
 
 import javax.script.ScriptException;
 import javax.servlet.annotation.WebServlet;
 import java.io.FileNotFoundException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
- * This UI is the application entry point. A UI may either represent a browser window 
+ * This UI is the application entry point. A UI may either represent a browser window
  * (or tab) or some part of a html page where a Vaadin application is embedded.
  * <p>
- * The UI is initialized using {@link #init(VaadinRequest)}. This method is intended to be 
+ * The UI is initialized using {@link #init(VaadinRequest)}. This method is intended to be
  * overridden to add component to the user interface and initialize non-component functionality.
  */
 @Theme("mytheme")
-@Title("Log Analysis Tool")
+@Title("AnaLogs")
 @Widgetset("it.unisannio.loganalysis.MyAppWidgetset")
 public class MyUI extends UI {
 
@@ -48,10 +51,8 @@ public class MyUI extends UI {
             logSourceSelector.setAddSourceListener(this::showAddSourceDialog);
             logSourceSelector.setValueChangeListener((Property.ValueChangeListener) valueChangeEvent -> {
                 try {
-
                     TableHandler controller = TableHandler.getInstance();
                     controller.setDbSource(valueChangeEvent.getProperty().getValue().toString());
-                    System.out.println(controller.getDbSource());
                     controller.loadTables();
                     queryParameterSelector.updateValues();
                 } catch (FileNotFoundException e) {
@@ -70,11 +71,11 @@ public class MyUI extends UI {
         queryParameterSelector.setExecuteQueryListener(() -> {
             AnalyzerController analyzerController = AnalyzerController.getInstance();
             Integer[] users = queryParameterSelector.getUsers();
-            ListVector df = analyzerController.performQuery(queryParameterSelector.getQueryType(),
-                    users.length > 0 ? users : null,
-                    queryParameterSelector.getFrom(), queryParameterSelector.getTo(),
-                    queryParameterSelector.getAttributes(),queryParameterSelector.isNormalized());
-            chartView.setData(queryParameterSelector.getQueryType(), df);
+                ListVector df = analyzerController.performQuery(queryParameterSelector.getQueryType(),
+                        users.length > 0 ? users : null,
+                        queryParameterSelector.getFrom(), queryParameterSelector.getTo(),
+                        queryParameterSelector.getAttributes(), queryParameterSelector.isNormalized());
+                chartView.setData(queryParameterSelector.getQueryType(), df);
         });
 
 
@@ -102,20 +103,47 @@ public class MyUI extends UI {
         Window window = new Window("Aggiungi Sorgente dati");
         AddLogSourceForm form = new AddLogSourceForm();
         window.setContent(form);
-      //  Window windowLoad = new Window();
-       /* ProgressBar bar = new ProgressBar();
-        bar.setDescription("Caricamento...");
-        bar.setIndeterminate(true);
-*/
         form.setAddListener((Button.ClickListener) clickEvent -> {
-           // windowLoad.setContent(bar);
+            boolean temp = false;
 
-        /*    windowLoad.center();
-            windowLoad.setClosable(false);
-            windowLoad.setSizeFull();
-            addWindow(windowLoad);ù*/
+            if(form.getType() == null){
+                form.serviceTypeCbError();
+                temp=true;
+            }
 
+            if(form.getDialect() == null) {
+                form.dialectError();
+                temp = true;
+            }
+
+            if(form.getHost().equals("")){
+                form.hostError();
+                temp=true;
+            }
+
+            if(form.getPort().equals("")) {
+                form.portError();
+                temp = true;
+            }
+
+            if(form.getSourceDb().equals("")) {
+                form.dbnameError();
+                temp = true;
+            }
+
+            if(form.getUsername().equals("")) {
+                form.usernameError();
+                temp = true;
+            }
+
+            if(form.getPassword().equals("")) {
+                form.passwordError();
+                temp = true;
+            }
+
+            if(!temp) {
                 try {
+
                     FacadeLogSource.getInstance().addDataSource(
                             form.getType(), form.getDialect(), form.getHost(), form.getPort(), form.getSourceDb(),
                             form.getUsername(), form.getPassword());
@@ -125,10 +153,10 @@ public class MyUI extends UI {
 
                 } catch (ClassNotFoundException | IllegalAccessException | NoSuchMethodException | InstantiationException | InvocationTargetException e) {
                     e.printStackTrace();
+
                 }
-
+            }
         });
-
         window.center();
         addWindow(window);
     }

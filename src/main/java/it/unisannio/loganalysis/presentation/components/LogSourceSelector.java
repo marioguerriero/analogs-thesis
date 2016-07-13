@@ -51,4 +51,6 @@ public class LogSourceSelector extends CustomComponent {
     public interface AddSourceListener {
         void addSourceClicked();
     }
+
+
 }

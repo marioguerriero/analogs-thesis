@@ -23,43 +23,45 @@ public class QueryParameterSelector extends CustomComponent {
     private CheckBox normalized;
     private Button executeButton;
     private ExecuteQueryListener executeQueryListener;
+    private Panel panel;
 
     private Map<Integer, String> usersMap;
 
 
     public QueryParameterSelector() {
-        Panel panel = new Panel("QueryType Selection");
+        panel = new Panel("QueryType Selection");
         VerticalLayout layout = new VerticalLayout();
         layout.setMargin(true);
         panel.setResponsive(true);
-        //panel.setWidth("300px");
-        //panel.setHeight("200px");
         panel.setContent(layout);
 
-
-        //TwinColSelect
         users = new TwinColSelect("Selezione utenti");
-
-
         from = new DateField("Da");
         from.setSizeFull();
         from.setResponsive(true);
         from.setDateFormat("dd MMM yyyy");
+        from.addValueChangeListener((Property.ValueChangeListener) valueChangeEvent -> {
+            Date fromDate = (Date) valueChangeEvent.getProperty().getValue();
+            if(to != null) to.setRangeStart(fromDate);
+        });
         Calendar c = Calendar.getInstance();
         c.set(Calendar.MONTH, c.get(Calendar.MONTH)-1);
         from.setValue(c.getTime());
-
+        from.setRangeEnd(new Date());
         to = new DateField("A");
         to.setSizeFull();
         to.setResponsive(true);
         to.setDateFormat("dd MMM yyyy");
+        to.addValueChangeListener((Property.ValueChangeListener) valueChangeEvent -> {
+            Date toDate = (Date) valueChangeEvent.getProperty().getValue();
+            if(from != null) to.setRangeEnd(toDate);
+        });
         to.setValue(new Date());
+        to.setRangeEnd(new Date());
         normalized = new CheckBox("Normalizza il risultato");
-
         users.setVisible(false);
         from.setVisible(false);
         to.setVisible(false);
-
         queryType = new ComboBox("Tipo della query");
         queryType.setSizeFull();
         queryType.setResponsive(true);
@@ -106,14 +108,14 @@ public class QueryParameterSelector extends CustomComponent {
                         users.setVisible(true);
                         from.setVisible(true);
                         to.setVisible(true);
-                        //attribute
+
                     }
 
                     if(getQueryType() == QueryType.RESOURCE_USAGE_TIME){
                         users.setVisible(true);
                         from.setVisible(true);
                         to.setVisible(true);
-                        //attribte
+
 
                     }
 
@@ -126,12 +128,9 @@ public class QueryParameterSelector extends CustomComponent {
                 });
         queryType.setImmediate(true);
 
-
-
-
         executeButton = new Button("Esegui");
         executeButton.addClickListener((e) -> {
-            if(executeQueryListener != null)
+            if(executeQueryListener != null && this.getTo() !=0 && this.getFrom() !=0)
                 try {
                     executeQueryListener.onExecuteListener();
                 } catch (FileNotFoundException e1) {
@@ -147,7 +146,6 @@ public class QueryParameterSelector extends CustomComponent {
 
         layout.setSpacing(true);
         layout.setSizeUndefined();
-
         setCompositionRoot(panel);
 
     }
@@ -157,11 +155,15 @@ public class QueryParameterSelector extends CustomComponent {
     }
 
     public long getFrom() {
+        if(from.getValue() != null )
         return from.getValue().getTime();
+        return 0;
     }
 
     public long getTo() {
+       if(to.getValue() != null)
         return to.getValue().getTime();
+        return 0;
     }
 
     public QueryType getQueryType() {
@@ -177,7 +179,6 @@ public class QueryParameterSelector extends CustomComponent {
                 selectedIds.add(id);
             }
         }
-
         Integer[] ids = new Integer[selectedIds.size()];
         int i = 0;
         for(Integer id : selectedIds) {
@@ -212,11 +213,14 @@ public class QueryParameterSelector extends CustomComponent {
             e.printStackTrace();
         }
 
+        users.removeAllItems();
         users.addItems(usersMap.values());
     }
 
     public interface ExecuteQueryListener {
         void onExecuteListener() throws FileNotFoundException, ScriptException;
     }
+
+
 
 }

@@ -1,7 +1,9 @@
 package it.unisannio.loganalysis.presentation.components;
 
+import com.vaadin.data.Property;
 import com.vaadin.data.validator.NullValidator;
 import com.vaadin.server.FontAwesome;
+import com.vaadin.server.UserError;
 import com.vaadin.ui.*;
 import it.unisannio.loganalysis.extractor.FacadeLogSource;
 
@@ -22,33 +24,77 @@ public class AddLogSourceForm extends CustomComponent {
     public AddLogSourceForm() {
         FormLayout form = new FormLayout();
 
+
         serviceTypeCb = new ComboBox();
         serviceTypeCb.addItems(FacadeLogSource.getInstance().getDataSourcesTypes());
+        serviceTypeCb.addValueChangeListener(new Property.ValueChangeListener() {
+            @Override
+            public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+                serviceTypeCb.setComponentError(null);
+            }
+        });
 
         dialect = new ComboBox("Tipo Database");
         dialect.addItem("mysql");
         dialect.addItem("postgresql");
+        dialect.addValueChangeListener(new Property.ValueChangeListener() {
+            @Override
+            public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+                dialect.setComponentError(null);
+            }
+        });
+
 
         host = new TextField("Host");
         host.setRequired(true);
         host.addValidator(new NullValidator("Campo obbligatorio", false));
+        host.addValueChangeListener(new Property.ValueChangeListener() {
+            @Override
+            public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+                host.setComponentError(null);
+            }
+        });
 
         port = new TextField("Port");
         port.setRequired(true);
         port.addValidator(new NullValidator("Campo obbligatorio", false));
+        port.addValueChangeListener(new Property.ValueChangeListener() {
+            @Override
+            public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+                port.setComponentError(null);
+            }
+        });
 
         dbname = new TextField("Nome del database");
         dbname.setRequired(true);
         dbname.addValidator(new NullValidator("Campo obbligatorio", false));
+        dbname.addValueChangeListener(new Property.ValueChangeListener() {
+            @Override
+            public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+                dbname.setComponentError(null);
+            }
+        });
 
         username = new TextField("Username");
         username.setIcon(FontAwesome.USER);
         username.setRequired(true);
         username.addValidator(new NullValidator("Campo obbligatorio", false));
+        username.addValueChangeListener(new Property.ValueChangeListener() {
+            @Override
+            public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+                username.setComponentError(null);
+            }
+        });
 
         password = new PasswordField("Password");
         password.setRequired(true);
         password.addValidator(new NullValidator("Campo obbligatorio", false));
+        password.addValueChangeListener(new Property.ValueChangeListener() {
+            @Override
+            public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+                password.setComponentError(null);
+            }
+        });
 
         confirmButton = new Button("Aggiungi");
 
@@ -101,4 +147,14 @@ public class AddLogSourceForm extends CustomComponent {
     public String getPassword() {
         return password.getValue();
     }
+
+    public void serviceTypeCbError(){serviceTypeCb.setComponentError(new UserError("Campo vuoto"));}
+    public void dialectError(){dialect.setComponentError(new UserError("Campo vuoto"));}
+    public void hostError(){host.setComponentError(new UserError("Campo vuoto"));}
+    public void portError(){port.setComponentError(new UserError("Campo vuoto"));}
+    public void dbnameError(){dbname.setComponentError(new UserError("Campo vuoto"));}
+    public void usernameError(){username.setComponentError(new UserError("Campo vuoto"));}
+    public void passwordError(){password.setComponentError(new UserError("Campo vuoto"));}
+
+
 }
