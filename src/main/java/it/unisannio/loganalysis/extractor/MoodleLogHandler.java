@@ -68,7 +68,8 @@ public class MoodleLogHandler implements ILogHandler {
                     properties.put(firstaccess, new UserProperty(u, firstaccess, resultSet.getString(firstaccess)+"000"));
                     properties.put(lastaccess, new UserProperty(u, lastaccess, resultSet.getString(lastaccess)+"000"));
                     properties.put(timecreated, new UserProperty(u, timecreated, resultSet.getString(timecreated)+"000"));
-                    properties.put("role", new UserProperty(u, "role", resultSet.getString("shortname")));
+                    if(resultSet.getString("shortname") != null)
+                        u.addType(resultSet.getString("shortname"));
                     users.add(u);
                     this.id++;
                 }

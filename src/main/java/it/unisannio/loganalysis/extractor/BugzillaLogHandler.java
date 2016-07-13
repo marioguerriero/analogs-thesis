@@ -63,7 +63,8 @@ public class BugzillaLogHandler implements ILogHandler {
                     properties.put("sourceid", new UserProperty(u, "sourceid", resultSet.getString("userid")));
                     properties.put("lastaccess", new UserProperty(u, "lastaccess", simpleDateFormat.parse(resultSet.getString("last_seen_date")).getTime()+""));
                     properties.put("timecreated", new UserProperty(u, "timecreated", simpleDateFormat.parse(resultSet.getString("profiles_when")).getTime()+""));
-                    properties.put("role", new UserProperty(u, "role", resultSet.getString("name")));
+                    if(resultSet.getString("name") != null)
+                        u.addType(resultSet.getString("name"));
                     users.add(u);
                 }
                 id++;
@@ -127,11 +128,11 @@ public class BugzillaLogHandler implements ILogHandler {
                 }
                 properties.put("sourceid", new ResourceProperty(r, "sourceid", resultSet.getString("bug_id")));
                 properties.put("bug_status", new ResourceProperty(r, "bug_status", resultSet.getString("bug_status")));
-                properties.put("starttime", new ResourceProperty(r, "starttime", resultSet.getString("creation_ts")));
+                properties.put("starttime", new ResourceProperty(r, "starttime", ""+calcMillis(resultSet.getString("creation_ts"))));
                 if(resultSet.getString("bug_status").equalsIgnoreCase("resolved"))
                     properties.put("totaltime", new ResourceProperty(r, "totaltime", ""+calcTotal(resultSet.getString("creation_ts") ,resultSet.getString("delta_ts"))));
-                properties.put("timemodified", new ResourceProperty(r, "timemodified", resultSet.getString("delta_ts")));
-                properties.put("deadline", new ResourceProperty(r, "deadline", resultSet.getString("deadline")));
+                properties.put("timemodified", new ResourceProperty(r, "timemodified", ""+calcMillis(resultSet.getString("delta_ts"))));
+                properties.put("deadline", new ResourceProperty(r, "deadline", ""+calcMillis(resultSet.getString("deadline"))));
                 resources.add(r);
                 id++;
             }
@@ -155,7 +156,7 @@ public class BugzillaLogHandler implements ILogHandler {
                         a.setUserFrom(u);
                 }
                 properties.put("os", new ActionProperty(a, "os", resultSet.getString("op_sys")));
-                properties.put("added", new ActionProperty(a, "added", resultSet.getString("added")));
+                properties.put("added", new ActionProperty(a, "added", calcMillis(resultSet.getString("added"))));
                 properties.put("removed", new ActionProperty(a, "removed", resultSet.getString("removed")));
                 a.setType('c');
                 actions.add(a);
@@ -194,5 +195,16 @@ public class BugzillaLogHandler implements ILogHandler {
             e.printStackTrace();
         }
         return 0;
+    }
+
+    private String calcMillis(String time) {
+        if(time == null)
+            return 0+"";
+        try {
+            return ""+new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SS").parse(time).getTime();
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return time;
+        }
     }
 }
