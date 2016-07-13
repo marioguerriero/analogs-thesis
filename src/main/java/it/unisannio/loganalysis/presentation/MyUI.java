@@ -1,23 +1,26 @@
 package it.unisannio.loganalysis.presentation;
 
-import com.vaadin.annotations.*;
+import com.vaadin.annotations.Theme;
+import com.vaadin.annotations.Title;
+import com.vaadin.annotations.VaadinServletConfiguration;
+import com.vaadin.annotations.Widgetset;
 import com.vaadin.data.Property;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.*;
-
 import it.unisannio.loganalysis.analysis.AnalyzerController;
 import it.unisannio.loganalysis.analysis.TableHandler;
 import it.unisannio.loganalysis.extractor.FacadeLogSource;
-import it.unisannio.loganalysis.presentation.components.*;
+import it.unisannio.loganalysis.presentation.components.AddLogSourceForm;
+import it.unisannio.loganalysis.presentation.components.ChartComponent;
+import it.unisannio.loganalysis.presentation.components.LogSourceSelector;
+import it.unisannio.loganalysis.presentation.components.QueryParameterSelector;
 import org.renjin.sexp.ListVector;
 
 import javax.script.ScriptException;
 import javax.servlet.annotation.WebServlet;
 import java.io.FileNotFoundException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * This UI is the application entry point. A UI may either represent a browser window 
@@ -121,7 +124,6 @@ public class MyUI extends UI {
         window.center();
         addWindow(window);
     }
-
 
     @WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)
     @VaadinServletConfiguration(ui = MyUI.class, productionMode = false)

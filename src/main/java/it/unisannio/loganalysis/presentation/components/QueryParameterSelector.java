@@ -32,34 +32,31 @@ public class QueryParameterSelector extends CustomComponent {
         VerticalLayout layout = new VerticalLayout();
         layout.setMargin(true);
         panel.setResponsive(true);
-        //panel.setWidth("300px");
-        //panel.setHeight("200px");
         panel.setContent(layout);
 
-
-        //TwinColSelect
         users = new TwinColSelect("Selezione utenti");
-
-
         from = new DateField("Da");
         from.setSizeFull();
         from.setResponsive(true);
         from.setDateFormat("dd MMM yyyy");
+        from.addValueChangeListener((Property.ValueChangeListener) valueChangeEvent -> {
+            Date fromDate = (Date) valueChangeEvent.getProperty().getValue();
+            if(to != null) to.setRangeStart(fromDate);
+        });
         Calendar c = Calendar.getInstance();
         c.set(Calendar.MONTH, c.get(Calendar.MONTH)-1);
         from.setValue(c.getTime());
-
+        from.setRangeEnd(new Date());
         to = new DateField("A");
         to.setSizeFull();
         to.setResponsive(true);
         to.setDateFormat("dd MMM yyyy");
         to.setValue(new Date());
+        to.setRangeEnd(new Date());
         normalized = new CheckBox("Normalizza il risultato");
-
         users.setVisible(false);
         from.setVisible(false);
         to.setVisible(false);
-
         queryType = new ComboBox("Tipo della query");
         queryType.setSizeFull();
         queryType.setResponsive(true);
@@ -126,9 +123,6 @@ public class QueryParameterSelector extends CustomComponent {
                 });
         queryType.setImmediate(true);
 
-
-
-
         executeButton = new Button("Esegui");
         executeButton.addClickListener((e) -> {
             if(executeQueryListener != null)
@@ -176,7 +170,6 @@ public class QueryParameterSelector extends CustomComponent {
                 selectedIds.add(id);
             }
         }
-
         Integer[] ids = new Integer[selectedIds.size()];
         int i = 0;
         for(Integer id : selectedIds) {
