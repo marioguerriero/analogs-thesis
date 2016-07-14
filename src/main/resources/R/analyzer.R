@@ -304,7 +304,7 @@ resourceAddedPerDays <- function(usr=NULL,from=NULL,to=NULL,attrs=NULL,normalize
     createActionsInDay <- (length(
       which(
         tmp$type == "c" & tmp$millis == fromDate &
-        (is.null(usr) | all(usr %in% tmp$idUser)) )))
+        (is.null(usr) | all(tmp$idUser %in% usr)) )))
     print(tmp[1:2,])
     resourcesAdded <- append(resourcesAdded,createActionsInDay)
     
