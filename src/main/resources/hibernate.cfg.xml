@@ -25,6 +25,7 @@
         <property name="hibernate.show_sql">
             false
         </property>
+
         <!--<property name="hibernate.enable_lazy_load_no_trans">true</property>-->
 
         <mapping class="it.unisannio.loganalysis.extractor.model.Action"/>

@@ -32,12 +32,12 @@ public class FacadeLogSource {
         ILogHandler logHandler = (ILogHandler) c.getConstructor(String.class, String.class, String.class, String.class, String.class, String.class).newInstance(dialect, host, port, sourcedb, username, password);
 
         LogSourceHandler logSourceHandler = LogSourceHandler.getInstance();
-        ModelDatabaseHandler modelDatabaseHandler;
+
         if(!logSourceHandler.contains(identifier)) {
             logSourceHandler.attach(identifier, logHandler);
         }
 
-        modelDatabaseHandler = new ModelDatabaseHandler(identifier);
+        ModelDatabaseHandler modelDatabaseHandler = new ModelDatabaseHandler(identifier);
         modelDatabaseHandler.parseLogHandler(identifier);
     }
 
