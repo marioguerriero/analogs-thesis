@@ -146,8 +146,10 @@ public class ChartComponent extends CustomComponent {
                 DataSeries dataSeries2 = new DataSeries();
 
                 for(int i=0; i< type_usage.length(); i++){
-                    DataSeriesItem dataSeriesItem = new DataSeriesItem(type_usage.getElementAsString(i), time.getElementAsDouble(i));
-                    dataSeries2.addItemWithDrilldown(dataSeriesItem);
+                    if(time.getElementAsDouble(i) != 0) {
+                        DataSeriesItem dataSeriesItem = new DataSeriesItem(type_usage.getElementAsString(i), time.getElementAsDouble(i));
+                        dataSeries2.addItemWithDrilldown(dataSeriesItem);
+                    }
                 }
                 PlotOptionsPie plotOptionsPie2 = new PlotOptionsPie();
                 plotOptionsPie2.setCursor(Cursor.POINTER);
