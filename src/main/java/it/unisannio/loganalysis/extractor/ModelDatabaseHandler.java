@@ -7,6 +7,7 @@ import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 
 import java.util.Collection;
+import java.util.logging.Level;
 
 
 /**
@@ -16,74 +17,24 @@ public class ModelDatabaseHandler {
 
     private Configuration configuration;
     private SessionFactory sessionFactory;
+    private String identifier;
 
     public ModelDatabaseHandler(String dbname) {
         configuration = new Configuration().configure(getClass().getResource("/hibernate.cfg.xml"));
+        java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.OFF);
 
         configuration.setProperty("hibernate.connection.url", "jdbc:mysql://localhost/"+dbname+"?createDatabaseIfNotExist=true");
         sessionFactory = configuration.buildSessionFactory();
+
+        this.identifier = dbname;
     }
 
 
-    public void parseLogHandler(String handlerIdentifier) {
-        ILogHandler datasourcehandler = LogSourceHandler.getInstance().getSourceHandler(handlerIdentifier);
+    public void parseLogHandler(String identifier) {
+        ILogHandler datasourcehandler = LogSourceHandler.getInstance().getSourceHandler(identifier);
         Model m = datasourcehandler.buildModel();
         fillDatabase(m);
     }
-
-    /*private int getNextId() {
-        Connection connection;
-        Statement statement = null;
-        ResultSet resultSet = null;
-
-        try {
-            connection = DriverManager.getConnection("jdbc:mysql://localhost/loganalysis?user=thesis&password=thesis");
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery("SELECT next_val FROM my_sequence");
-            resultSet.next();
-            int i = resultSet.getInt("next_val");
-            return i;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            if(resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if(statement != null) {
-                try {
-                    statement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return 0;
-    }
-
-    private void setNextId(int id) {
-        Connection connection;
-        Statement statement = null;
-        try {
-            connection = DriverManager.getConnection("jdbc:mysql://localhost/loganalysis?user=thesis&password=thesis");
-            statement = connection.createStatement();
-            statement.executeUpdate("UPDATE my_sequence SET next_val='"+id+"'");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            if(statement != null) {
-                try {
-                    statement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }*/
 
 
     private void fillDatabase(Model model) {
@@ -103,8 +54,6 @@ public class ModelDatabaseHandler {
         }
 
         for (Resource r: model.getResources()) {
-            //System.out.println("parent "+r.getIdResourceAssociated().getIdResource());
-            //System.out.println("resource "+r.getIdResource());
             saveParent(session, model.getResources(), r);
             transaction = session.beginTransaction();
             session.saveOrUpdate(r);

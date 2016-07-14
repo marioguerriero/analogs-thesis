@@ -156,7 +156,7 @@ public class BugzillaLogHandler implements ILogHandler {
                         a.setUserFrom(u);
                 }
                 properties.put("os", new ActionProperty(a, "os", resultSet.getString("op_sys")));
-                properties.put("added", new ActionProperty(a, "added", calcMillis(resultSet.getString("added"))));
+                properties.put("added", new ActionProperty(a, "added", calcMillisDay(resultSet.getString("added"))));
                 properties.put("removed", new ActionProperty(a, "removed", resultSet.getString("removed")));
                 a.setType('c');
                 actions.add(a);
@@ -203,7 +203,18 @@ public class BugzillaLogHandler implements ILogHandler {
         try {
             return ""+new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SS").parse(time).getTime();
         } catch (ParseException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            return time;
+        }
+    }
+
+    private String calcMillisDay(String time) {
+        if(time == null)
+            return 0+"";
+        try {
+            return ""+new SimpleDateFormat("yyyy-MM-dd").parse(time).getTime();
+        } catch (ParseException e) {
+            //e.printStackTrace();
             return time;
         }
     }
