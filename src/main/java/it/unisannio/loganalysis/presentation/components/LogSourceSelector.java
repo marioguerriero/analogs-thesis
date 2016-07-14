@@ -10,6 +10,7 @@ import java.util.Collection;
 /**
  * Created by graziano on 03/07/16.
  */
+//
 public class LogSourceSelector extends CustomComponent {
 
     private ComboBox logSources;
@@ -51,4 +52,6 @@ public class LogSourceSelector extends CustomComponent {
     public interface AddSourceListener {
         void addSourceClicked();
     }
+
+
 }

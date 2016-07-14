@@ -22,11 +22,12 @@ import javax.servlet.annotation.WebServlet;
 import java.io.FileNotFoundException;
 import java.lang.reflect.InvocationTargetException;
 
+
 /**
- * This UI is the application entry point. A UI may either represent a browser window 
+ * This UI is the application entry point. A UI may either represent a browser window
  * (or tab) or some part of a html page where a Vaadin application is embedded.
  * <p>
- * The UI is initialized using {@link #init(VaadinRequest)}. This method is intended to be 
+ * The UI is initialized using {@link #init(VaadinRequest)}. This method is intended to be
  * overridden to add component to the user interface and initialize non-component functionality.
  */
 @Theme("mytheme")
@@ -51,10 +52,8 @@ public class MyUI extends UI {
             logSourceSelector.setAddSourceListener(this::showAddSourceDialog);
             logSourceSelector.setValueChangeListener((Property.ValueChangeListener) valueChangeEvent -> {
                 try {
-
                     TableHandler controller = TableHandler.getInstance();
                     controller.setDbSource(valueChangeEvent.getProperty().getValue().toString());
-                    System.out.println(controller.getDbSource());
                     controller.loadTables();
                     queryParameterSelector.updateValues();
                 } catch (FileNotFoundException e) {
@@ -73,11 +72,11 @@ public class MyUI extends UI {
         queryParameterSelector.setExecuteQueryListener(() -> {
             AnalyzerController analyzerController = AnalyzerController.getInstance();
             Integer[] users = queryParameterSelector.getUsers();
-            ListVector df = analyzerController.performQuery(queryParameterSelector.getQueryType(),
-                    users.length > 0 ? users : null,
-                    queryParameterSelector.getFrom(), queryParameterSelector.getTo(),
-                    queryParameterSelector.getAttributes(),queryParameterSelector.isNormalized());
-            chartView.setData(queryParameterSelector.getQueryType(), df);
+                ListVector df = analyzerController.performQuery(queryParameterSelector.getQueryType(),
+                        users.length > 0 ? users : null,
+                        queryParameterSelector.getFrom(), queryParameterSelector.getTo(),
+                        queryParameterSelector.getAttributes(), queryParameterSelector.isNormalized());
+                chartView.setData(queryParameterSelector.getQueryType(), df);
         });
 
 
@@ -107,18 +106,57 @@ public class MyUI extends UI {
         window.setContent(form);
         form.setAddListener((Button.ClickListener) clickEvent -> {
 
-            try {
+            boolean temp = false;
 
-                FacadeLogSource.getInstance().addDataSource(
-                        form.getType(), form.getDialect(), form.getHost(), form.getPort(), form.getSourceDb(),
-                        form.getUsername(), form.getPassword());
+            if(form.getType() == null){
+                form.serviceTypeCbError();
+                temp=true;
+            }
+
+            if(form.getDialect() == null) {
+                form.dialectError();
+                temp = true;
+            }
+
+            if(form.getHost().equals("")){
+                form.hostError();
+                temp=true;
+            }
+
+            if(form.getPort().equals("")) {
+                form.portError();
+                temp = true;
+            }
+
+            if(form.getSourceDb().equals("")) {
+                form.dbnameError();
+                temp = true;
+            }
+
+            if(form.getUsername().equals("")) {
+                form.usernameError();
+                temp = true;
+            }
+
+            if(form.getPassword().equals("")) {
+                form.passwordError();
+                temp = true;
+            }
+
+            if(!temp) {
+                try {
+
+                    FacadeLogSource.getInstance().addDataSource(
+                            form.getType(), form.getDialect(), form.getHost(), form.getPort(), form.getSourceDb(),
+                            form.getUsername(), form.getPassword());
 
                 removeWindow(window);
                 logSourceSelector.setSources(FacadeLogSource.getInstance().getDataSources());
 
-            } catch (ClassNotFoundException | IllegalAccessException | NoSuchMethodException | InstantiationException | InvocationTargetException e) {
-                e.printStackTrace();
+                } catch (ClassNotFoundException | IllegalAccessException | NoSuchMethodException | InstantiationException | InvocationTargetException e) {
+                    e.printStackTrace();
 
+                }
             }
         });
         window.center();

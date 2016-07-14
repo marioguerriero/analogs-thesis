@@ -11,6 +11,7 @@ import javax.script.ScriptException;
 import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.Calendar;
+//
 
 /**
  * Created by graziano on 04/07/16.
@@ -23,12 +24,13 @@ public class QueryParameterSelector extends CustomComponent {
     private CheckBox normalized;
     private Button executeButton;
     private ExecuteQueryListener executeQueryListener;
+    private Panel panel;
 
     private Map<Integer, String> usersMap;
 
 
     public QueryParameterSelector() {
-        Panel panel = new Panel("QueryType Selection");
+        panel = new Panel("QueryType Selection");
         VerticalLayout layout = new VerticalLayout();
         layout.setMargin(true);
         panel.setResponsive(true);
@@ -51,6 +53,10 @@ public class QueryParameterSelector extends CustomComponent {
         to.setSizeFull();
         to.setResponsive(true);
         to.setDateFormat("dd MMM yyyy");
+        to.addValueChangeListener((Property.ValueChangeListener) valueChangeEvent -> {
+            Date toDate = (Date) valueChangeEvent.getProperty().getValue();
+            if(from != null) to.setRangeEnd(toDate);
+        });
         to.setValue(new Date());
         to.setRangeEnd(new Date());
         normalized = new CheckBox("Normalizza il risultato");
@@ -103,14 +109,14 @@ public class QueryParameterSelector extends CustomComponent {
                         users.setVisible(true);
                         from.setVisible(true);
                         to.setVisible(true);
-                        //attribute
+
                     }
 
                     if(getQueryType() == QueryType.RESOURCE_USAGE_TIME){
                         users.setVisible(true);
                         from.setVisible(true);
                         to.setVisible(true);
-                        //attribte
+
 
                     }
 
@@ -125,7 +131,7 @@ public class QueryParameterSelector extends CustomComponent {
 
         executeButton = new Button("Esegui");
         executeButton.addClickListener((e) -> {
-            if(executeQueryListener != null)
+            if(executeQueryListener != null && this.getTo() !=0 && this.getFrom() !=0)
                 try {
                     executeQueryListener.onExecuteListener();
                 } catch (FileNotFoundException e1) {
@@ -150,11 +156,15 @@ public class QueryParameterSelector extends CustomComponent {
     }
 
     public long getFrom() {
+        if(from.getValue() != null )
         return from.getValue().getTime();
+        return 0;
     }
 
     public long getTo() {
+       if(to.getValue() != null)
         return to.getValue().getTime();
+        return 0;
     }
 
     public QueryType getQueryType() {
@@ -211,5 +221,7 @@ public class QueryParameterSelector extends CustomComponent {
     public interface ExecuteQueryListener {
         void onExecuteListener() throws FileNotFoundException, ScriptException;
     }
+
+
 
 }
