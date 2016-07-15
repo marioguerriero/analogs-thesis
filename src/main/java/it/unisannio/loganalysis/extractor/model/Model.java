@@ -6,11 +6,11 @@ import java.util.Collection;
  * Created by paolomoriello on 30/06/16.
  */
 public class Model {
-    private Collection<Resource> resources;
     private Collection<User> users;
+    private Collection<Resource> resources;
     private Collection<Action> actions;
 
-    public Model(Collection<Resource> resources, Collection<User> users, Collection<Action> actions) {
+    public Model(Collection<User> users, Collection<Resource> resources, Collection<Action> actions) {
         this.resources = resources;
         this.users = users;
         this.actions = actions;

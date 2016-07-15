@@ -1,5 +1,7 @@
 package it.unisannio.loganalysis.extractor;
 
+import it.unisannio.loganalysis.extractor.model.Model;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +30,10 @@ public class LogSourceHandler {
 
     public void attach(String id, ILogHandler sourceHandler) {
         sourceHandlers.put(id, sourceHandler);
+    }
+
+    public Model parseLogHandler(String identifier) {
+        return sourceHandlers.get(identifier).buildModel();
     }
 
     public void detach(String id) {
