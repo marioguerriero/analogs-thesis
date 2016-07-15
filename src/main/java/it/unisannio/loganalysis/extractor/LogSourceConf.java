@@ -9,11 +9,11 @@ import java.util.Scanner;
 /**
  * Created by paolomoriello on 04/07/16.
  */
-public class RepositoryConf {
+public class LogSourceConf {
 
     private String path;
 
-    public RepositoryConf(String path) {
+    public LogSourceConf(String path) {
         this.path = path;
     }
 
@@ -43,29 +43,4 @@ public class RepositoryConf {
         }
         return map;
     }
-
-    /*
-    public Map<String, Set<String>> readInternalDb() {
-        Scanner scanner = null;
-        try {
-            scanner = new Scanner(new File(path));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        Map<String, Set<String>> map = new HashMap();
-
-        String line = null;
-        while(scanner.hasNextLine()) {
-            line = scanner.nextLine();
-            String[] tokens = line.split(",");
-            Set<String> set = new HashSet<>();
-            for(int i = 0; i < tokens.length; i++) {
-                set.add(tokens[i]);
-            }
-            map.put(tokens[0], set);
-        }
-        return map;
-    }
-    */
 }

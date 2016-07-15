@@ -1,8 +1,9 @@
 package it.unisannio.loganalysis.extractor;
 
+import it.unisannio.loganalysis.extractor.model.Model;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
-import java.util.Set;
 
 /**
  * Created by paolomoriello on 04/07/16.
@@ -26,8 +27,8 @@ public class FacadeLogSource {
 
         String identifier = host+"_"+port+"_"+sourcedb;
 
-        RepositoryConf repositoryConf = new RepositoryConf(getClass().getResource("/sources").getPath());
-        String classname = repositoryConf.readSources().get(type);
+        LogSourceConf logSourceConf = new LogSourceConf(getClass().getResource("/sources").getPath());
+        String classname = logSourceConf.readSources().get(type);
         Class c = Class.forName(classname);
         ILogHandler logHandler = (ILogHandler) c.getConstructor(String.class, String.class, String.class, String.class, String.class, String.class).newInstance(dialect, host, port, sourcedb, username, password);
 
@@ -37,12 +38,13 @@ public class FacadeLogSource {
             logSourceHandler.attach(identifier, logHandler);
         }
 
+        Model m = logSourceHandler.parseLogHandler(identifier);
         ModelDatabaseHandler modelDatabaseHandler = new ModelDatabaseHandler(identifier);
-        modelDatabaseHandler.parseLogHandler(identifier);
+        modelDatabaseHandler.fillDatabase(m);
     }
 
     public Collection<String> getDataSourcesTypes() {
-        return new RepositoryConf(getClass().getResource("/sources").getPath()).readSources().keySet();
+        return new LogSourceConf(getClass().getResource("/sources").getPath()).readSources().keySet();
     }
 
     public Collection<String> getDataSources() {

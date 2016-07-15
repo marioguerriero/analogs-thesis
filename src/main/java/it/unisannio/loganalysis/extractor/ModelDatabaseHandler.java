@@ -17,7 +17,6 @@ public class ModelDatabaseHandler {
 
     private Configuration configuration;
     private SessionFactory sessionFactory;
-    private String identifier;
 
     public ModelDatabaseHandler(String dbname) {
         configuration = new Configuration().configure(getClass().getResource("/hibernate.cfg.xml"));
@@ -25,19 +24,10 @@ public class ModelDatabaseHandler {
 
         configuration.setProperty("hibernate.connection.url", "jdbc:mysql://localhost/"+dbname+"?createDatabaseIfNotExist=true");
         sessionFactory = configuration.buildSessionFactory();
-
-        this.identifier = dbname;
     }
 
 
-    public void parseLogHandler(String identifier) {
-        ILogHandler datasourcehandler = LogSourceHandler.getInstance().getSourceHandler(identifier);
-        Model m = datasourcehandler.buildModel();
-        fillDatabase(m);
-    }
-
-
-    private void fillDatabase(Model model) {
+    public void fillDatabase(Model model) {
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
 
