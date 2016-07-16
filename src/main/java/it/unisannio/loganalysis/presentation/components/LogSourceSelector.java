@@ -21,12 +21,14 @@ public class LogSourceSelector extends CustomComponent {
     public LogSourceSelector() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         logSources = new ComboBox();
         logSources.setWidth("400px");
+        logSources.setNullSelectionAllowed(false);
         FacadeLogSource facadeLogSource = FacadeLogSource.getInstance();
         logSources.addItems(facadeLogSource.getDataSources());
         addSourceBtn = new Button("Aggiungi");
         addSourceBtn.addClickListener((Button.ClickListener) clickEvent -> {
             if(addSourceListener != null)
                 addSourceListener.addSourceClicked();
+
         });
 
         HorizontalLayout layout = new HorizontalLayout();

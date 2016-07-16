@@ -66,6 +66,7 @@ public class QueryParameterSelector extends CustomComponent {
         queryType = new ComboBox("Tipo della query");
         queryType.setSizeFull();
         queryType.setResponsive(true);
+        queryType.setNullSelectionAllowed(false);
         for(QueryType q : QueryTypeHandler.getQueries()) {
             queryType.addItem(q);
             queryType.setItemCaption(q, QueryTypeHandler.getDescription(q));

@@ -3,7 +3,6 @@ package it.unisannio.loganalysis.presentation.components;
 
 import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.model.*;
-
 import com.vaadin.data.Property;
 import com.vaadin.ui.*;
 import it.unisannio.loganalysis.analysis.QueryType;
@@ -26,7 +25,6 @@ public class ChartComponent extends CustomComponent {
     private XAxis x;
     private Configuration configuration;
     private ListSeries ls;
-
 
 
     public ChartComponent() {
@@ -61,6 +59,7 @@ public class ChartComponent extends CustomComponent {
 
         switch(query) {
             case RESOURCE_USAGE: // Non funziona su moodle da RISOLVERE
+
                 if(!selectChart.isEmpty()) selectChart.removeAllItems();
 
                 selectChart.addItem(ChartType.COLUMN);
@@ -69,6 +68,7 @@ public class ChartComponent extends CustomComponent {
                 selectChart.setItemCaption(ChartType.PIE, "Grafico a Torta");
 
                 selectChart.addValueChangeListener((Property.ValueChangeListener) valueChangeEvent -> {
+                    selectChart.setNullSelectionAllowed(false);
                     if(valueChangeEvent.getProperty().getValue().toString().contains("column")){
 
                         configuration.getChart().setType(ChartType.COLUMN);
@@ -133,6 +133,8 @@ public class ChartComponent extends CustomComponent {
                 selectChart.addValueChangeListener(new Property.ValueChangeListener() {
                     @Override
                     public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+                        selectChart.setNullSelectionAllowed(false);
+
                         if(valueChangeEvent.getProperty().getValue().toString().contains("column")){
                             configuration.getChart().setType(ChartType.COLUMN);
                             configuration.getChart().setZoomType(ZoomType.XY);
@@ -180,7 +182,6 @@ public class ChartComponent extends CustomComponent {
                             plotOptionsPie = new PlotOptionsPie();
                             plotOptionsPie.setCursor(Cursor.POINTER);
                             dataSeries.setPlotOptions(plotOptionsPie);
-
                             configuration.setSeries(dataSeries);
                             chartLayout.addComponent(chart);
                             chart.drawChart(configuration);
@@ -198,6 +199,8 @@ public class ChartComponent extends CustomComponent {
                 selectChart.addValueChangeListener(new Property.ValueChangeListener() {
                     @Override
                     public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+                        selectChart.setNullSelectionAllowed(false);
+
                         if(valueChangeEvent.getProperty().getValue().toString().contains("line")){
                             configuration.getChart().setType(ChartType.LINE);
                             configuration.getChart().setZoomType(ZoomType.XY);
@@ -256,18 +259,13 @@ public class ChartComponent extends CustomComponent {
                                 daysArr[i] = days.getElementAsString(i);
                                 x.addCategory(days.getElementAsString(i));
                             }
-
                             configuration.addxAxis(x);
                             configuration.setSeries(ls);
                             chartLayout.addComponent(chart);
                             chart.drawChart(configuration);
-
                         }
                     }
                 });
-
-
-
                 break;
             case DAILY_ACTIVE_RESOURCES:
                 if(!selectChart.isEmpty()) selectChart.removeAllItems();
@@ -279,6 +277,8 @@ public class ChartComponent extends CustomComponent {
                 selectChart.addValueChangeListener(new Property.ValueChangeListener() {
                     @Override
                     public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+                        selectChart.setNullSelectionAllowed(false);
+
                         if(valueChangeEvent.getProperty().getValue().toString().contains("line")){
                             configuration.getChart().setType(ChartType.LINE);
                             configuration.getChart().setZoomType(ZoomType.XY);
@@ -302,7 +302,6 @@ public class ChartComponent extends CustomComponent {
                         }
                         else{
 
-                            // Second chart
                             chart.setResponsive(true);
                             configuration = chart.getConfiguration();
                             configuration.getChart().setType(ChartType.COLUMN);
@@ -329,7 +328,6 @@ public class ChartComponent extends CustomComponent {
                     }
                 });
 
-
                 break;
             case TIME_RANGE_USAGE:
 
@@ -342,6 +340,8 @@ public class ChartComponent extends CustomComponent {
                 selectChart.addValueChangeListener(new Property.ValueChangeListener() {
                     @Override
                     public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+                        selectChart.setNullSelectionAllowed(false);
+
                         if(valueChangeEvent.getProperty().getValue().toString().contains("line")){
 
                             configuration.getChart().setType(ChartType.LINE);
@@ -381,11 +381,6 @@ public class ChartComponent extends CustomComponent {
 
                     }
                 });
-
-
-
-
-
                 break;
             case MOST_USED_OS:
                 if(!selectChart.isEmpty()) selectChart.removeAllItems();
@@ -397,6 +392,8 @@ public class ChartComponent extends CustomComponent {
                 selectChart.addValueChangeListener(new Property.ValueChangeListener() {
                     @Override
                     public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+                        selectChart.setNullSelectionAllowed(false);
+
                         if(valueChangeEvent.getProperty().getValue().toString().contains("pie")){
 
                             configuration.getChart().setType(ChartType.PIE);
@@ -446,12 +443,7 @@ public class ChartComponent extends CustomComponent {
                         }
                     }
                 });
-
                 break;
-
-
-
-
             case RESOURCE_ADDED_PER_DAY:
                 if(!selectChart.isEmpty()) selectChart.removeAllItems();
                 selectChart.addItem(ChartType.LINE);
@@ -462,6 +454,8 @@ public class ChartComponent extends CustomComponent {
                 selectChart.addValueChangeListener(new Property.ValueChangeListener() {
                     @Override
                     public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+                        selectChart.setNullSelectionAllowed(false);
+
                         if(valueChangeEvent.getProperty().getValue().toString().contains("line")){
                             configuration.getChart().setType(ChartType.LINE);
                             configuration.getChart().setZoomType(ZoomType.XY);
@@ -524,12 +518,7 @@ public class ChartComponent extends CustomComponent {
 
                     }
                 });
-
-
-
-
                 break;
-
             case DAILY_ACTIVITIES:
                 chartLayout.removeComponent(selectChart);
                 configuration.getChart().setType(ChartType.LINE);
