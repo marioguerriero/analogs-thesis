@@ -26,6 +26,7 @@ public class AddLogSourceForm extends CustomComponent {
 
 //
         serviceTypeCb = new ComboBox();
+        serviceTypeCb.setNullSelectionAllowed(false);
         serviceTypeCb.addItems(FacadeLogSource.getInstance().getDataSourcesTypes());
         serviceTypeCb.addValueChangeListener(new Property.ValueChangeListener() {
             @Override
@@ -37,6 +38,7 @@ public class AddLogSourceForm extends CustomComponent {
         dialect = new ComboBox("Tipo Database");
         dialect.addItem("mysql");
         dialect.addItem("postgresql");
+        dialect.setNullSelectionAllowed(false);
         dialect.addValueChangeListener(new Property.ValueChangeListener() {
             @Override
             public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
@@ -115,6 +117,7 @@ public class AddLogSourceForm extends CustomComponent {
 
     public void setAddListener(Button.ClickListener listener) {
         confirmButton.addClickListener(listener);
+
 
 
 

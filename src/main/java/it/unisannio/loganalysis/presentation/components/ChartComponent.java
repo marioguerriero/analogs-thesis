@@ -3,13 +3,13 @@ package it.unisannio.loganalysis.presentation.components;
 
 import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.model.*;
-
+import com.vaadin.data.Property;
 import com.vaadin.ui.*;
 import it.unisannio.loganalysis.analysis.QueryType;
 import it.unisannio.loganalysis.analysis.QueryTypeHandler;
 import org.renjin.sexp.ListVector;
 import org.renjin.sexp.Vector;
-//
+
 
 /**
  * Created by graziano on 04/07/16.
@@ -18,360 +18,515 @@ public class ChartComponent extends CustomComponent {
 
     private VerticalLayout chartLayout;
     private ComboBox selectChart;
+    private Chart chart;
+    private  DataSeries dataSeries;
+    private PlotOptionsPie plotOptionsPie;
+    private PlotOptionsColumn plotOptionsColumn;
+    private XAxis x;
+    private Configuration configuration;
+    private ListSeries ls;
 
 
     public ChartComponent() {
         Panel panel = new Panel("Chart");
-
         chartLayout = new VerticalLayout();
         chartLayout.setSizeFull();
         chartLayout.setResponsive(true);
         chartLayout.setSizeFull();
-        selectChart = new ComboBox("Chart Type");
+        selectChart = new ComboBox();
+        selectChart.setResponsive(true);
         panel.setResponsive(true);
         panel.setContent(chartLayout);
         setCompositionRoot(panel);
-
-
-
     }
 
 
 
     public void setData(QueryType query, ListVector data) {
-        Chart chart = new Chart();
+        chart = new Chart();
         chart.setResponsive(true);
 
-        Configuration configuration = chart.getConfiguration();
+        configuration = chart.getConfiguration();
         configuration.setTitle(QueryTypeHandler.getDescription(query));
         chartLayout.removeAllComponents();
         chartLayout.addComponent(chart);
+        selectChart = new ComboBox("Seleziona Grafico");
+        selectChart.setResponsive(true);
+        chartLayout.addComponent(selectChart);
 
 
 
-        chartLayout.removeAllComponents();
-        chartLayout.addComponent(chart);
 
         switch(query) {
-            case RESOURCE_USAGE: // Doppio grafico ok
+            case RESOURCE_USAGE: // Non funziona su moodle da RISOLVERE
 
-                for(QueryType q : QueryTypeHandler.getQueries()) {
-                    selectChart.addItem(q);
-                    selectChart.setItemCaption(q, QueryTypeHandler.getDescription(q));
-                }
+                if(!selectChart.isEmpty()) selectChart.removeAllItems();
 
-                chartLayout.addComponent(selectChart);
-                selectChart.addItem(configuration.getChart().getType());
-                configuration.getChart().setType(ChartType.COLUMN);
-                configuration.getChart().setZoomType(ZoomType.XY);
-                Vector type = data.getElementAsVector("type");
-                Vector usage = data.getElementAsVector("usage");
-                DataSeries dataSeries = new DataSeries("Numero risorse");
-                PlotOptionsColumn plotOptionsColumn = new PlotOptionsColumn();
-                plotOptionsColumn.setColorByPoint(true);
-                dataSeries.setPlotOptions(plotOptionsColumn);
+                selectChart.addItem(ChartType.COLUMN);
+                selectChart.addItem(ChartType.PIE);
+                selectChart.setItemCaption(ChartType.COLUMN, "Grafico a Barre");
+                selectChart.setItemCaption(ChartType.PIE, "Grafico a Torta");
 
-                XAxis x = new XAxis();
+                selectChart.addValueChangeListener((Property.ValueChangeListener) valueChangeEvent -> {
+                    selectChart.setNullSelectionAllowed(false);
+                    if(valueChangeEvent.getProperty().getValue().toString().contains("column")){
 
-                YAxis y = new YAxis();
-                for(int i=0; i< type.length(); i++){
-                    DataSeriesItem dataSeriesItem = new DataSeriesItem(type.getElementAsString(i), usage.getElementAsDouble(i));
-                    dataSeries.addItemWithDrilldown(dataSeriesItem);
-                    x.addCategory(type.getElementAsString(i));
-                    y.addCategory(usage.getElementAsString(i));
-                }
-                configuration.addxAxis(x);
-                configuration.addyAxis(y);
+                        configuration.getChart().setType(ChartType.COLUMN);
+                        configuration.getChart().setZoomType(ZoomType.XY);
+                        Vector type = data.getElementAsVector("type");
+                        Vector usage = data.getElementAsVector("usage");
+                        dataSeries = new DataSeries("Numero risorse");
+                        plotOptionsColumn = new PlotOptionsColumn();
+                        plotOptionsColumn.setColorByPoint(true);
+                        dataSeries.setPlotOptions(plotOptionsColumn);
 
-                configuration.setSeries(dataSeries);
-                chart.drawChart(configuration);
+                        x= new XAxis();
+                        YAxis y = new YAxis();
 
-                // Second chart
-                Chart chart1 = new Chart();
-                chart1.setResponsive(true);
-                Configuration conf1 = chart1.getConfiguration();
-                conf1.getChart().setType(ChartType.PIE);
-                conf1.setTitle(QueryTypeHandler.getDescription(query));
-                PlotOptionsPie plotOptionsPie1 = new PlotOptionsPie();
-                plotOptionsPie1.setCursor(Cursor.POINTER);
-                DataSeries dataSeries1 = new DataSeries();
-                dataSeries1.setPlotOptions(plotOptionsPie1);
+                        for(int i=0; i< type.length(); i++){
+                            DataSeriesItem dataSeriesItem = new DataSeriesItem(type.getElementAsString(i), usage.getElementAsDouble(i));
+                            dataSeries.addItemWithDrilldown(dataSeriesItem);
+                            x.addCategory(type.getElementAsString(i));
+                            y.addCategory(usage.getElementAsString(i));
+                        }
+                        configuration.addxAxis(x);
+                        configuration.addyAxis(y);
 
-                for(int i=0; i< type.length(); i++){
-                    DataSeriesItem dataSeriesItem = new DataSeriesItem(type.getElementAsString(i), usage.getElementAsDouble(i));
-                    dataSeries1.addItemWithDrilldown(dataSeriesItem);
+                        configuration.setSeries(dataSeries);
+                        chartLayout.addComponent(chart);
+                        chart.drawChart(configuration);
 
-                }
-
-                conf1.setSeries(dataSeries1);
-                chartLayout.addComponent(chart1);
-                chart1.drawChart(conf1);
-
-
-
-
-                break;
-            case RESOURCE_USAGE_TIME: //doppio grafico ok
-
-                configuration.getChart().setType(ChartType.COLUMN);
-                configuration.getChart().setZoomType(ZoomType.XY);
-
-                Vector type_usage = data.getElementAsVector("type");
-                Vector time = data.getElementAsVector("time");
-                dataSeries = new DataSeries("Tempo di utilizzo");
-                plotOptionsColumn = new PlotOptionsColumn();
-                plotOptionsColumn.setColorByPoint(true);
-                dataSeries.setPlotOptions(plotOptionsColumn);
-                XAxis x1 = new XAxis();
-                YAxis y1 = new YAxis();
-
-                String srut="";
-                for(int i=0; i< type_usage.length(); i++){
-                    DataSeriesItem dataSeriesItem = new DataSeriesItem(type_usage.getElementAsString(i), time.getElementAsDouble(i));
-                    dataSeries.addItemWithDrilldown(dataSeriesItem);
-                    x1.addCategory(type_usage.getElementAsString(i));
-                    y1.addCategory(time.getElementAsString(i));
-
-                }
-                configuration.setSeries(dataSeries);
-                chart.drawChart(configuration);
-
-
-                // Second chart
-                Chart chart2 = new Chart();
-                chart2.setResponsive(true);
-                Configuration conf2 = chart2.getConfiguration();
-                conf2.getChart().setType(ChartType.PIE);
-                conf2.setTitle(QueryTypeHandler.getDescription(query));
-                DataSeries dataSeries2 = new DataSeries();
-
-                for(int i=0; i< type_usage.length(); i++){
-                    if(time.getElementAsDouble(i) != 0) {
-                        DataSeriesItem dataSeriesItem = new DataSeriesItem(type_usage.getElementAsString(i), time.getElementAsDouble(i));
-                        dataSeries2.addItemWithDrilldown(dataSeriesItem);
                     }
-                }
-                PlotOptionsPie plotOptionsPie2 = new PlotOptionsPie();
-                plotOptionsPie2.setCursor(Cursor.POINTER);
-                dataSeries2.setPlotOptions(plotOptionsPie2);
+                    else {
+                        Vector type = data.getElementAsVector("type");
+                        Vector usage = data.getElementAsVector("usage");
+                        chart.setResponsive(true);
+                        configuration= chart.getConfiguration();
+                        configuration.getChart().setType(ChartType.PIE);
+                        configuration.setTitle(QueryTypeHandler.getDescription(query));
+                        plotOptionsPie = new PlotOptionsPie();
+                        plotOptionsPie.setCursor(Cursor.POINTER);
+                        dataSeries = new DataSeries();
+                        dataSeries.setPlotOptions(plotOptionsPie);
 
-                conf2.setSeries(dataSeries2);
-                chartLayout.addComponent(chart2);
-                chart2.drawChart(conf2);
+                        for (int i = 0; i < type.length(); i++) {
+                            if (usage.getElementAsDouble(i) != 0) {
+                                DataSeriesItem dataSeriesItem = new DataSeriesItem(type.getElementAsString(i), usage.getElementAsDouble(i));
+                                dataSeries.addItemWithDrilldown(dataSeriesItem);
+                            }
+                        }
+                        configuration.setSeries(dataSeries);
+                        chartLayout.addComponent(chart);
+                        chart.drawChart(configuration);
+
+                    }
+                });
+                break;
+            case RESOURCE_USAGE_TIME: //RISOLVERE PER MOODLE   ---- SU BUGS NON ESISTE----
+
+                if(!selectChart.isEmpty()) selectChart.removeAllItems();
+                selectChart.addItem(ChartType.COLUMN);
+                selectChart.addItem(ChartType.PIE);
+                selectChart.setItemCaption(ChartType.COLUMN, "Grafico a Barre");
+                selectChart.setItemCaption(ChartType.PIE, "Grafico a Torta");
+
+                selectChart.addValueChangeListener(new Property.ValueChangeListener() {
+                    @Override
+                    public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+                        selectChart.setNullSelectionAllowed(false);
+
+                        if(valueChangeEvent.getProperty().getValue().toString().contains("column")){
+                            configuration.getChart().setType(ChartType.COLUMN);
+                            configuration.getChart().setZoomType(ZoomType.XY);
+                            configuration.setTitle(QueryTypeHandler.getDescription(query));
 
 
+                            Vector type_usage = data.getElementAsVector("type");
+                            Vector time = data.getElementAsVector("time");
+                            dataSeries = new DataSeries("Tempo di utilizzo");
+                            plotOptionsColumn = new PlotOptionsColumn();
+                            plotOptionsColumn.setColorByPoint(true);
+                            dataSeries.setPlotOptions(plotOptionsColumn);
+                            XAxis x1 = new XAxis();
+                            YAxis y1 = new YAxis();
+
+                            for(int i=0; i< type_usage.length(); i++){
+                                DataSeriesItem dataSeriesItem = new DataSeriesItem(type_usage.getElementAsString(i), time.getElementAsDouble(i));
+                                dataSeries.addItemWithDrilldown(dataSeriesItem);
+                                x1.addCategory(type_usage.getElementAsString(i));
+                                y1.addCategory(time.getElementAsString(i));
+
+                            }
+                            configuration.addxAxis(x1);
+                            configuration.addyAxis(y1);
+                            configuration.setSeries(dataSeries);
+                            chartLayout.addComponent(chart);
+                            chart.drawChart(configuration);
+                        }
+                        else {
+
+                            Vector type_usage = data.getElementAsVector("type");
+                            Vector time = data.getElementAsVector("time");
+                            chart.setResponsive(true);
+                            configuration = chart.getConfiguration();
+                            configuration.getChart().setType(ChartType.PIE);
+                            configuration.setTitle(QueryTypeHandler.getDescription(query));
+                            dataSeries = new DataSeries();
+
+                            for(int i=0; i< type_usage.length(); i++){
+                                if(time.getElementAsDouble(i) != 0) {
+                                    DataSeriesItem dataSeriesItem = new DataSeriesItem(type_usage.getElementAsString(i), time.getElementAsDouble(i));
+                                    dataSeries.addItemWithDrilldown(dataSeriesItem);
+                                }
+                            }
+                            plotOptionsPie = new PlotOptionsPie();
+                            plotOptionsPie.setCursor(Cursor.POINTER);
+                            dataSeries.setPlotOptions(plotOptionsPie);
+                            configuration.setSeries(dataSeries);
+                            chartLayout.addComponent(chart);
+                            chart.drawChart(configuration);
+                        }
+                    }
+                });
+                break;
+            case DAILY_ACTIVE_USERS:
+                if(!selectChart.isEmpty()) selectChart.removeAllItems();
+                selectChart.addItem(ChartType.LINE);
+                selectChart.addItem(ChartType.COLUMN);
+                selectChart.setItemCaption(ChartType.COLUMN, "Grafico a Barre");
+                selectChart.setItemCaption(ChartType.LINE, "Grafico a Linee");
+
+                selectChart.addValueChangeListener(new Property.ValueChangeListener() {
+                    @Override
+                    public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+                        selectChart.setNullSelectionAllowed(false);
+
+                        if(valueChangeEvent.getProperty().getValue().toString().contains("line")){
+                            configuration.getChart().setType(ChartType.LINE);
+                            configuration.getChart().setZoomType(ZoomType.XY);
+                            configuration.setTitle(QueryTypeHandler.getDescription(query));
 
 
+                            Vector days = data.getElementAsVector("days");
+                            String[] daysArr = new String[days.length()];
+                            for(int i = 0; i < days.length(); i++) {
+                                daysArr[i] = days.getElementAsString(i);
+
+                            }
+
+                            configuration.getxAxis().setCategories(daysArr);
+                            Vector activeUsers = data.getElementAsVector("activeUsers");
+                            Double[] activeUsersArr = new Double[activeUsers.length()];
+                            for(int i = 0; i < activeUsers.length(); i++) {
+                                activeUsersArr[i] = activeUsers.getElementAsDouble(i);
 
 
+                            }
+
+
+                            ls = new ListSeries("Utenti attivi");
+                            ls.setData(activeUsersArr);
+                            configuration.setSeries(ls);
+                            chart.drawChart(configuration);
+                        }
+                        else{
+
+                            chart.setResponsive(true);
+                            configuration = chart.getConfiguration();
+                            configuration.getChart().setType(ChartType.COLUMN);
+                            configuration.getChart().setZoomType(ZoomType.XY);
+                            configuration.setTitle(QueryTypeHandler.getDescription(query));
+
+                            Vector days = data.getElementAsVector("days");
+                            String[] daysArr = new String[days.length()];
+                            for(int i = 0; i < days.length(); i++) {
+                                daysArr[i] = days.getElementAsString(i);
+
+                            }
+
+                            configuration.getxAxis().setCategories(daysArr);
+                            Vector activeUsers = data.getElementAsVector("activeUsers");
+                            Double[] activeUsersArr = new Double[activeUsers.length()];
+                            for(int i = 0; i < activeUsers.length(); i++) {
+                                activeUsersArr[i] = activeUsers.getElementAsDouble(i);
+
+
+                            }
+
+                            x = new XAxis();
+                            String[] daysArr2 = new String[days.length()];
+                            for(int i = 0; i < days.length(); i++) {
+                                daysArr[i] = days.getElementAsString(i);
+                                x.addCategory(days.getElementAsString(i));
+                            }
+                            configuration.addxAxis(x);
+                            configuration.setSeries(ls);
+                            chartLayout.addComponent(chart);
+                            chart.drawChart(configuration);
+                        }
+                    }
+                });
+                break;
+            case DAILY_ACTIVE_RESOURCES:
+                if(!selectChart.isEmpty()) selectChart.removeAllItems();
+                selectChart.addItem(ChartType.LINE);
+                selectChart.addItem(ChartType.COLUMN);
+                selectChart.setItemCaption(ChartType.COLUMN, "Grafico a Barre");
+                selectChart.setItemCaption(ChartType.LINE, "Grafico a Linee");
+
+                selectChart.addValueChangeListener(new Property.ValueChangeListener() {
+                    @Override
+                    public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+                        selectChart.setNullSelectionAllowed(false);
+
+                        if(valueChangeEvent.getProperty().getValue().toString().contains("line")){
+                            configuration.getChart().setType(ChartType.LINE);
+                            configuration.getChart().setZoomType(ZoomType.XY);
+                            configuration.setTitle(QueryTypeHandler.getDescription(query));
+                            Vector days = data.getElementAsVector("days");
+                            String []daysArr = new String[days.length()];
+                            for(int i = 0; i < days.length(); i++) {
+                                daysArr[i] = days.getElementAsString(i);
+                            }
+                            configuration.getxAxis().setCategories(daysArr);
+                            Vector activeResources = data.getElementAsVector("activeResources");
+                            Double[] activeResourcesArr = new Double[activeResources.length()];
+                            for(int i = 0; i < activeResources.length(); i++) {
+                                activeResourcesArr[i] = activeResources.getElementAsDouble(i);
+                            }
+
+                            ls = new ListSeries("Numero Risorse");
+                            ls.setData(activeResourcesArr);
+                            configuration.setSeries(ls);
+                            chart.drawChart(configuration);
+                        }
+                        else{
+
+                            chart.setResponsive(true);
+                            configuration = chart.getConfiguration();
+                            configuration.getChart().setType(ChartType.COLUMN);
+                            configuration.setTitle(QueryTypeHandler.getDescription(query));
+
+                            Vector days = data.getElementAsVector("days");
+                            String []daysArr = new String[days.length()];
+
+
+                            x= new XAxis();
+
+                            String[] daysArr4 = new String[days.length()];
+                            for(int i = 0; i < days.length(); i++) {
+                                daysArr[i] = days.getElementAsString(i);
+                                x.addCategory(days.getElementAsString(i));
+                            }
+                            configuration.addxAxis(x);
+                            configuration.setSeries(ls);
+                            chartLayout.addComponent(chart);
+                            chart.drawChart(configuration);
+
+                        }
+
+                    }
+                });
 
                 break;
-            case DAILY_ACTIVE_USERS: //Doppio grafico ok, aggiungi dettagli
+            case TIME_RANGE_USAGE:
 
-                configuration.getChart().setType(ChartType.LINE);
-                configuration.getChart().setZoomType(ZoomType.XY);
-                Vector days = data.getElementAsVector("days");
+                if(!selectChart.isEmpty()) selectChart.removeAllItems();
+                selectChart.addItem(ChartType.LINE);
+                selectChart.addItem(ChartType.COLUMN);
+                selectChart.setItemCaption(ChartType.COLUMN, "Grafico a Barre");
+                selectChart.setItemCaption(ChartType.LINE, "Grafico a Linee");
+
+                selectChart.addValueChangeListener(new Property.ValueChangeListener() {
+                    @Override
+                    public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+                        selectChart.setNullSelectionAllowed(false);
+
+                        if(valueChangeEvent.getProperty().getValue().toString().contains("line")){
+
+                            configuration.getChart().setType(ChartType.LINE);
+                            configuration.getChart().setZoomType(ZoomType.XY);
+                            configuration.setTitle(QueryTypeHandler.getDescription(query));
+
+                            Vector hours = data.getElementAsVector("hours");
+                            String[] hoursArr = new String[hours.length()];
+                            for(int i = 0; i < hours.length(); i++) {
+                                hoursArr[i] = hours.getElementAsString(i);
+                            }
+                            configuration.getxAxis().setCategories(hoursArr);
+                            Vector hourCount = data.getElementAsVector("hourCount");
+                            Double[] hourCountArr = new Double[hourCount.length()];
+                            for(int i = 0; i < hourCount.length(); i++){
+                                hourCountArr[i] = hourCount.getElementAsDouble(i);
+                            }
+
+                            ls = new ListSeries("Numero di utilizzi");
+                            ls.setData(hourCountArr);
+                            configuration.setSeries(ls);
+                            chart.drawChart(configuration);
+                        }
+                        else{
+
+                            chart.setResponsive(true);
+                            configuration = chart.getConfiguration();
+                            configuration.getChart().setType(ChartType.COLUMN);
+                            configuration.setTitle(QueryTypeHandler.getDescription(query));
 
 
-                String[] daysArr = new String[days.length()];
-                for(int i = 0; i < days.length(); i++) {
-                    daysArr[i] = days.getElementAsString(i);
+                            configuration.setSeries(ls);
 
-                }
+                            chartLayout.addComponent(chart);
+                            chart.drawChart(configuration);
+                        }
 
-                configuration.getxAxis().setCategories(daysArr);
-                Vector activeUsers = data.getElementAsVector("activeUsers");
-                Double[] activeUsersArr = new Double[activeUsers.length()];
-                for(int i = 0; i < activeUsers.length(); i++) {
-                    activeUsersArr[i] = activeUsers.getElementAsDouble(i);
-
-
-                }
-
-
-                ListSeries ls = new ListSeries("Utenti attivi");
-                ls.setData(activeUsersArr);
-                configuration.setSeries(ls);
-                chart.drawChart(configuration);
-
-                // Second chart
-                Chart chart3 = new Chart();
-                chart3.setResponsive(true);
-                Configuration conf3 = chart3.getConfiguration();
-                conf3.getChart().setType(ChartType.COLUMN);
-                conf3.getChart().setZoomType(ZoomType.XY);
-                conf3.setTitle(QueryTypeHandler.getDescription(query));
-
-                conf3.setSeries(ls);
-                chartLayout.addComponent(chart3);
-                chart3.drawChart(conf3);
-
-
-
+                    }
+                });
                 break;
-            case DAILY_ACTIVE_RESOURCES:   //Doppio grafico OK
+            case MOST_USED_OS:
+                if(!selectChart.isEmpty()) selectChart.removeAllItems();
+                selectChart.addItem(ChartType.LINE);
+                selectChart.addItem(ChartType.PIE);
+                selectChart.setItemCaption(ChartType.PIE, "Grafico a Torta");
+                selectChart.setItemCaption(ChartType.LINE, "Grafico a Barre");
 
-                configuration.getChart().setType(ChartType.LINE);
-                configuration.getChart().setZoomType(ZoomType.XY);
-                days = data.getElementAsVector("days");
-                daysArr = new String[days.length()];
-                for(int i = 0; i < days.length(); i++) {
-                    daysArr[i] = days.getElementAsString(i);
-                }
-                configuration.getxAxis().setCategories(daysArr);
-                Vector activeResources = data.getElementAsVector("activeResources");
-                Double[] activeResourcesArr = new Double[activeResources.length()];
-                for(int i = 0; i < activeResources.length(); i++) {
-                    activeResourcesArr[i] = activeResources.getElementAsDouble(i);
-                }
+                selectChart.addValueChangeListener(new Property.ValueChangeListener() {
+                    @Override
+                    public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+                        selectChart.setNullSelectionAllowed(false);
 
-                ls = new ListSeries("Numero Risorse");
-                ls.setData(activeResourcesArr);
-                configuration.setSeries(ls);
-                chart.drawChart(configuration);
+                        if(valueChangeEvent.getProperty().getValue().toString().contains("pie")){
 
+                            configuration.getChart().setType(ChartType.PIE);
+                            configuration.setTitle(QueryTypeHandler.getDescription(query));
 
-                // Second chart
-                Chart chart4 = new Chart();
-                chart4.setResponsive(true);
-                Configuration conf4 = chart4.getConfiguration();
-                conf4.getChart().setType(ChartType.COLUMN);
-                conf4.setTitle("");
+                            Vector os = data.getElementAsVector("os");
+                            Vector count = data.getElementAsVector("count");
+                            dataSeries = new DataSeries("Utilizzi");
+                            plotOptionsPie = new PlotOptionsPie();
+                            plotOptionsPie.setCursor(Cursor.POINTER);
+                            dataSeries.setPlotOptions(plotOptionsPie);
+                            for(int i=0; i< os.length(); i++){
+                                DataSeriesItem dataSeriesItem = new DataSeriesItem(os.getElementAsString(i), count.getElementAsDouble(i));
+                                dataSeries.addItemWithDrilldown(dataSeriesItem);
+                            }
 
-                conf4.setSeries(ls);
-                chartLayout.addComponent(chart4);
-                chart4.drawChart(conf4);
+                            configuration.setSeries(dataSeries);
+                            chartLayout.addComponent(chart);
+                            chart.drawChart(configuration);
 
+                        }
+                        else{
 
+                            chart.setResponsive(true);
+
+                            configuration.setTitle(QueryTypeHandler.getDescription(query));
+                            configuration.getChart().setType(ChartType.COLUMN);
+                            configuration.getChart().setZoomType(ZoomType.XY);
+                            Vector os = data.getElementAsVector("os");
+                            Vector count = data.getElementAsVector("count");
+                            dataSeries = new DataSeries("Utilizzi ");
+                            plotOptionsColumn = new PlotOptionsColumn();
+                            plotOptionsColumn.setColorByPoint(true);
+                            dataSeries.setPlotOptions(plotOptionsColumn);
+
+                            x= new XAxis();
+                            for(int i=0; i< os.length(); i++){
+                                DataSeriesItem dataSeriesItem = new DataSeriesItem(os.getElementAsString(i), count.getElementAsDouble(i));
+                                dataSeries.addItemWithDrilldown(dataSeriesItem);
+                                x.addCategory(os.getElementAsString(i));
+                            }
+
+                            configuration.addxAxis(x);
+                            configuration.setSeries(dataSeries);
+                            chartLayout.addComponent(chart);
+                            chart.drawChart(configuration);
+                        }
+                    }
+                });
                 break;
-            case TIME_RANGE_USAGE:      //Doppio grafico OK
-                configuration.getChart().setType(ChartType.LINE);
-                configuration.getChart().setZoomType(ZoomType.XY);
-                Vector hours = data.getElementAsVector("hours");
-                String[] hoursArr = new String[hours.length()];
-                for(int i = 0; i < hours.length(); i++) {
-                    hoursArr[i] = hours.getElementAsString(i);
-                }
-                configuration.getxAxis().setCategories(hoursArr);
-                Vector hourCount = data.getElementAsVector("hourCount");
-                Double[] hourCountArr = new Double[hourCount.length()];
-                for(int i = 0; i < hourCount.length(); i++){
-                    hourCountArr[i] = hourCount.getElementAsDouble(i);
-                }
+            case RESOURCE_ADDED_PER_DAY:
+                if(!selectChart.isEmpty()) selectChart.removeAllItems();
+                selectChart.addItem(ChartType.LINE);
+                selectChart.addItem(ChartType.COLUMN);
+                selectChart.setItemCaption(ChartType.COLUMN, "Grafico a Barre");
+                selectChart.setItemCaption(ChartType.LINE, "Grafico a Linee");
 
-                ls = new ListSeries("Numero di utilizzi");
-                ls.setData(hourCountArr);
-                configuration.setSeries(ls);
-                chart.drawChart(configuration);
+                selectChart.addValueChangeListener(new Property.ValueChangeListener() {
+                    @Override
+                    public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+                        selectChart.setNullSelectionAllowed(false);
 
-                // Second chart
+                        if(valueChangeEvent.getProperty().getValue().toString().contains("line")){
+                            configuration.getChart().setType(ChartType.LINE);
+                            configuration.getChart().setZoomType(ZoomType.XY);
+                            configuration.setTitle(QueryTypeHandler.getDescription(query));
 
-                Chart chart5 = new Chart();
-                chart5.setResponsive(true);
-                Configuration conf5 = chart5.getConfiguration();
-                conf5.getChart().setType(ChartType.COLUMN);
-                conf5.setTitle("");
+                            Vector days = data.getElementAsVector("days"); // ArrayIndexOutOfBoundsException: -1 ???
+                            String[] daysArr = new String[days.length()];
+                            for(int i = 0; i < days.length(); i++) {
+                                daysArr[i] = days.getElementAsString(i);
+                            }
 
-                conf5.setSeries(ls);
+                            configuration.getxAxis().setCategories(daysArr);
+                            Vector resourcesAdded = data.getElementAsVector("resourcesAdded");
+                            Double[] resourcesAddedArr = new Double[resourcesAdded.length()];
+                            for(int i = 0; i < resourcesAdded.length(); i++) {
+                                resourcesAddedArr[i] = resourcesAdded.getElementAsDouble(i);
+                            }
+                            ls = new ListSeries("Numero di risorse");
 
-                chartLayout.addComponent(chart5);
-                chart5.drawChart(conf5);
+                            XAxis xAxis = new XAxis();
+                            xAxis.setTitle("Orario");
+                            YAxis yAxis = new YAxis();
+                            yAxis.setTitle("Numero di risorse");
+                            ls.setData(resourcesAddedArr);
+                            configuration.setSeries(ls);
+                            chartLayout.addComponent(chart);
+                            chart.drawChart(configuration);
 
-                break;
-            case MOST_USED_OS: //Doppio grafico ok perfetto
-
-                configuration.getChart().setType(ChartType.PIE);
-                Vector os = data.getElementAsVector("os");
-                Vector count = data.getElementAsVector("count");
-                dataSeries = new DataSeries("Utilizzi");
-                PlotOptionsPie plotOptionsPie = new PlotOptionsPie();
-                plotOptionsPie.setCursor(Cursor.POINTER);
-                dataSeries.setPlotOptions(plotOptionsPie);
-                for(int i=0; i< os.length(); i++){
-                    DataSeriesItem dataSeriesItem = new DataSeriesItem(os.getElementAsString(i), count.getElementAsDouble(i));
-                    dataSeries.addItemWithDrilldown(dataSeriesItem);
-                }
-
-                configuration.setSeries(dataSeries);
-                chart.drawChart(configuration);
-
-                //Second Chart
-                Chart chart6 = new Chart();
-                chart6.setResponsive(true);
-                Configuration conf6 = new Configuration();
-                conf6.setTitle(QueryTypeHandler.getDescription(query));
-                conf6.getChart().setType(ChartType.COLUMN);
-                conf6.getChart().setZoomType(ZoomType.XY);
-                DataSeries dataSeries3 = new DataSeries("Utilizzi ");
-                PlotOptionsColumn plotOptionsColumn2 = new PlotOptionsColumn();
-                plotOptionsColumn2.setColorByPoint(true);
-                dataSeries3.setPlotOptions(plotOptionsColumn2);
-
-                XAxis x6 = new XAxis();
-                for(int i=0; i< os.length(); i++){
-                    DataSeriesItem dataSeriesItem = new DataSeriesItem(os.getElementAsString(i), count.getElementAsDouble(i));
-                    dataSeries3.addItemWithDrilldown(dataSeriesItem);
-                    x6.addCategory(os.getElementAsString(i));
-                }
-
-                conf6.addxAxis(x6);
-                conf6.setSeries(dataSeries3);
-                chartLayout.addComponent(chart6);
-                chart6.drawChart(conf6);
+                        }
+                        else {
 
 
+                            chart.setResponsive(true);
+                            configuration= chart.getConfiguration();
+                            configuration.getChart().setType(ChartType.COLUMN);
+                            configuration.setTitle(QueryTypeHandler.getDescription(query));
+                            Vector days = data.getElementAsVector("days"); // ArrayIndexOutOfBoundsException: -1 ???
+                            String[] daysArr = new String[days.length()];
+                            x= new XAxis();
 
 
-            case RESOURCE_ADDED_PER_DAY:   // doppio grafico ok
-
-                configuration.getChart().setType(ChartType.LINE);
-                configuration.getChart().setZoomType(ZoomType.XY);
-                days = data.getElementAsVector("days"); // ArrayIndexOutOfBoundsException: -1 ???
-                daysArr = new String[days.length()];
-                for(int i = 0; i < days.length(); i++) {
-                    daysArr[i] = days.getElementAsString(i);
-                }
-
-                configuration.getxAxis().setCategories(daysArr);
-                Vector resourcesAdded = data.getElementAsVector("resourcesAdded");
-                Double[] resourcesAddedArr = new Double[resourcesAdded.length()];
-                for(int i = 0; i < resourcesAdded.length(); i++) {
-                    resourcesAddedArr[i] = resourcesAdded.getElementAsDouble(i);
-                }
-                ls = new ListSeries("Numero di risorse");
-
-                XAxis xAxis = new XAxis();
-                xAxis.setTitle("Orario");
-                YAxis yAxis = new YAxis();
-                yAxis.setTitle("Numero di risorse");
-                ls.setData(resourcesAddedArr);
-                configuration.setSeries(ls);
-                chart.drawChart(configuration);
-
-                // Second chart
-
-                Chart chart7 = new Chart();
-                chart7.setResponsive(true);
-                Configuration conf7 = chart7.getConfiguration();
-                conf7.getChart().setType(ChartType.COLUMN);
-                conf7.setTitle("");
-
-                XAxis xAxis1 = new XAxis();
-                xAxis1.setTitle("Numero di risorse");
-                YAxis yAxis1 = new YAxis();
-                yAxis1.setTitle("Orario");
+                            x.setTitle("Numero di risorse");
+                            YAxis y= new YAxis();
+                            y.setTitle("Orario");
 
 
-                conf7.setSeries(ls);
-                chartLayout.addComponent(chart7);
-                chart7.drawChart(conf7);
+                            XAxis xAxis2 = new XAxis();
+                            String[] daysArr3 = new String[days.length()];
+                            for(int i = 0; i < days.length(); i++) {
+                                daysArr[i] = days.getElementAsString(i);
+                                xAxis2.addCategory(days.getElementAsString(i));
+                            }
+
+                            configuration.addxAxis(xAxis2);
+                            if(ls != null) configuration.setSeries(ls);
+                            chartLayout.addComponent(chart);
+                            chart.drawChart(configuration);
+
+                        }
+
+                    }
+                });
                 break;
             case DAILY_ACTIVITIES:
+                chartLayout.removeComponent(selectChart);
                 configuration.getChart().setType(ChartType.LINE);
                 configuration.getChart().setZoomType(ZoomType.XY);
+                configuration.setTitle(QueryTypeHandler.getDescription(query));
 
-                days = data.getElementAsVector("days");
-                daysArr = new String[days.length()];
+                Vector days = data.getElementAsVector("days");
+                String[]  daysArr = new String[days.length()];
                 for(int i = 0; i < days.length(); i++) {
                     daysArr[i] = days.getElementAsString(i);
                 }
@@ -380,8 +535,8 @@ public class ChartComponent extends CustomComponent {
                 x.setCategories(daysArr);
                 configuration.addxAxis(x);
 
-                activeUsers = data.getElementAsVector("activeUsers");
-                activeUsersArr = new Double[activeUsers.length()];
+                Vector activeUsers = data.getElementAsVector("activeUsers");
+                Double[] activeUsersArr = new Double[activeUsers.length()];
                 for(int i = 0; i < activeUsers.length(); i++) {
                     activeUsersArr[i] = activeUsers.getElementAsDouble(i);
 
@@ -391,9 +546,8 @@ public class ChartComponent extends CustomComponent {
                 seriesU.setPlotOptions(new PlotOptionsColumn());
                 seriesU.setName("Active Users");
                 seriesU.setData(activeUsersArr);
-                // configuration.setSeries(seriesU);
-                activeResources = data.getElementAsVector("activeResources");
-                activeResourcesArr = new Double[activeResources.length()];
+                Vector activeResources = data.getElementAsVector("activeResources");
+                Double[] activeResourcesArr = new Double[activeResources.length()];
 
 
                 for(int i = 0; i < activeResources.length(); i++) {
