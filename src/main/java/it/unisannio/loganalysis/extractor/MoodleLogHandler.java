@@ -388,7 +388,7 @@ public class MoodleLogHandler implements ILogHandler {
             }
             properties.put("fullname", new ResourceProperty(r, "fullname", resultSet.getString("fullname")));
             properties.put("format", new ResourceProperty(r, "format", resultSet.getString("format")));
-            properties.put("startdate", new ResourceProperty(r, "startdate", resultSet.getString("startdate")+"000"));
+            properties.put("starttime", new ResourceProperty(r, "starttime", resultSet.getString("startdate")+"000"));
             properties.put("timecreated", new ResourceProperty(r, "timecreated", resultSet.getString("timecreated")+"000"));
             resources.add(r);
             this.id++;
@@ -459,7 +459,7 @@ public class MoodleLogHandler implements ILogHandler {
                     properties.put("userid", new ResourceProperty(r, "userid", u.getIdUser()+""));
             }
             properties.put("eventtype", new ResourceProperty(r, "eventtype", resultSet.getString("eventtype")));
-            properties.put("timestart", new ResourceProperty(r, "timestart", resultSet.getString("timestart")+"000"));
+            properties.put("starttime", new ResourceProperty(r, "timestart", resultSet.getString("timestart")+"000"));
             resources.add(r);
             this.id++;
         }
