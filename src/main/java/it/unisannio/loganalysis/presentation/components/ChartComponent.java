@@ -25,16 +25,18 @@ public class ChartComponent extends CustomComponent {
     private XAxis x;
     private Configuration configuration;
     private ListSeries ls;
+    private Panel panel;
 
 
     public ChartComponent() {
-        Panel panel = new Panel("Chart");
+        panel = new Panel("Chart");
         chartLayout = new VerticalLayout();
         chartLayout.setSizeFull();
         chartLayout.setResponsive(true);
         chartLayout.setSizeFull();
         selectChart = new ComboBox();
         selectChart.setResponsive(true);
+        selectChart.setNullSelectionAllowed(false);
         panel.setResponsive(true);
         panel.setContent(chartLayout);
         setCompositionRoot(panel);
@@ -52,25 +54,22 @@ public class ChartComponent extends CustomComponent {
         chartLayout.addComponent(chart);
         selectChart = new ComboBox("Seleziona Grafico");
         selectChart.setResponsive(true);
+        selectChart.setNullSelectionAllowed(false);
         chartLayout.addComponent(selectChart);
 
 
 
 
         switch(query) {
-            case RESOURCE_USAGE: // Non funziona su moodle da RISOLVERE
-
+            case RESOURCE_USAGE:
                 if(!selectChart.isEmpty()) selectChart.removeAllItems();
-
                 selectChart.addItem(ChartType.COLUMN);
                 selectChart.addItem(ChartType.PIE);
                 selectChart.setItemCaption(ChartType.COLUMN, "Grafico a Barre");
                 selectChart.setItemCaption(ChartType.PIE, "Grafico a Torta");
-
                 selectChart.addValueChangeListener((Property.ValueChangeListener) valueChangeEvent -> {
                     selectChart.setNullSelectionAllowed(false);
                     if(valueChangeEvent.getProperty().getValue().toString().contains("column")){
-
                         configuration.getChart().setType(ChartType.COLUMN);
                         configuration.getChart().setZoomType(ZoomType.XY);
                         Vector type = data.getElementAsVector("type");
@@ -79,10 +78,8 @@ public class ChartComponent extends CustomComponent {
                         plotOptionsColumn = new PlotOptionsColumn();
                         plotOptionsColumn.setColorByPoint(true);
                         dataSeries.setPlotOptions(plotOptionsColumn);
-
                         x= new XAxis();
                         YAxis y = new YAxis();
-
                         for(int i=0; i< type.length(); i++){
                             DataSeriesItem dataSeriesItem = new DataSeriesItem(type.getElementAsString(i), usage.getElementAsDouble(i));
                             dataSeries.addItemWithDrilldown(dataSeriesItem);
@@ -122,7 +119,7 @@ public class ChartComponent extends CustomComponent {
                     }
                 });
                 break;
-            case RESOURCE_USAGE_TIME: //RISOLVERE PER MOODLE   ---- SU BUGS NON ESISTE----
+            case RESOURCE_USAGE_TIME: //  ---- SU BUGS NON ESISTE----
 
                 if(!selectChart.isEmpty()) selectChart.removeAllItems();
                 selectChart.addItem(ChartType.COLUMN);

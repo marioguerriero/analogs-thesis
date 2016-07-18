@@ -39,9 +39,6 @@ public class MyUI extends UI {
     private QueryParameterSelector queryParameterSelector;
     private ChartComponent chartView;
 
-
-
-
     @Override
     protected void init(VaadinRequest vaadinRequest) {
         VerticalLayout verticalLayout = new VerticalLayout();
@@ -82,7 +79,6 @@ public class MyUI extends UI {
 
 
         chartView = new ChartComponent();
-
         horizontalLayout.addComponents(queryParameterSelector, chartView);
         horizontalLayout.setExpandRatio(chartView, 65);
         horizontalLayout.setExpandRatio(queryParameterSelector,35);
